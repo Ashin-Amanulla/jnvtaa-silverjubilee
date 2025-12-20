@@ -376,6 +376,42 @@ const getRegistrationStats = async (req, res, next) => {
       },
     ]);
 
+    // Calculate total present count (attendance statistics)
+    const attendanceStats = await Registration.aggregate([
+      {
+        $match: { attendance: true },
+      },
+      {
+        $project: {
+          presentCount: {
+            $add: [
+              1, // Primary registrant
+              {
+                $subtract: [
+                  {
+                    $add: [
+                      { $ifNull: ["$attendees.adults", 0] },
+                      { $ifNull: ["$attendees.children", 0] },
+                      { $ifNull: ["$attendees.infants", 0] },
+                    ],
+                  },
+                  1, // Subtract 1 as per frontend calculation
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalPresentCount: { $sum: "$presentCount" },
+        },
+      },
+    ]);
+
+    const totalPresentCount = attendanceStats[0]?.totalPresentCount || 0;
+
     res.json({
       success: true,
       data: {
@@ -395,6 +431,7 @@ const getRegistrationStats = async (req, res, next) => {
           infants: attendeeCounts.totalInfants,
           guests: attendeeCounts.totalGuests,
         },
+        totalPresentCount,
         batchDistribution: batchStats,
         foodChoices: foodChoiceStats,
         arrivalTimes: arrivalTimeStats,
@@ -431,9 +468,8 @@ const verifyRegistration = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: `Registration ${
-        registration.verified ? "verified" : "unverified"
-      } successfully`,
+      message: `Registration ${registration.verified ? "verified" : "unverified"
+        } successfully`,
       data: {
         id: registration._id,
         verified: registration.verified,

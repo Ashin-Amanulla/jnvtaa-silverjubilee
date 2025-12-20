@@ -5,6 +5,7 @@ import {
   getRegistrations,
   downloadRegistrations,
   updateRegistration,
+  getRegistrationStats,
 } from "../api/registration.api";
 import EditRegistrationModal from "./EditRegistrationModal";
 
@@ -25,6 +26,7 @@ const RegistrationsTable = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState(null);
   const [updatingAttendance, setUpdatingAttendance] = useState(null);
+  const [totalPresentCount, setTotalPresentCount] = useState(0);
 
   const itemsPerPage = 10;
 
@@ -65,6 +67,22 @@ const RegistrationsTable = () => {
   useEffect(() => {
     fetchRegistrations();
   }, [fetchRegistrations]);
+
+  // Fetch total present count from stats
+  const fetchTotalPresentCount = useCallback(async () => {
+    try {
+      const response = await getRegistrationStats();
+      if (response.success && response.data) {
+        setTotalPresentCount(response.data.totalPresentCount || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching total present count:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTotalPresentCount();
+  }, [fetchTotalPresentCount]);
 
   // Create debounced search function
   const debouncedSearch = useMemo(
@@ -124,6 +142,16 @@ const RegistrationsTable = () => {
     );
   };
 
+  // Calculate present count (primary + additional attendees + guests)
+  const calculatePresentCount = useCallback((registration) => {
+    const primaryRegistrant = 1; // The person who registered
+    const additionalAttendees =
+      (registration.attendees?.adults || 0) +
+      (registration.attendees?.children || 0) +
+      (registration.attendees?.infants || 0);
+    return primaryRegistrant + (additionalAttendees - 1);
+  }, []);
+
   // Handle attendance toggle
   const handleToggleAttendance = async (registration) => {
     const newAttendanceStatus = !registration.attendance;
@@ -146,6 +174,8 @@ const RegistrationsTable = () => {
 
       if (response.success) {
         handleRegistrationUpdate(response.data);
+        // Refresh total present count after attendance change
+        fetchTotalPresentCount();
         toast.success(
           `Attendance ${
             newAttendanceStatus ? "marked" : "unmarked"
@@ -221,9 +251,29 @@ const RegistrationsTable = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Registrations</h2>
-            <p className="text-gray-600">
-              Total: {totalRegistrations} registrations
-            </p>
+            <div className="flex flex-wrap items-center gap-4 mt-1">
+              <p className="text-gray-600">
+                Total: {totalRegistrations} registrations
+              </p>
+              <p className="text-gray-600 flex items-center gap-1">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                  <svg
+                    className="w-3.5 h-3.5 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                  {totalPresentCount} Present
+                </span>
+              </p>
+            </div>
           </div>
           <button
             onClick={async () => {
@@ -511,57 +561,77 @@ const RegistrationsTable = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleToggleAttendance(registration)}
-                          disabled={updatingAttendance === registration._id}
-                          className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                            registration.attendance
-                              ? "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500"
-                              : "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500"
-                          } ${
-                            updatingAttendance === registration._id
-                              ? "opacity-50 cursor-not-allowed"
-                              : "cursor-pointer"
-                          }`}
-                          title={
-                            registration.attendance
-                              ? "Click to mark as absent"
-                              : "Click to mark as present"
-                          }
-                        >
-                          {updatingAttendance === registration._id ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                          ) : registration.attendance ? (
-                            <svg
-                              className="w-4 h-4 mr-1.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-4 h-4 mr-1.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
+                        <div className="flex flex-col items-start gap-2">
+                          <button
+                            onClick={() => handleToggleAttendance(registration)}
+                            disabled={updatingAttendance === registration._id}
+                            className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+                              registration.attendance
+                                ? "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500"
+                                : "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500"
+                            } ${
+                              updatingAttendance === registration._id
+                                ? "opacity-50 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                            title={
+                              registration.attendance
+                                ? "Click to mark as absent"
+                                : "Click to mark as present"
+                            }
+                          >
+                            {updatingAttendance === registration._id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                            ) : registration.attendance ? (
+                              <svg
+                                className="w-4 h-4 mr-1.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="w-4 h-4 mr-1.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            )}
+                            {registration.attendance ? "Present" : "Absent"}
+                          </button>
+                          {registration.attendance && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                              <svg
+                                className="w-3.5 h-3.5 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                />
+                              </svg>
+                              {calculatePresentCount(registration)} Present
+                            </span>
                           )}
-                          {registration.attendance ? "Present" : "Absent"}
-                        </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <button
