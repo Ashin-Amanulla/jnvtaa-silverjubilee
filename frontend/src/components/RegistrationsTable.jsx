@@ -10,10 +10,10 @@ import EditRegistrationModal from "./EditRegistrationModal";
 const RegistrationsTable = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +36,6 @@ const RegistrationsTable = () => {
         sortBy,
         sortOrder,
         ...(searchTerm && { search: searchTerm }),
-        ...(statusFilter && { verified: statusFilter }),
         ...(paymentFilter && { paymentStatus: paymentFilter }),
         ...(batchFilter && { batch: batchFilter }),
       });
@@ -48,6 +47,7 @@ const RegistrationsTable = () => {
         setRegistrations(data.data);
         setTotalPages(data.pagination.totalPages);
         setTotalRegistrations(data.pagination.totalRegistrations);
+        setIsInitialLoad(false);
       } else {
         toast.error("Failed to fetch registrations");
       }
@@ -58,15 +58,7 @@ const RegistrationsTable = () => {
       setLoading(false);
       setSearchLoading(false);
     }
-  }, [
-    currentPage,
-    sortBy,
-    sortOrder,
-    searchTerm,
-    statusFilter,
-    paymentFilter,
-    batchFilter,
-  ]);
+  }, [currentPage, sortBy, sortOrder, searchTerm, paymentFilter, batchFilter]);
 
   useEffect(() => {
     fetchRegistrations();
@@ -158,7 +150,7 @@ const RegistrationsTable = () => {
     return pages;
   }, [currentPage, totalPages]);
 
-  if (loading) {
+  if (loading && isInitialLoad) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -221,7 +213,7 @@ const RegistrationsTable = () => {
         </div>
 
         {/* Search and filters */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
@@ -257,24 +249,6 @@ const RegistrationsTable = () => {
               <option value="pending">Pending</option>
               <option value="completed">Completed</option>
               <option value="failed">Failed</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Verification Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All</option>
-              <option value="true">Verified</option>
-              <option value="false">Unverified</option>
             </select>
           </div>
 
@@ -331,7 +305,6 @@ const RegistrationsTable = () => {
               onClick={() => {
                 setInputValue("");
                 setSearchTerm("");
-                setStatusFilter("");
                 setPaymentFilter("");
                 setBatchFilter("");
                 setCurrentPage(1);
@@ -400,7 +373,7 @@ const RegistrationsTable = () => {
                     Payment
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Attendance
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -408,102 +381,148 @@ const RegistrationsTable = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {registrations.map((registration) => (
-                  <tr
-                    key={registration._id}
-                    className="hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {registration.name}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {registration.registrationId ||
-                          `BTH4${registration._id
-                            ?.toString()
-                            .slice(-8)
-                            .toUpperCase()}`}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {registration.email}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {registration.mobile}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {registration.batch}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex space-x-2">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {registration.totalAttendees ||
-                            (registration.attendees?.adults || 0) +
-                              (registration.attendees?.children || 0) +
-                              (registration.attendees?.infants || 0)}{" "}
-                          Total
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        A:{registration.attendees?.adults || 0} C:
-                        {registration.attendees?.children || 0} I:
-                        {registration.attendees?.infants || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{registration.contributionAmount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          registration.paymentStatus === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : registration.paymentStatus === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {registration.paymentStatus}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          registration.verified
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {registration.verified ? "Verified" : "Unverified"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button
-                        onClick={() => handleEditClick(registration)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                      >
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
-                        View/Edit
-                      </button>
+                {loading && !isInitialLoad ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-12 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  registrations.map((registration) => (
+                    <tr
+                      key={registration._id}
+                      className={`transition-colors duration-200 ${
+                        registration.attendance
+                          ? "bg-green-50 hover:bg-green-100"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {registration.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {registration.registrationId ||
+                            `BTH4${registration._id
+                              ?.toString()
+                              .slice(-8)
+                              .toUpperCase()}`}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {registration.email}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {registration.mobile}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {registration.batch}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex space-x-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {registration.totalAttendees ||
+                              (registration.attendees?.adults || 0) +
+                                (registration.attendees?.children || 0) +
+                                (registration.attendees?.infants || 0)}{" "}
+                            Total
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          A:{registration.attendees?.adults || 0} C:
+                          {registration.attendees?.children || 0} I:
+                          {registration.attendees?.infants || 0}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ₹{registration.contributionAmount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            registration.paymentStatus === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : registration.paymentStatus === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {registration.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            registration.attendance
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {registration.attendance ? (
+                            <>
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                              Present
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                              Absent
+                            </>
+                          )}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => handleEditClick(registration)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                        >
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                          View/Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

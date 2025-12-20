@@ -143,6 +143,29 @@ const RegistrationSuccess = () => {
                   </span>
                 </div>
               </div>
+
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 sm:p-5 text-white">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm sm:text-base font-medium">
+                    Total Attendees
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-bold">
+                    {registrationData.totalAttendees ||
+                      (registrationData.attendees?.adults || 0) +
+                        (registrationData.attendees?.children || 0) +
+                        (registrationData.attendees?.infants || 0) +
+                        (registrationData.guests?.length || 0)}
+                  </span>
+                </div>
+                <div className="mt-2 text-xs sm:text-sm text-blue-100">
+                  Adults: {registrationData.attendees?.adults || 0} | Children:{" "}
+                  {registrationData.attendees?.children || 0} | Infants:{" "}
+                  {registrationData.attendees?.infants || 0}
+                  {registrationData.guests?.length > 0 && (
+                    <> | Guests: {registrationData.guests.length}</>
+                  )}
+                </div>
+              </div>
             </div>
           </motion.div>
 

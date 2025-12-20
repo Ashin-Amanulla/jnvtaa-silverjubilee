@@ -212,6 +212,7 @@ const updateRegistrationSchema = Joi.object({
 
   // Status Fields
   verified: Joi.boolean().optional(),
+  attendance: Joi.boolean().optional(),
   isEmailSent: Joi.boolean().optional(),
 });
 

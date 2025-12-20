@@ -139,6 +139,10 @@ const registrationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    attendance: {
+      type: Boolean,
+      default: false,
+    },
     isEmailSent: {
       type: Boolean,
       default: false,
