@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
   getRegistrations,
   downloadRegistrations,
+  updateRegistration,
 } from "../api/registration.api";
 import EditRegistrationModal from "./EditRegistrationModal";
 
@@ -23,6 +24,7 @@ const RegistrationsTable = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState(null);
+  const [updatingAttendance, setUpdatingAttendance] = useState(null);
 
   const itemsPerPage = 10;
 
@@ -120,6 +122,60 @@ const RegistrationsTable = () => {
         reg._id === updatedRegistration._id ? updatedRegistration : reg
       )
     );
+  };
+
+  // Handle attendance toggle
+  const handleToggleAttendance = async (registration) => {
+    const newAttendanceStatus = !registration.attendance;
+
+    try {
+      setUpdatingAttendance(registration._id);
+
+      // Optimistic update
+      setRegistrations((prevRegistrations) =>
+        prevRegistrations.map((reg) =>
+          reg._id === registration._id
+            ? { ...reg, attendance: newAttendanceStatus }
+            : reg
+        )
+      );
+
+      const response = await updateRegistration(registration._id, {
+        attendance: newAttendanceStatus,
+      });
+
+      if (response.success) {
+        handleRegistrationUpdate(response.data);
+        toast.success(
+          `Attendance ${
+            newAttendanceStatus ? "marked" : "unmarked"
+          } successfully`
+        );
+      } else {
+        // Revert on error
+        setRegistrations((prevRegistrations) =>
+          prevRegistrations.map((reg) =>
+            reg._id === registration._id
+              ? { ...reg, attendance: registration.attendance }
+              : reg
+          )
+        );
+        toast.error(response.message || "Failed to update attendance");
+      }
+    } catch (error) {
+      console.error("Error updating attendance:", error);
+      // Revert on error
+      setRegistrations((prevRegistrations) =>
+        prevRegistrations.map((reg) =>
+          reg._id === registration._id
+            ? { ...reg, attendance: registration.attendance }
+            : reg
+        )
+      );
+      toast.error("Error updating attendance");
+    } finally {
+      setUpdatingAttendance(null);
+    }
   };
 
   const paginationRange = useMemo(() => {
@@ -455,49 +511,57 @@ const RegistrationsTable = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <button
+                          onClick={() => handleToggleAttendance(registration)}
+                          disabled={updatingAttendance === registration._id}
+                          className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                             registration.attendance
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500"
+                              : "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500"
+                          } ${
+                            updatingAttendance === registration._id
+                              ? "opacity-50 cursor-not-allowed"
+                              : "cursor-pointer"
                           }`}
+                          title={
+                            registration.attendance
+                              ? "Click to mark as absent"
+                              : "Click to mark as present"
+                          }
                         >
-                          {registration.attendance ? (
-                            <>
-                              <svg
-                                className="w-4 h-4 mr-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              Present
-                            </>
+                          {updatingAttendance === registration._id ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                          ) : registration.attendance ? (
+                            <svg
+                              className="w-4 h-4 mr-1.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
                           ) : (
-                            <>
-                              <svg
-                                className="w-4 h-4 mr-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              Absent
-                            </>
+                            <svg
+                              className="w-4 h-4 mr-1.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
                           )}
-                        </span>
+                          {registration.attendance ? "Present" : "Absent"}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <button
