@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { createRegistration } from "../api/registration.api";
 
-const BackToHillsRegistrationForm = () => {
+const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [guests, setGuests] = useState([]);
@@ -16,6 +16,7 @@ const BackToHillsRegistrationForm = () => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isValid },
   } = useForm({
     mode: "onChange",
@@ -114,21 +115,43 @@ const BackToHillsRegistrationForm = () => {
       if (response.success === true) {
         toast.success(
           `🎉 Registration Successful! ID: ${response.data.registrationId}`,
-          { autoClose: 2000 }
+          { autoClose: 3000 }
         );
 
-        // Redirect to success page with registration data
-        setTimeout(() => {
-          navigate("/registration-success", {
-            state: {
-              registrationId: response.data.registrationId,
-              name: data.name,
-              email: data.email,
-              batch: data.batch,
-              contributionAmount: data.contributionAmount,
+        if (isAdminMode) {
+          // In admin mode, reset form and stay in dashboard
+          reset({
+            name: "",
+            email: "",
+            mobile: "",
+            gender: "",
+            batch: "",
+            foodChoice: "",
+            expectedArrivalTime: "",
+            overnightAccommodation: "",
+            attendees: {
+              adults: 1,
+              children: 0,
+              infants: 0,
             },
+            contributionAmount: 0,
+            paymentTransactionId: "",
           });
-        }, 1500);
+          setGuests([]);
+        } else {
+          // Redirect to success page with registration data
+          setTimeout(() => {
+            navigate("/registration-success", {
+              state: {
+                registrationId: response.data.registrationId,
+                name: data.name,
+                email: data.email,
+                batch: data.batch,
+                contributionAmount: data.contributionAmount,
+              },
+            });
+          }, 1500);
+        }
       } else {
         toast.error(response.message || "Registration failed");
       }
@@ -161,109 +184,121 @@ const BackToHillsRegistrationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 py-4 sm:py-8 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
+    <div className={isAdminMode ? "w-full" : "min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 py-4 sm:py-8 relative overflow-hidden"}>
+      {/* Animated Background Elements - Only show in public mode */}
+      {!isAdminMode && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+      )}
 
       {/* Content Container */}
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
-        >
-          {/* Event Poster */}
-          <div className="mb-8">
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-              <img
-                src="/images/poster.jpeg"
-                alt="Back to the Hills 5.0 - Alumni Meet 2025"
-                className="w-full h-auto max-h-[500px] sm:max-h-[600px] md:max-h-[700px] object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
-            </div>
-          </div>
-
-          {/* Title Section */}
-          <div className="mb-8 relative">
-            <div className="inline-block">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3">
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
-                  Alumni Reunion 2025
-                </span>
-              </h1>
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="h-1 w-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-                <div className="h-1 w-8 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full"></div>
-                <div className="h-1 w-4 bg-blue-500 rounded-full"></div>
+      <div className={isAdminMode ? "w-full" : "max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 relative z-10"}>
+        {/* Header - Only show in public mode */}
+        {!isAdminMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
+          >
+            {/* Event Poster */}
+            <div className="mb-8">
+              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+                <img
+                  src="/images/poster.jpeg"
+                  alt="Back to the Hills 5.0 - Alumni Meet 2025"
+                  className="w-full h-auto max-h-[500px] sm:max-h-[600px] md:max-h-[700px] object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm sm:text-base">
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-emerald-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <span className="font-semibold">27-28 December 2025</span>
+            {/* Title Section */}
+            <div className="mb-8 relative">
+              <div className="inline-block">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3">
+                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+                    Alumni Reunion 2025
+                  </span>
+                </h1>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="h-1 w-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+                  <div className="h-1 w-8 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full"></div>
+                  <div className="h-1 w-4 bg-blue-500 rounded-full"></div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-teal-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <span className="font-semibold">JNV Calicut Campus</span>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm sm:text-base">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <svg
+                    className="w-5 h-5 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span className="font-semibold">27-28 December 2025</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-700">
+                  <svg
+                    className="w-5 h-5 text-teal-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  <span className="font-semibold">JNV Calicut Campus</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Welcome Message with Quote */}
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-200/50 rounded-2xl p-6">
-              <p className="text-gray-700 text-base sm:text-lg leading-relaxed italic">
-                "The memories we made within these hills shaped who we are
-                today. Let's reunite, reminisce, and create new stories
-                together!"
+            {/* Welcome Message with Quote */}
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-200/50 rounded-2xl p-6">
+                <p className="text-gray-700 text-base sm:text-lg leading-relaxed italic">
+                  "The memories we made within these hills shaped who we are
+                  today. Let's reunite, reminisce, and create new stories
+                  together!"
+                </p>
+              </div>
+              <p className="text-gray-600 text-base leading-relaxed">
+                Welcome back to the hills! Join us for an unforgettable alumni
+                reunion where old friendships are rekindled and new connections
+                are made. Secure your spot at this special celebration of our
+                school's legacy.
               </p>
             </div>
-            <p className="text-gray-600 text-base leading-relaxed">
-              Welcome back to the hills! Join us for an unforgettable alumni
-              reunion where old friendships are rekindled and new connections
-              are made. Secure your spot at this special celebration of our
-              school's legacy.
-            </p>
+          </motion.div>
+        )}
+
+        {/* Admin Mode Header */}
+        {isAdminMode && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">New Registration</h2>
+            <p className="text-gray-600 mt-1">Onsite quick registration</p>
           </div>
-        </motion.div>
+        )}
 
         {/* Main Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -272,7 +307,10 @@ const BackToHillsRegistrationForm = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            className={isAdminMode 
+              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
@@ -546,7 +584,10 @@ const BackToHillsRegistrationForm = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-teal-200/50 transition-all duration-300"
+            className={isAdminMode 
+              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-teal-200/50 transition-all duration-300"
+            }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
@@ -727,7 +768,10 @@ const BackToHillsRegistrationForm = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
+            className={isAdminMode 
+              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
+            }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
@@ -995,7 +1039,10 @@ const BackToHillsRegistrationForm = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4 }}
-                  className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
+                  className={isAdminMode 
+                    ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                    : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
+                  }
                 >
                   <div className="mb-8">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -1202,7 +1249,10 @@ const BackToHillsRegistrationForm = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            className={isAdminMode 
+              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">

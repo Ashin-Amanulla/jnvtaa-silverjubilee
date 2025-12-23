@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Navigate } from "react-router-dom";
+import RegistrationClosed from "./pages/RegistrationClosed";
 
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
@@ -21,12 +22,12 @@ export default function App() {
         }
       >
         <Routes>
-          <Route path="/registration" element={<RegistrationForm />} />
+          <Route path="/registration" element={<RegistrationClosed />} />
+          <Route path="/" element={<RegistrationClosed />} />
           <Route
             path="/registration-success"
             element={<RegistrationSuccess />}
           />
-          <Route path="/" element={<Navigate to="/registration" replace />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/dashboard"
@@ -45,6 +46,14 @@ export default function App() {
             }
           />
           <Route
+            path="/dashboard/new-registration"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard/stats"
             element={
               <ProtectedRoute>
@@ -53,7 +62,7 @@ export default function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/registration" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
       <ToastContainer

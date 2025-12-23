@@ -4,6 +4,7 @@ import useAuthStore from "../store/Auth";
 import DashboardLayout from "../components/DashboardLayout";
 import RegistrationsTable from "../components/RegistrationsTable";
 import StatsDashboard from "../components/StatsDashboard";
+import RegistrationForm from "../pages/RegistrationForm";
 import { getRegistrationStats } from "../api/registration.api";
 import {
   HiClipboardDocumentList,
@@ -55,6 +56,7 @@ export default function Dashboard() {
     const path = location.pathname;
     if (path === "/dashboard") return "dashboard";
     if (path === "/dashboard/registrations") return "registrations";
+    if (path === "/dashboard/new-registration") return "new-registration";
     if (path === "/dashboard/stats") return "stats";
     return "dashboard";
   };
@@ -65,6 +67,8 @@ export default function Dashboard() {
     switch (currentPage) {
       case "registrations":
         return <RegistrationsTable />;
+      case "new-registration":
+        return <RegistrationForm isAdminMode={true} />;
       case "stats":
         return <StatsDashboard />;
       default:
