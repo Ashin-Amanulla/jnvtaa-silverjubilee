@@ -18,7 +18,7 @@ const RegistrationClosed = () => {
             <div className="relative max-w-full">
               <img
                 src="/images/poster2.jpeg"
-                  alt="JNVTA Silver Jubilee 2026 Event Poster"
+                alt="JNVTA Silver Jubilee 2026 Event Poster"
                 className="w-full h-auto rounded-2xl shadow-2xl border-4 border-white/30 max-w-2xl mx-auto"
               />
             </div>
@@ -65,4 +65,3 @@ const RegistrationClosed = () => {
 };
 
 export default RegistrationClosed;
-

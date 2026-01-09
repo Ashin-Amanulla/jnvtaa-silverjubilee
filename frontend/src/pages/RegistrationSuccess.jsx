@@ -252,7 +252,8 @@ const RegistrationSuccess = () => {
                   />
                 </svg>
                 <span>
-                  Event Date: <strong>25th January 2026, 9:00 AM - 5:30 PM</strong> at JNV
+                  Event Date:{" "}
+                  <strong>25th January 2026, 9:00 AM - 5:30 PM</strong> at JNV
                   Trivandrum Campus
                 </span>
               </li>
