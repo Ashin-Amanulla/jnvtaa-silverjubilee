@@ -86,15 +86,15 @@ jobs:
 
             - name: Stop existing PM2 process
               run: |
-                  if pm2 describe back-to-hills-backend > /dev/null 2>&1; then
-                    pm2 stop back-to-hills-backend
-                    pm2 delete back-to-hills-backend
+                  if pm2 describe jnvtaa-backend > /dev/null 2>&1; then
+                    pm2 stop jnvtaa-backend
+                    pm2 delete jnvtaa-backend
                   fi
 
             - name: Start application with PM2
               working-directory: ./backend
               run: |
-                  pm2 start app.js --name back-to-hills-backend \
+                  pm2 start app.js --name jnvtaa-backend \
                     --node-args="--max-old-space-size=2048" \
                     --instances 1 \
                     --max-memory-restart 500M \
@@ -107,11 +107,11 @@ jobs:
             - name: Check application health
               run: |
                   sleep 5
-                  pm2 status back-to-hills-backend
+                  pm2 status jnvtaa-backend
 
             - name: Display logs
               if: always()
-              run: pm2 logs back-to-hills-backend --lines 50 --nostream
+              run: pm2 logs jnvtaa-backend --lines 50 --nostream
 
     notify:
         name: Notify Deployment Status

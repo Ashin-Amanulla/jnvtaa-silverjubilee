@@ -65,19 +65,19 @@ jobs:
 
             - name: Create deployment directory
               run: |
-                  sudo mkdir -p /var/www/back-to-hills-frontend
-                  sudo chown -R $USER:$USER /var/www/back-to-hills-frontend
+                  sudo mkdir -p /var/www/jnvtaa
+                  sudo chown -R $USER:$USER /var/www/jnvtaa
 
             - name: Deploy to Nginx directory
               run: |
-                  rm -rf /var/www/back-to-hills-frontend/*
-                  cp -r ./build/* /var/www/back-to-hills-frontend/
+                  rm -rf /var/www/jnvtaa/*
+                  cp -r ./build/* /var/www/jnvtaa/
 
             - name: Set proper permissions
               run: |
-                  sudo chown -R www-data:www-data /var/www/back-to-hills-frontend
-                  sudo find /var/www/back-to-hills-frontend -type d -exec chmod 755 {} \;
-                  sudo find /var/www/back-to-hills-frontend -type f -exec chmod 644 {} \;
+                  sudo chown -R www-data:www-data /var/www/jnvtaa
+                  sudo find /var/www/jnvtaa -type d -exec chmod 755 {} \;
+                  sudo find /var/www/jnvtaa -type f -exec chmod 644 {} \;
 
             - name: Test Nginx configuration
               run: sudo nginx -t
