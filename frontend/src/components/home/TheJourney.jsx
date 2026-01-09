@@ -6,7 +6,7 @@ const milestones = [
   {
     year: "2001",
     title: "The Inception",
-    description: "JNV Thrissur was founded, planting the seeds of excellence. The first batch of students walked in, marking the beginning of a legacy.",
+    description: "JNV Trivandrum was founded, planting the seeds of excellence. The first batch of students walked in, marking the beginning of a legacy.",
     icon: FaBuilding,
     image: "/images/journey/2001.jpg", // Placeholder
   },
@@ -27,7 +27,7 @@ const milestones = [
   {
     year: "2026",
     title: "Silver Jubilee",
-    description: "Celebrating 25 glorious years of JNV Thrissur. A historic milestone honoring our school, teachers, and the vibrant alumni community.",
+    description: "Celebrating 25 glorious years of JNV Trivandrum. A historic milestone honoring our school, teachers, and the vibrant alumni community.",
     icon: FaHistory,
     image: "/images/journey/2026.jpg", // Placeholder
   },

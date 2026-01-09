@@ -17,7 +17,7 @@ const faqData = [
   {
     question: "What is the registration fee?",
     answer:
-      "The registration fee is ₹300 for alumni (first adult). Additional adults are ₹200 each. Children (6-17 years) are FREE for this Silver Jubilee celebration. Batches 15-18 have free first adult registration. You can also contribute more to support the event.",
+      "The registration fee is ₹300 for alumni (first adult). Additional adults are ₹200 each. Children (6-17 years) are FREE for this Silver Jubilee celebration. Batches 15-18 have discounted registration at ₹100 for the first adult. You can also contribute more to support the event.",
   },
   {
     question: "Is accommodation available?",

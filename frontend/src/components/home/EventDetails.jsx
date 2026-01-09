@@ -3,14 +3,18 @@ import { motion } from "framer-motion";
 import { FaMapMarkedAlt, FaClock, FaMusic, FaUtensils, FaCamera } from "react-icons/fa";
 
 const schedule = [
-  { time: "09:00 AM", event: "Registration & Welcome Drink" },
-  { time: "10:00 AM", event: "Inaugural Ceremony & Lamp Lighting" },
-  { time: "11:30 AM", event: "Batch Introductions & Nostalgia Sharing" },
-  { time: "01:00 PM", event: "Grand Silver Jubilee Lunch" },
-  { time: "02:30 PM", event: "Cultural Programs & Games" },
-  { time: "04:30 PM", event: "Tea & Snacks" },
-  { time: "05:00 PM", event: "Photo Session" },
-  { time: "06:00 PM", event: "DJ / Campfire" },
+  { time: "09:00 AM", event: "Alumni Arrival & Registration" },
+  { time: "09:30 AM", event: "Prayer" },
+  { time: "09:45 AM", event: "Welcome Address" },
+  { time: "10:00 AM", event: "Inauguration of Silver Jubilee Celebrations & Address by Chief Guest" },
+  { time: "10:30 AM", event: "Cultural Program (Students/Alumni)" },
+  { time: "11:00 AM", event: "Career Guidance Interaction" },
+  { time: "12:00 PM", event: "Selection of new Members" },
+  { time: "12:30 PM", event: "Announcement of programs for the year 2026" },
+  { time: "01:00 PM", event: "Lunch" },
+  { time: "02:00 PM", event: "Games-Alumni vs. School Team (Cricket/Football Match)" },
+  { time: "03:30 PM", event: "Closing Remarks & Memento Distribution" },
+  { time: "04:00 PM", event: "National Anthem & Dispersal" },
 ];
 
 const EventDetails = () => {

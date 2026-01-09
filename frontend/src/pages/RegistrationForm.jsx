@@ -90,7 +90,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
   useEffect(() => {
     if (willAttend === "Yes" && watchedValues.batch) {
       const batchNumber = parseInt(watchedValues.batch.split(" ")[1]);
-      const isFreeBatch = batchNumber >= 15 && batchNumber <= 18;
+      const isDiscountedBatch = batchNumber >= 15 && batchNumber <= 18;
 
       const billableAdultCount = Math.max(adultCount, 1);
       const additionalAdults = Math.max(billableAdultCount - 1, 0);
@@ -98,9 +98,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
       let total = 0;
 
       // Calculate adult charges
-      if (isFreeBatch) {
-        // First adult is free for batches 15-18
-        total += additionalAdults * 200;
+      if (isDiscountedBatch) {
+        // First adult is ₹100 for batches 15-18
+        total += 100 + additionalAdults * 200;
       } else {
         // First adult costs 300
         total += 300 + additionalAdults * 200;
@@ -676,7 +676,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                       {Array.from({ length: 18 }, (_, i) => (
                         <option key={i + 1} value={`Batch ${i + 1}`}>
                           Batch {i + 1}{" "}
-                          {i + 1 >= 15 && i + 1 <= 18 ? "🎉 (Free Entry)" : ""}
+                          {i + 1 >= 15 && i + 1 <= 18 ? "🎉 (₹100 Only)" : ""}
                         </option>
                       ))}
                     </select>
@@ -1358,10 +1358,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                         const batchNumber = parseInt(
                           watchedValues.batch?.split(" ")[1]
                         );
-                        const isFreeBatch =
+                        const isDiscountedBatch =
                           batchNumber >= 15 && batchNumber <= 18;
-                        if (isFreeBatch)
-                          return "🎉 ₹0 for 1st adult (Batches 15-18)";
+                        if (isDiscountedBatch)
+                          return "🎉 ₹100 for 1st adult (Batches 15-18)";
                         return "₹300 for 1st adult";
                       })()}
                     </span>
@@ -1896,8 +1896,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           watchedValues.batch?.split(" ")[1],
                           10
                         );
-                        const isFreeBatch =
-                          batchNumber >= 28 && batchNumber <= 32;
+                        const isDiscountedBatch =
+                          batchNumber >= 15 && batchNumber <= 18;
                         const billableAdultCount = Math.max(adultCount, 1);
                         const additionalAdultsForBilling = Math.max(
                           billableAdultCount - 1,
@@ -1912,14 +1912,14 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           <>
                             {/* Adults breakdown */}
                             <div className="bg-white/70 rounded-xl p-4 space-y-2">
-                              {isFreeBatch ? (
+                              {isDiscountedBatch ? (
                                 <>
                                   <div className="flex justify-between items-center">
                                     <span className="text-[#5D3A1A]">
                                       👨‍👩‍👧‍👦 Adults (1st) - Batch {batchNumber}
                                     </span>
                                     <span className="font-bold text-[#B8860B]">
-                                      1 × ₹0 = ₹0
+                                      1 × ₹100 = ₹100
                                     </span>
                                   </div>
                                   {additionalAdultsForDisplay > 0 && (
@@ -1978,7 +1978,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                               </div>
                             </div>
 
-                            {isFreeBatch && (
+                            {isDiscountedBatch && (
                               <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -1996,9 +1996,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  🎉 Free registration for Batches 15-18! Only
-                                  additional adults pay ₹200 each. All children
-                                  FREE!
+                                  🎉 Discounted registration for Batches 15-18!
+                                  Only ₹100 for first adult. Additional adults
+                                  pay ₹200 each. All children FREE!
                                 </p>
                               </motion.div>
                             )}
