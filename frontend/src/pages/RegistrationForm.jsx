@@ -28,6 +28,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
       gender: "",
       batch: "",
       rollNumber: "",
+      willAttend: "",
 
       // Event Preferences
       foodChoice: "",
@@ -64,19 +65,30 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
   });
 
   const watchedValues = watch();
+  const willAttend = watchedValues.willAttend;
   const adultCount = watchedValues.attendees?.adults || 0;
   const childCount = watchedValues.attendees?.children || 0;
   const infantCount = watchedValues.attendees?.infants || 0;
 
   useEffect(() => {
-    if (adultCount < 1) {
+    // Only require at least 1 adult if attending
+    if (willAttend === "Yes" && adultCount < 1) {
       setValue("attendees.adults", 1);
     }
-  }, [adultCount, setValue]);
+    // If not attending, reset attendees to 0
+    if (willAttend === "No") {
+      setValue("attendees.adults", 0);
+      setValue("attendees.children", 0);
+      setValue("attendees.infants", 0);
+      setValue("foodChoice", "");
+      setValue("expectedArrivalTime", "");
+      setValue("overnightAccommodation", "");
+    }
+  }, [willAttend, adultCount, setValue]);
 
-  // Calculate payment amount based on batch and attendees
+  // Calculate payment amount based on batch and attendees (only if attending)
   useEffect(() => {
-    if (watchedValues.batch) {
+    if (willAttend === "Yes" && watchedValues.batch) {
       const batchNumber = parseInt(watchedValues.batch.split(" ")[1]);
       const isFreeBatch = batchNumber >= 15 && batchNumber <= 18;
 
@@ -100,16 +112,35 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
       // Infants are free (no charge)
 
       setValue("contributionAmount", total);
+    } else if (willAttend === "No") {
+      // If not attending, allow custom contribution amount (default 0)
+      // User can still contribute/sponsor
+      if (
+        !watchedValues.contributionAmount ||
+        watchedValues.contributionAmount === 0
+      ) {
+        setValue("contributionAmount", 0);
+      }
     }
-  }, [watchedValues.batch, adultCount, childCount, setValue]);
+  }, [
+    willAttend,
+    watchedValues.batch,
+    adultCount,
+    childCount,
+    setValue,
+    watchedValues.contributionAmount,
+  ]);
 
   // Handle form submission
   const onSubmit = async (data) => {
-    const submittedAdultCount = parseInt(data.attendees?.adults, 10) || 0;
-    if (submittedAdultCount < 1) {
-      toast.error("At least one adult attendee is required.");
-      setValue("attendees.adults", 1);
-      return;
+    // Only require at least one adult if attending
+    if (data.willAttend === "Yes") {
+      const submittedAdultCount = parseInt(data.attendees?.adults, 10) || 0;
+      if (submittedAdultCount < 1) {
+        toast.error("At least one adult attendee is required if attending.");
+        setValue("attendees.adults", 1);
+        return;
+      }
     }
 
     try {
@@ -123,8 +154,14 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
           children: parseInt(data.attendees?.children) || 0,
           infants: parseInt(data.attendees?.infants) || 0,
         },
-        guests: guests,
+        guests: data.willAttend === "Yes" ? guests : [], // No guests if not attending
         contributionAmount: parseInt(data.contributionAmount) || 0,
+        // Clear event preferences if not attending
+        foodChoice: data.willAttend === "Yes" ? data.foodChoice : "",
+        expectedArrivalTime:
+          data.willAttend === "Yes" ? data.expectedArrivalTime : "",
+        overnightAccommodation:
+          data.willAttend === "Yes" ? data.overnightAccommodation : "",
       };
 
       const response = await createRegistration(registrationData);
@@ -144,6 +181,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
             gender: "",
             batch: "",
             rollNumber: "",
+            willAttend: "",
             foodChoice: "",
             expectedArrivalTime: "",
             overnightAccommodation: "",
@@ -680,171 +718,47 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   )}
                 />
               </div>
-            </div>
-          </motion.div>
 
-          {/* Event Preferences Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className={
-              isAdminMode
-                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-amber-200/50 transition-all duration-300"
-            }
-          >
-            <div className="mb-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
-                    Event Preferences
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Help us plan better for you
-                  </p>
-                </div>
-              </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-              <div className="group">
+              <div className="group lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2.5">
-                  Food Choice <span className="text-red-500">*</span>
-                </label>
-                <Controller
-                  name="foodChoice"
-                  control={control}
-                  rules={{ required: "Food choice is required" }}
-                  render={({ field }) => (
-                    <select
-                      {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
-                        errors.foodChoice
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-amber-300"
-                      }`}
-                    >
-                      <option value="">Select food preference</option>
-                      <option value="Veg">🥗 Vegetarian</option>
-                      <option value="Non-Veg">🍗 Non-Vegetarian</option>
-                    </select>
-                  )}
-                />
-                {errors.foodChoice && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-2 text-sm text-red-600 flex items-center gap-1"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {errors.foodChoice.message}
-                  </motion.p>
-                )}
-              </div>
-
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2.5">
-                  Expected Arrival Time <span className="text-red-500">*</span>
-                </label>
-                <Controller
-                  name="expectedArrivalTime"
-                  control={control}
-                  rules={{ required: "Expected arrival time is required" }}
-                  render={({ field }) => (
-                    <select
-                      {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
-                        errors.expectedArrivalTime
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-amber-300"
-                      }`}
-                    >
-                      <option value="">Select arrival time</option>
-                      <option value="8-11">🌅 8:00 AM - 11:00 AM</option>
-                      <option value="11-14">☀️ 11:00 AM - 2:00 PM</option>
-                      <option value="14-17">🌤️ 2:00 PM - 5:00 PM</option>
-                      <option value="17-20">🌆 5:00 PM - 8:00 PM</option>
-                    </select>
-                  )}
-                />
-                {errors.expectedArrivalTime && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-2 text-sm text-red-600 flex items-center gap-1"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {errors.expectedArrivalTime.message}
-                  </motion.p>
-                )}
-              </div>
-
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2.5">
-                  Overnight Accommodation{" "}
+                  Will you be attending the event?{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <Controller
-                  name="overnightAccommodation"
+                  name="willAttend"
                   control={control}
                   rules={{
-                    required: "Overnight accommodation preference is required",
+                    required: "Please indicate if you will be attending",
                   }}
                   render={({ field }) => (
-                    <select
-                      {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
-                        errors.overnightAccommodation
-                          ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-amber-300"
-                      }`}
-                    >
-                      <option value="">Select preference</option>
-                      <option value="Yes">🛏️ Yes, I need accommodation</option>
-                      <option value="No">
-                        🏠 No, I don't need accommodation
-                      </option>
-                    </select>
+                    <div className="flex gap-4">
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          {...field}
+                          type="radio"
+                          value="Yes"
+                          className="w-5 h-5 text-amber-600 border-gray-300 focus:ring-amber-500"
+                        />
+                        <span className="ml-2 text-base text-gray-700">
+                          Yes, I will attend
+                        </span>
+                      </label>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          {...field}
+                          type="radio"
+                          value="No"
+                          className="w-5 h-5 text-amber-600 border-gray-300 focus:ring-amber-500"
+                        />
+                        <span className="ml-2 text-base text-gray-700">
+                          No, but I'd like to support (virtual help,
+                          sponsorship, etc.)
+                        </span>
+                      </label>
+                    </div>
                   )}
                 />
-                {errors.overnightAccommodation && (
+                {errors.willAttend && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -861,12 +775,203 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {errors.overnightAccommodation.message}
+                    {errors.willAttend.message}
                   </motion.p>
                 )}
               </div>
             </div>
           </motion.div>
+
+          {/* Event Preferences Section - Only show if attending */}
+          {willAttend === "Yes" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className={
+                isAdminMode
+                  ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                  : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-amber-200/50 transition-all duration-300"
+              }
+            >
+              <div className="mb-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
+                      Event Preferences
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Help us plan better for you
+                    </p>
+                  </div>
+                </div>
+                <div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2.5">
+                    Food Choice <span className="text-red-500">*</span>
+                  </label>
+                  <Controller
+                    name="foodChoice"
+                    control={control}
+                    rules={{ required: "Food choice is required" }}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
+                          errors.foodChoice
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-gray-200 group-hover:border-amber-300"
+                        }`}
+                      >
+                        <option value="">Select food preference</option>
+                        <option value="Veg">🥗 Vegetarian</option>
+                        <option value="Non-Veg">🍗 Non-Vegetarian</option>
+                      </select>
+                    )}
+                  />
+                  {errors.foodChoice && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm text-red-600 flex items-center gap-1"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {errors.foodChoice.message}
+                    </motion.p>
+                  )}
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2.5">
+                    Expected Arrival Time{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <Controller
+                    name="expectedArrivalTime"
+                    control={control}
+                    rules={{ required: "Expected arrival time is required" }}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
+                          errors.expectedArrivalTime
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-gray-200 group-hover:border-amber-300"
+                        }`}
+                      >
+                        <option value="">Select arrival time</option>
+                        <option value="8-11">🌅 8:00 AM - 11:00 AM</option>
+                        <option value="11-14">☀️ 11:00 AM - 2:00 PM</option>
+                        <option value="14-17">🌤️ 2:00 PM - 5:00 PM</option>
+                        <option value="17-20">🌆 5:00 PM - 8:00 PM</option>
+                      </select>
+                    )}
+                  />
+                  {errors.expectedArrivalTime && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm text-red-600 flex items-center gap-1"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {errors.expectedArrivalTime.message}
+                    </motion.p>
+                  )}
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2.5">
+                    Overnight Accommodation{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <Controller
+                    name="overnightAccommodation"
+                    control={control}
+                    rules={{
+                      required:
+                        "Overnight accommodation preference is required",
+                    }}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
+                          errors.overnightAccommodation
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-gray-200 group-hover:border-amber-300"
+                        }`}
+                      >
+                        <option value="">Select preference</option>
+                        <option value="Yes">
+                          🛏️ Yes, I need accommodation
+                        </option>
+                        <option value="No">
+                          🏠 No, I don't need accommodation
+                        </option>
+                      </select>
+                    )}
+                  />
+                  {errors.overnightAccommodation && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm text-red-600 flex items-center gap-1"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {errors.overnightAccommodation.message}
+                    </motion.p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Volunteer & Event Participation Section */}
           <motion.div
@@ -1194,85 +1299,23 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
             </div>
           </motion.div>
 
-          {/* Number of Attendees Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className={
-              isAdminMode
-                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
-            }
-          >
-            <div className="mb-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Number of Attendees including you
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    How many people will join you?
-                  </p>
-                </div>
-              </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h5 className="font-bold text-gray-800">👨‍👩‍👧‍👦 Adults</h5>
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
-                    18+ years
-                  </span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <span className="text-sm text-gray-600 block">
-                    {(() => {
-                      const batchNumber = parseInt(
-                        watchedValues.batch?.split(" ")[1]
-                      );
-                      const isFreeBatch =
-                        batchNumber >= 15 && batchNumber <= 18;
-                      if (isFreeBatch)
-                        return "🎉 ₹0 for 1st adult (Batches 15-18)";
-                      return "₹300 for 1st adult";
-                    })()}
-                  </span>
-                  <span className="text-sm text-gray-600 block">
-                    ₹200 for each additional
-                  </span>
-                </div>
-                <div className="flex items-center justify-center space-x-3">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      if (adultCount > 1) {
-                        setValue("attendees.adults", adultCount - 1);
-                      }
-                    }}
-                    disabled={adultCount <= 1}
-                    className="w-12 h-12 bg-white border-2 border-purple-200 text-purple-600 rounded-xl hover:bg-purple-50 hover:border-purple-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400"
-                  >
+          {/* Number of Attendees Section - Only show if attending */}
+          {willAttend === "Yes" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className={
+                isAdminMode
+                  ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                  : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
+              }
+            >
+              <div className="mb-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                     <svg
-                      className="w-5 h-5"
+                      className="w-6 h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1280,213 +1323,308 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M20 12H4"
+                        strokeWidth={2}
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
-                  </motion.button>
-                  <div className="min-w-[60px] text-center">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {watchedValues.attendees?.adults || 0}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      Number of Attendees including you
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      How many people will join you?
+                    </p>
+                  </div>
+                </div>
+                <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-bold text-gray-800">👨‍👩‍👧‍👦 Adults</h5>
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                      18+ years
                     </span>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      const current = watchedValues.attendees?.adults || 0;
-                      setValue("attendees.adults", current + 1);
-                    }}
-                    className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </motion.button>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl border-2 border-blue-100 hover:border-blue-300 transition-all duration-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h5 className="font-bold text-gray-800">👦👧 Children</h5>
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                    6-17 years
-                  </span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <span className="text-sm font-bold text-blue-600 block">
-                    🎁 FREE
-                  </span>
-                  <span className="text-sm text-gray-400 block">
-                    Silver Jubilee Special
-                  </span>
-                </div>
-                <div className="flex items-center justify-center space-x-3">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      const current = watchedValues.attendees?.children || 0;
-                      if (current > 0) {
-                        setValue("attendees.children", current - 1);
-                      }
-                    }}
-                    className="w-12 h-12 bg-white border-2 border-blue-200 text-blue-600 rounded-xl hover:bg-blue-50 hover:border-blue-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M20 12H4"
-                      />
-                    </svg>
-                  </motion.button>
-                  <div className="min-w-[60px] text-center">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                      {watchedValues.attendees?.children || 0}
+                  <div className="space-y-2 mb-4">
+                    <span className="text-sm text-gray-600 block">
+                      {(() => {
+                        const batchNumber = parseInt(
+                          watchedValues.batch?.split(" ")[1]
+                        );
+                        const isFreeBatch =
+                          batchNumber >= 15 && batchNumber <= 18;
+                        if (isFreeBatch)
+                          return "🎉 ₹0 for 1st adult (Batches 15-18)";
+                        return "₹300 for 1st adult";
+                      })()}
+                    </span>
+                    <span className="text-sm text-gray-600 block">
+                      ₹200 for each additional
                     </span>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      const current = watchedValues.attendees?.children || 0;
-                      setValue("attendees.children", current + 1);
-                    }}
-                    className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <div className="flex items-center justify-center space-x-3">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        if (adultCount > 1) {
+                          setValue("attendees.adults", adultCount - 1);
+                        }
+                      }}
+                      disabled={adultCount <= 1}
+                      className="w-12 h-12 bg-white border-2 border-purple-200 text-purple-600 rounded-xl hover:bg-purple-50 hover:border-purple-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </motion.button>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M20 12H4"
+                        />
+                      </svg>
+                    </motion.button>
+                    <div className="min-w-[60px] text-center">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {watchedValues.attendees?.adults || 0}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        const current = watchedValues.attendees?.adults || 0;
+                        setValue("attendees.adults", current + 1);
+                      }}
+                      className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border-2 border-emerald-100 hover:border-emerald-300 transition-all duration-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h5 className="font-bold text-gray-800">👶 Infants</h5>
-                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                    0-5 years
-                  </span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <span className="text-sm font-bold text-emerald-600 block">
-                    🎁 FREE
-                  </span>
-                  <span className="text-sm text-gray-400 block">&nbsp;</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      const current = watchedValues.attendees?.infants || 0;
-                      if (current > 0) {
-                        setValue("attendees.infants", current - 1);
-                      }
-                    }}
-                    className="w-12 h-12 bg-white border-2 border-emerald-200 text-emerald-600 rounded-xl hover:bg-emerald-50 hover:border-emerald-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M20 12H4"
-                      />
-                    </svg>
-                  </motion.button>
-                  <div className="min-w-[60px] text-center">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                      {watchedValues.attendees?.infants || 0}
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl border-2 border-blue-100 hover:border-blue-300 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-bold text-gray-800">👦👧 Children</h5>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                      6-17 years
                     </span>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    type="button"
-                    onClick={() => {
-                      const current = watchedValues.attendees?.infants || 0;
-                      setValue("attendees.infants", current + 1);
-                    }}
-                    className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <div className="space-y-2 mb-4">
+                    <span className="text-sm font-bold text-blue-600 block">
+                      🎁 FREE
+                    </span>
+                    <span className="text-sm text-gray-400 block">
+                      Silver Jubilee Special
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-3">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        const current = watchedValues.attendees?.children || 0;
+                        if (current > 0) {
+                          setValue("attendees.children", current - 1);
+                        }
+                      }}
+                      className="w-12 h-12 bg-white border-2 border-blue-200 text-blue-600 rounded-xl hover:bg-blue-50 hover:border-blue-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </motion.button>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M20 12H4"
+                        />
+                      </svg>
+                    </motion.button>
+                    <div className="min-w-[60px] text-center">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                        {watchedValues.attendees?.children || 0}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        const current = watchedValues.attendees?.children || 0;
+                        setValue("attendees.children", current + 1);
+                      }}
+                      className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </motion.button>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border-2 border-emerald-100 hover:border-emerald-300 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-bold text-gray-800">👶 Infants</h5>
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                      0-5 years
+                    </span>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <span className="text-sm font-bold text-emerald-600 block">
+                      🎁 FREE
+                    </span>
+                    <span className="text-sm text-gray-400 block">&nbsp;</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-3">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        const current = watchedValues.attendees?.infants || 0;
+                        if (current > 0) {
+                          setValue("attendees.infants", current - 1);
+                        }
+                      }}
+                      className="w-12 h-12 bg-white border-2 border-emerald-200 text-emerald-600 rounded-xl hover:bg-emerald-50 hover:border-emerald-400 transition-all duration-200 flex items-center justify-center shadow-sm active:shadow-none"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M20 12H4"
+                        />
+                      </svg>
+                    </motion.button>
+                    <div className="min-w-[60px] text-center">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        {watchedValues.attendees?.infants || 0}
+                      </span>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      type="button"
+                      onClick={() => {
+                        const current = watchedValues.attendees?.infants || 0;
+                        setValue("attendees.infants", current + 1);
+                      }}
+                      className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 flex items-center justify-center shadow-lg active:shadow-md"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </motion.button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
 
-          {/* Family Information Section - Only show if total attendees > 1 */}
-          <AnimatePresence>
-            {(() => {
-              const totalAttendees =
-                (watchedValues.attendees?.adults || 0) +
-                (watchedValues.attendees?.children || 0) +
-                (watchedValues.attendees?.infants || 0);
+          {/* Family Information Section - Only show if attending and total attendees > 1 */}
+          {willAttend === "Yes" && (
+            <AnimatePresence>
+              {(() => {
+                const totalAttendees =
+                  (watchedValues.attendees?.adults || 0) +
+                  (watchedValues.attendees?.children || 0) +
+                  (watchedValues.attendees?.infants || 0);
 
-              return totalAttendees > 1 ? (
-                <motion.div
-                  key="family-info"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                  className={
-                    isAdminMode
-                      ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                      : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
-                  }
-                >
-                  <div className="mb-8">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                return totalAttendees > 1 ? (
+                  <motion.div
+                    key="family-info"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4 }}
+                    className={
+                      isAdminMode
+                        ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                        : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
+                    }
+                  >
+                    <div className="mb-8">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                            <svg
+                              className="w-6 h-6 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                              Family Information
+                            </h2>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Add your family members (optional)
+                            </p>
+                          </div>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          type="button"
+                          onClick={addGuest}
+                          className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+                        >
                           <svg
-                            className="w-6 h-6 text-white"
+                            className="w-5 h-5"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -1495,28 +1633,21 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                             />
                           </svg>
-                        </div>
-                        <div>
-                          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                            Family Information
-                          </h2>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Add your family members (optional)
-                          </p>
-                        </div>
+                          <span className="font-semibold">
+                            Add Family Member
+                          </span>
+                        </motion.button>
                       </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        type="button"
-                        onClick={addGuest}
-                        className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 flex items-center space-x-2 shadow-lg"
-                      >
+                      <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"></div>
+                    </div>
+
+                    {guests.length === 0 ? (
+                      <div className="text-center py-12 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-dashed border-orange-200">
                         <svg
-                          className="w-5 h-5"
+                          className="w-16 h-16 mx-auto text-orange-300 mb-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1524,162 +1655,146 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            strokeWidth={1.5}
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                           />
                         </svg>
-                        <span className="font-semibold">Add Family Member</span>
-                      </motion.button>
-                    </div>
-                    <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"></div>
-                  </div>
-
-                  {guests.length === 0 ? (
-                    <div className="text-center py-12 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-dashed border-orange-200">
-                      <svg
-                        className="w-16 h-16 mx-auto text-orange-300 mb-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
-                      <p className="text-gray-500 text-base">
-                        No family members added yet.
-                      </p>
-                      <p className="text-gray-400 text-sm mt-1">
-                        Click "Add Family Member" to include additional
-                        attendees.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <AnimatePresence>
-                        {guests.map((guest, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, x: -100 }}
-                            className="bg-gradient-to-r from-orange-50 to-amber-50 p-5 rounded-2xl border-2 border-orange-100 hover:border-orange-300 transition-all duration-200"
-                          >
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="font-bold text-gray-800 flex items-center gap-2">
-                                <span className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-lg flex items-center justify-center text-sm font-bold">
-                                  {index + 1}
-                                </span>
-                                Family Member {index + 1}
-                              </h4>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                type="button"
-                                onClick={() => removeGuest(index)}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                              >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
+                        <p className="text-gray-500 text-base">
+                          No family members added yet.
+                        </p>
+                        <p className="text-gray-400 text-sm mt-1">
+                          Click "Add Family Member" to include additional
+                          attendees.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <AnimatePresence>
+                          {guests.map((guest, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, x: -100 }}
+                              className="bg-gradient-to-r from-orange-50 to-amber-50 p-5 rounded-2xl border-2 border-orange-100 hover:border-orange-300 transition-all duration-200"
+                            >
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                                  <span className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-lg flex items-center justify-center text-sm font-bold">
+                                    {index + 1}
+                                  </span>
+                                  Family Member {index + 1}
+                                </h4>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  type="button"
+                                  onClick={() => removeGuest(index)}
+                                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                </motion.button>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="group">
+                                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={guest.name}
+                                    onChange={(e) =>
+                                      updateGuest(index, "name", e.target.value)
+                                    }
+                                    className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-gray-400 group-hover:border-orange-300"
+                                    placeholder="Name"
                                   />
-                                </svg>
-                              </motion.button>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Name
-                                </label>
-                                <input
-                                  type="text"
-                                  value={guest.name}
-                                  onChange={(e) =>
-                                    updateGuest(index, "name", e.target.value)
-                                  }
-                                  className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-gray-400 group-hover:border-orange-300"
-                                  placeholder="Name"
-                                />
+                                </div>
+                                <div className="group">
+                                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Gender
+                                  </label>
+                                  <select
+                                    value={guest.gender}
+                                    onChange={(e) =>
+                                      updateGuest(
+                                        index,
+                                        "gender",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+                                <div className="group">
+                                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Food
+                                  </label>
+                                  <select
+                                    value={guest.foodChoice}
+                                    onChange={(e) =>
+                                      updateGuest(
+                                        index,
+                                        "foodChoice",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Veg">🥗 Veg</option>
+                                    <option value="Non-Veg">🍗 Non-Veg</option>
+                                  </select>
+                                </div>
+                                <div className="group">
+                                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Age Category
+                                  </label>
+                                  <select
+                                    value={guest.ageCategory}
+                                    onChange={(e) =>
+                                      updateGuest(
+                                        index,
+                                        "ageCategory",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Adult">Adult (18+)</option>
+                                    <option value="Child">Child (6-17)</option>
+                                    <option value="Infant">Infant (0-5)</option>
+                                  </select>
+                                </div>
                               </div>
-                              <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Gender
-                                </label>
-                                <select
-                                  value={guest.gender}
-                                  onChange={(e) =>
-                                    updateGuest(index, "gender", e.target.value)
-                                  }
-                                  className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Male">Male</option>
-                                  <option value="Female">Female</option>
-                                  <option value="Other">Other</option>
-                                </select>
-                              </div>
-                              <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Food
-                                </label>
-                                <select
-                                  value={guest.foodChoice}
-                                  onChange={(e) =>
-                                    updateGuest(
-                                      index,
-                                      "foodChoice",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Veg">🥗 Veg</option>
-                                  <option value="Non-Veg">🍗 Non-Veg</option>
-                                </select>
-                              </div>
-                              <div className="group">
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                  Age Category
-                                </label>
-                                <select
-                                  value={guest.ageCategory}
-                                  onChange={(e) =>
-                                    updateGuest(
-                                      index,
-                                      "ageCategory",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 group-hover:border-orange-300"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Adult">Adult (18+)</option>
-                                  <option value="Child">Child (6-17)</option>
-                                  <option value="Infant">Infant (0-5)</option>
-                                </select>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  )}
-                </motion.div>
-              ) : null;
-            })()}
-          </AnimatePresence>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : null;
+              })()}
+            </AnimatePresence>
+          )}
 
           {/* Payment Section */}
           <motion.div
@@ -1734,130 +1849,171 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                 </div>
 
                 <div className="space-y-4">
-                  {(() => {
-                    const batchNumber = parseInt(
-                      watchedValues.batch?.split(" ")[1],
-                      10
-                    );
-                    const isFreeBatch = batchNumber >= 28 && batchNumber <= 32;
-                    const billableAdultCount = Math.max(adultCount, 1);
-                    const additionalAdultsForBilling = Math.max(
-                      billableAdultCount - 1,
-                      0
-                    );
-                    const additionalAdultsForDisplay = Math.max(
-                      adultCount - 1,
-                      0
-                    );
+                  {willAttend === "No" ? (
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                      <p className="text-sm text-blue-800 mb-3">
+                        💝 Thank you for your support! Even though you won't be
+                        attending, you can still contribute to make this event
+                        memorable through sponsorship or virtual support.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm font-semibold text-gray-700">
+                          Contribution Amount (₹):
+                        </label>
+                        <Controller
+                          name="contributionAmount"
+                          control={control}
+                          render={({ field }) => (
+                            <input
+                              {...field}
+                              type="number"
+                              min="0"
+                              step="100"
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 0;
+                                field.onChange(value);
+                                setValue("contributionAmount", value);
+                              }}
+                              className="w-32 px-3 py-2 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="0"
+                            />
+                          )}
+                        />
+                      </div>
+                      <p className="text-xs text-blue-600 mt-2">
+                        * You can enter any amount you'd like to contribute.
+                        Minimum ₹0.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {(() => {
+                        const batchNumber = parseInt(
+                          watchedValues.batch?.split(" ")[1],
+                          10
+                        );
+                        const isFreeBatch =
+                          batchNumber >= 28 && batchNumber <= 32;
+                        const billableAdultCount = Math.max(adultCount, 1);
+                        const additionalAdultsForBilling = Math.max(
+                          billableAdultCount - 1,
+                          0
+                        );
+                        const additionalAdultsForDisplay = Math.max(
+                          adultCount - 1,
+                          0
+                        );
 
-                    return (
-                      <>
-                        {/* Adults breakdown */}
-                        <div className="bg-white/70 rounded-xl p-4 space-y-2">
-                          {isFreeBatch ? (
-                            <>
+                        return (
+                          <>
+                            {/* Adults breakdown */}
+                            <div className="bg-white/70 rounded-xl p-4 space-y-2">
+                              {isFreeBatch ? (
+                                <>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-gray-700">
+                                      👨‍👩‍👧‍👦 Adults (1st) - Batch {batchNumber}
+                                    </span>
+                                    <span className="font-bold text-amber-600">
+                                      1 × ₹0 = ₹0
+                                    </span>
+                                  </div>
+                                  {additionalAdultsForDisplay > 0 && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-700">
+                                        👥 Additional Adults
+                                      </span>
+                                      <span className="font-bold text-gray-900">
+                                        {additionalAdultsForDisplay} × ₹200 = ₹
+                                        {additionalAdultsForBilling * 200}
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-gray-700">
+                                      👨‍👩‍👧‍👦 Adults (1st)
+                                    </span>
+                                    <span className="font-bold text-gray-900">
+                                      1 × ₹300 = ₹300
+                                    </span>
+                                  </div>
+                                  {additionalAdultsForDisplay > 0 && (
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-700">
+                                        👥 Additional Adults
+                                      </span>
+                                      <span className="font-bold text-gray-900">
+                                        {additionalAdultsForDisplay} × ₹200 = ₹
+                                        {additionalAdultsForBilling * 200}
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+
+                            <div className="bg-white/70 rounded-xl p-4 space-y-2">
                               <div className="flex justify-between items-center">
                                 <span className="text-gray-700">
-                                  👨‍👩‍👧‍👦 Adults (1st) - Batch {batchNumber}
+                                  👦👧 Children (6-17 years)
+                                </span>
+                                <span className="font-bold text-blue-600">
+                                  {childCount} × FREE = FREE
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-gray-700">
+                                  👶 Infants (0-5 years)
                                 </span>
                                 <span className="font-bold text-amber-600">
-                                  1 × ₹0 = ₹0
+                                  {infantCount} × FREE = FREE
                                 </span>
                               </div>
-                              {additionalAdultsForDisplay > 0 && (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-700">
-                                    👥 Additional Adults
-                                  </span>
-                                  <span className="font-bold text-gray-900">
-                                    {additionalAdultsForDisplay} × ₹200 = ₹
-                                    {additionalAdultsForBilling * 200}
-                                  </span>
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex justify-between items-center">
-                                <span className="text-gray-700">
-                                  👨‍👩‍👧‍👦 Adults (1st)
-                                </span>
-                                <span className="font-bold text-gray-900">
-                                  1 × ₹300 = ₹300
-                                </span>
-                              </div>
-                              {additionalAdultsForDisplay > 0 && (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-700">
-                                    👥 Additional Adults
-                                  </span>
-                                  <span className="font-bold text-gray-900">
-                                    {additionalAdultsForDisplay} × ₹200 = ₹
-                                    {additionalAdultsForBilling * 200}
-                                  </span>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
+                            </div>
 
-                        <div className="bg-white/70 rounded-xl p-4 space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-700">
-                              👦👧 Children (6-17 years)
-                            </span>
-                            <span className="font-bold text-blue-600">
-                              {childCount} × FREE = FREE
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-700">
-                              👶 Infants (0-5 years)
-                            </span>
-                            <span className="font-bold text-amber-600">
-                              {infantCount} × FREE = FREE
-                            </span>
-                          </div>
-                        </div>
-
-                        {isFreeBatch && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-gradient-to-r from-amber-100 to-yellow-100 p-4 rounded-xl border-2 border-amber-200"
-                          >
-                            <p className="text-sm text-amber-800 flex items-center font-medium">
-                              <svg
-                                className="w-5 h-5 mr-2 flex-shrink-0"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
+                            {isFreeBatch && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-gradient-to-r from-amber-100 to-yellow-100 p-4 rounded-xl border-2 border-amber-200"
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              🎉 Free registration for Batches 15-18! Only
-                              additional adults pay ₹200 each. All children
-                              FREE!
-                            </p>
-                          </motion.div>
-                        )}
+                                <p className="text-sm text-amber-800 flex items-center font-medium">
+                                  <svg
+                                    className="w-5 h-5 mr-2 flex-shrink-0"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  🎉 Free registration for Batches 15-18! Only
+                                  additional adults pay ₹200 each. All children
+                                  FREE!
+                                </p>
+                              </motion.div>
+                            )}
 
-                        <div className="bg-gradient-to-r from-slate-600 to-amber-600 rounded-2xl p-5 text-white">
-                          <div className="flex justify-between items-center">
-                            <span className="text-lg font-bold">
-                              Total Amount Payable
-                            </span>
-                            <span className="text-3xl font-extrabold">
-                              ₹{watchedValues.contributionAmount || 0}
-                            </span>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
+                            <div className="bg-gradient-to-r from-slate-600 to-amber-600 rounded-2xl p-5 text-white">
+                              <div className="flex justify-between items-center">
+                                <span className="text-lg font-bold">
+                                  Total Amount Payable
+                                </span>
+                                <span className="text-3xl font-extrabold">
+                                  ₹{watchedValues.contributionAmount || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </>
+                  )}
                 </div>
               </div>
 

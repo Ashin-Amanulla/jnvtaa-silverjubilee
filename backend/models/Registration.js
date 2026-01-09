@@ -75,20 +75,33 @@ const registrationSchema = new mongoose.Schema(
       default: "",
     },
 
-    // Event Preferences
+    // Attendance Preference
+    willAttend: {
+      type: String,
+      required: [true, "Please indicate if you will be attending"],
+      enum: ["Yes", "No"],
+    },
+
+    // Event Preferences (conditional - only required if willAttend is "Yes")
     foodChoice: {
       type: String,
-      required: [true, "Food choice is required"],
+      required: function () {
+        return this.willAttend === "Yes";
+      },
       enum: ["Veg", "Non-Veg"],
     },
     expectedArrivalTime: {
       type: String,
-      required: [true, "Expected arrival time is required"],
+      required: function () {
+        return this.willAttend === "Yes";
+      },
       enum: ["8-11", "11-14", "14-17", "17-20"],
     },
     overnightAccommodation: {
       type: String,
-      required: [true, "Overnight accommodation preference is required"],
+      required: function () {
+        return this.willAttend === "Yes";
+      },
       enum: ["Yes", "No"],
     },
 
