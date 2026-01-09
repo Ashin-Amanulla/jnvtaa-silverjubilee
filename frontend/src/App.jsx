@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { Navigate } from "react-router-dom";
 import RegistrationClosed from "./pages/RegistrationClosed";
 
+const HomePage = lazy(() => import("./pages/HomePage"));
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
 
@@ -22,8 +23,12 @@ export default function App() {
         }
       >
         <Routes>
+          {/* Home Page - Landing Page */}
+          <Route path="/" element={<HomePage />} />
+
+          {/* Registration Routes */}
+          <Route path="/register" element={<RegistrationForm />} />
           <Route path="/registration" element={<RegistrationForm />} />
-          <Route path="/" element={<RegistrationForm />} />
           <Route
             path="/registration-success"
             element={<RegistrationSuccess />}
