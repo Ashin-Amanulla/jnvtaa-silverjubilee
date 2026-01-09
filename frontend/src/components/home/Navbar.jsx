@@ -1,163 +1,141 @@
 import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Link } from "react-router-dom";
-
-const navLinks = [
-  { name: "Home", href: "#home" },
-  { name: "Event Details", href: "#event-details" },
-  { name: "Gallery", href: "#gallery" },
-  { name: "Sponsors", href: "#sponsors" },
-  { name: "FAQ", href: "#faq" },
-  { name: "Contact", href: "#contact" },
-];
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (e, href) => {
-    e.preventDefault();
-    if (href === "#home") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      const element = document.querySelector(href);
+  const navLinks = [
+    { name: "Home", path: "#home" },
+    { name: "Event Details", path: "#event-details" },
+    { name: "Timeline", path: "#journey" },
+    { name: "Gallery", path: "#gallery" },
+    { name: "Sponsors", path: "#sponsors" },
+    { name: "FAQ", path: "#faq" },
+  ];
+
+  const handleLinkClick = (e, path) => {
+    if (path.startsWith("#")) {
+      e.preventDefault();
+      const element = document.querySelector(path);
       if (element) {
-        const navbarHeight = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        element.scrollIntoView({ behavior: "smooth" });
+        setIsOpen(false);
       }
     }
-    setIsMobileMenuOpen(false);
   };
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+    <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#3D2512]/95 backdrop-blur-md shadow-lg"
-          : "bg-transparent"
+          ? "bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm py-2"
+          : "bg-transparent py-4"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-3"
-          >
-            <img
-              src="/images/logo.jpeg"
-              alt="JNVTA Logo"
-              className="h-12 w-12 rounded-full border-2 border-[#B8860B] object-cover"
-            />
-            <div className="hidden sm:block">
-              <h1 className="font-heading text-xl font-bold text-[#FDF5E6]">
-                JNVTA
-              </h1>
-              <p className="text-xs text-[#DAA520] tracking-wider">
-                Silver Jubilee 2026
-              </p>
+          <Link to="/" className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500 rounded-full blur opacity-20"></div>
+              <img
+                src="/images/logo.jpeg"
+                alt="JNVTA Logo"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#1A237E] object-cover relative z-10"
+              />
             </div>
-          </motion.div>
+            <div className="flex flex-col">
+              <span className={`font-heading font-bold text-xl sm:text-2xl leading-none ${
+                  isScrolled ? "text-[#1A237E]" : "text-[#1A237E]"
+              }`}>
+                JNVTA
+              </span>
+              <span className="text-[0.65rem] sm:text-xs tracking-widest uppercase text-[#D4AF37] font-semibold">
+                Silver Jubilee 2026
+              </span>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <motion.a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => scrollToSection(e, link.href)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 text-sm font-body text-[#FDF5E6] hover:text-[#DAA520] transition-colors relative group"
-              >
-                {link.name}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#B8860B] transition-all duration-300 group-hover:w-3/4" />
-              </motion.a>
-            ))}
-          </div>
-
-          {/* Register Button - Desktop */}
-          <div className="hidden lg:block">
-            <Link to="/register">
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-vintage text-sm py-2.5 px-6"
-              >
-                Register Now
-              </motion.button>
+          <div className="hidden md:flex items-center gap-1">
+            <div className={`px-2 py-1.5 rounded-full flex items-center gap-1 transition-all duration-300 ${
+                isScrolled ? "bg-gray-100/50" : "bg-white/30 backdrop-blur-md border border-white/40 shadow-sm"
+            }`}>
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.path}
+                  onClick={(e) => handleLinkClick(e, link.path)}
+                  className="px-4 py-2 rounded-full text-sm font-medium text-slate-700 hover:text-[#1A237E] hover:bg-white transition-all duration-300"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+            
+            <Link to="/register" className="ml-4">
+               <button className="px-6 py-2.5 rounded-full bg-[#1A237E] text-white text-sm font-semibold shadow-md hover:bg-[#3949AB] hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                 Register Now
+               </button>
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-[#FDF5E6] hover:text-[#DAA520] transition-colors"
-          >
-            {isMobileMenuOpen ? (
-              <HiX className="w-6 h-6" />
-            ) : (
-              <HiMenu className="w-6 h-6" />
-            )}
-          </button>
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-[#1A237E] p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {isOpen ? <HiX size={24} /> : <HiMenu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
+        {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="lg:hidden bg-[#3D2512]/98 backdrop-blur-md border-t border-[#B8860B]/30"
+            className="md:hidden bg-white/95 backdrop-blur-xl border-b border-gray-200 overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link, index) => (
-                <motion.a
+            <div className="px-4 py-6 space-y-4">
+              {navLinks.map((link) => (
+                <a
                   key={link.name}
-                  href={link.href}
-                  onClick={(e) => scrollToSection(e, link.href)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="block px-4 py-3 text-[#FDF5E6] hover:text-[#DAA520] hover:bg-[#5D3A1A]/50 rounded-lg font-body transition-all"
+                  href={link.path}
+                  onClick={(e) => handleLinkClick(e, link.path)}
+                  className="block text-slate-700 hover:text-[#1A237E] font-medium text-lg px-2 py-1"
                 >
                   {link.name}
-                </motion.a>
+                </a>
               ))}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="pt-4"
-              >
-                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                  <button className="btn-vintage w-full text-center py-3">
+              <div className="pt-4 border-t border-gray-100">
+                <Link to="/register" onClick={() => setIsOpen(false)}>
+                  <button className="w-full btn-primary text-center">
                     Register Now
                   </button>
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
   );
 };
 

@@ -7,7 +7,7 @@ const faqData = [
   {
     question: "When and where is the Silver Jubilee Reunion?",
     answer:
-      "The reunion is scheduled for January 25, 2026 at the JNV Campus, Thrissur, Kerala. The event will start at 9:00 AM and continue throughout the day with various programs.",
+      "The reunion is scheduled for January 25, 2026 at the JNV Campus, Trivandrum, Kerala. The event will start at 9:00 AM and continue throughout the day with various programs.",
   },
   {
     question: "How do I register for the event?",
@@ -63,13 +63,17 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="vintage-card rounded-lg overflow-hidden mb-4"
+      className={`glass-panel-dark rounded-xl overflow-hidden mb-4 border transition-all duration-300 ${
+        isOpen ? "border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "border-white/5 hover:border-white/10"
+      }`}
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-[#F4E8D1]/50 transition-colors"
+        className="w-full flex items-center justify-between p-5 sm:p-6 text-left transition-colors"
       >
-        <span className="font-heading text-lg sm:text-xl text-[#5D3A1A] pr-4">
+        <span className={`font-heading text-lg sm:text-xl pr-4 transition-colors ${
+            isOpen ? "text-[#D4AF37]" : "text-white group-hover:text-blue-200"
+        }`}>
           {question}
         </span>
         <motion.div
@@ -77,7 +81,9 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
           transition={{ duration: 0.3 }}
           className="flex-shrink-0"
         >
-          <HiChevronDown className="w-6 h-6 text-[#B8860B]" />
+          <div className={`p-2 rounded-full ${isOpen ? "bg-[#D4AF37]/20" : "bg-white/5"}`}>
+             <HiChevronDown className={`w-5 h-5 ${isOpen ? "text-[#D4AF37]" : "text-blue-300"}`} />
+          </div>
         </motion.div>
       </button>
 
@@ -89,8 +95,9 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <div className="px-5 sm:px-6 pb-5 sm:pb-6 border-t border-[#B8860B]/20">
-              <p className="font-body text-[#704214] leading-relaxed pt-4">
+            <div className="px-5 sm:px-6 pb-6 pt-0">
+               <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
+              <p className="font-body text-blue-100/80 leading-relaxed">
                 {answer}
               </p>
             </div>
@@ -111,12 +118,9 @@ const FAQ = () => {
   return (
     <section
       id="faq"
-      className="relative py-20 sm:py-28 overflow-hidden"
-      style={{
-        background: "linear-gradient(180deg, #3D2512 0%, #F4E8D1 10%, #FDF5E6 50%, #F4E8D1 90%, #3D2512 100%)",
-      }}
+      className="relative py-20 sm:py-28 overflow-hidden bg-[#05091A]"
     >
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4 relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -126,19 +130,19 @@ const FAQ = () => {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-3 mb-4">
-            <HiQuestionMarkCircle className="text-3xl text-[#B8860B]" />
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-[#5D3A1A]">
+            <HiQuestionMarkCircle className="text-3xl text-[#D4AF37]" />
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white">
               Frequently Asked Questions
             </h2>
           </div>
-          <div className="section-divider" />
-          <p className="font-body text-[#8B4513] text-lg max-w-2xl mx-auto">
+          <div className="section-divider-modern" />
+          <p className="font-body text-blue-200 text-lg max-w-2xl mx-auto">
             Find answers to common questions about our Silver Jubilee Reunion
           </p>
         </motion.div>
 
         {/* FAQ Accordion */}
-        <div className="space-y-2">
+        <div className="space-y-4">
           {faqData.map((faq, index) => (
             <FAQItem
               key={index}
@@ -157,19 +161,17 @@ const FAQ = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="text-center mt-12"
+          className="text-center mt-16"
         >
-          <p className="font-body text-[#8B4513] mb-4">
-            Still have questions?
+          <p className="font-body text-blue-300 mb-6 font-medium">
+            Still have questions? We're here to help.
           </p>
           <Link to="/register">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 border-2 border-[#B8860B] text-[#5D3A1A] rounded font-heading hover:bg-[#B8860B]/10 transition-all"
+            <button
+              className="btn-outline px-8 py-3 text-white border-blue-500/30 hover:border-blue-400 hover:bg-blue-900/20"
             >
-              Contact Us
-            </motion.button>
+              Contact Support
+            </button>
           </Link>
         </motion.div>
       </div>

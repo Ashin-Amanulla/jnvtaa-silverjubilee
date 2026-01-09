@@ -44,7 +44,7 @@ const contactInfo = [
   {
     icon: FaMapMarkerAlt,
     label: "Venue",
-    value: "JNV Campus, Thrissur, Kerala",
+    value: "JNV Campus, Trivandrum, Kerala",
     href: "#",
   },
 ];
@@ -72,10 +72,10 @@ const Footer = () => {
   return (
     <footer
       id="contact"
-      className="relative bg-gradient-to-b from-[#3D2512] to-[#2A1810] text-[#FDF5E6]"
+      className="relative bg-[#1a202c] text-[#FDF4E6] border-t border-[#FDF4E6]/5"
     >
       {/* Decorative top border */}
-      <div className="h-2 bg-gradient-to-r from-[#8B4513] via-[#B8860B] to-[#8B4513]" />
+      <div className="h-1 bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent" />
 
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 py-16">
@@ -88,19 +88,22 @@ const Footer = () => {
             className="lg:col-span-1"
           >
             <div className="flex items-center gap-3 mb-6">
-              <img
-                src="/images/logo.jpeg"
-                alt="JNVTA Logo"
-                className="w-14 h-14 rounded-full border-2 border-[#B8860B] object-cover"
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-blue-500 rounded-full blur opacity-30"></div>
+                <img
+                  src="/images/logo.jpeg"
+                  alt="JNVTA Logo"
+                  className="relative w-14 h-14 rounded-full border-2 border-[#D4AF37] object-cover"
+                />
+              </div>
               <div>
-                <h3 className="font-heading text-xl font-bold text-[#FDF5E6]">
+                <h3 className="font-heading text-xl font-bold text-[#FDF4E6]">
                   JNVTA
                 </h3>
-                <p className="text-xs text-[#DAA520]">Silver Jubilee 2026</p>
+                <p className="text-xs text-[#D4AF37] uppercase tracking-wider">Silver Jubilee 2026</p>
               </div>
             </div>
-            <p className="font-body text-[#F4E8D1]/80 text-sm leading-relaxed mb-6">
+            <p className="font-body text-gray-400 text-sm leading-relaxed mb-6">
               Celebrating 25 years of excellence, memories, and the unbreakable
               bonds forged in the halls of Jawahar Navodaya Vidyalaya.
             </p>
@@ -112,10 +115,10 @@ const Footer = () => {
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -3 }}
                   whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 rounded-full bg-[#5D3A1A] flex items-center justify-center transition-all ${social.color}`}
+                  className={`w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center transition-all ${social.color}`}
                   aria-label={social.name}
                 >
-                  <social.icon className="text-[#FDF5E6]" />
+                  <social.icon className="text-gray-300" />
                 </motion.a>
               ))}
             </div>
@@ -128,7 +131,7 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            <h4 className="font-heading text-lg font-semibold text-[#DAA520] mb-6">
+            <h4 className="font-heading text-lg font-semibold text-[#FDF4E6] mb-6">
               Quick Links
             </h4>
             <ul className="space-y-3">
@@ -137,9 +140,9 @@ const Footer = () => {
                   <a
                     href={link.href}
                     onClick={(e) => scrollToSection(e, link.href)}
-                    className="font-body text-[#F4E8D1]/80 hover:text-[#DAA520] transition-colors inline-flex items-center gap-2"
+                    className="font-body text-gray-400 hover:text-[#D4AF37] transition-colors inline-flex items-center gap-2 group"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#B8860B]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-[#D4AF37] transition-colors" />
                     {link.name}
                   </a>
                 </li>
@@ -147,9 +150,9 @@ const Footer = () => {
               <li>
                 <Link
                   to="/register"
-                  className="font-body text-[#DAA520] hover:text-[#FDF5E6] transition-colors inline-flex items-center gap-2 font-medium"
+                  className="font-body text-[#DAA520] hover:text-[#FDF4E6] transition-colors inline-flex items-center gap-2 font-medium group"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#DAA520]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#DAA520] group-hover:bg-[#FDF4E6] transition-colors" />
                   Register Now
                 </Link>
               </li>
@@ -163,7 +166,7 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <h4 className="font-heading text-lg font-semibold text-[#DAA520] mb-6">
+            <h4 className="font-heading text-lg font-semibold text-[#FDF4E6] mb-6">
               Contact Us
             </h4>
             <ul className="space-y-4">
@@ -171,16 +174,16 @@ const Footer = () => {
                 <li key={info.label}>
                   <a
                     href={info.href}
-                    className="flex items-start gap-3 font-body text-[#F4E8D1]/80 hover:text-[#DAA520] transition-colors group"
+                    className="flex items-start gap-3 font-body text-gray-400 hover:text-[#FDF4E6] transition-colors group"
                   >
-                    <span className="w-8 h-8 rounded-full bg-[#5D3A1A] flex items-center justify-center flex-shrink-0 group-hover:bg-[#B8860B] transition-colors">
+                    <span className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-[#D4AF37] group-hover:text-black transition-all border border-white/10 group-hover:border-[#D4AF37]">
                       <info.icon className="text-sm" />
                     </span>
                     <div>
-                      <span className="text-xs text-[#B8860B] block">
+                      <span className="text-xs text-gray-500 block uppercase tracking-wide mb-0.5">
                         {info.label}
                       </span>
-                      <span className="text-sm">{info.value}</span>
+                      <span className="text-sm font-medium">{info.value}</span>
                     </div>
                   </a>
                 </li>
@@ -195,55 +198,47 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
-            <h4 className="font-heading text-lg font-semibold text-[#DAA520] mb-6">
+            <h4 className="font-heading text-lg font-semibold text-[#FDF4E6] mb-6">
               Join Us
             </h4>
-            <p className="font-body text-[#F4E8D1]/80 text-sm mb-6">
+            <p className="font-body text-gray-400 text-sm mb-6 leading-relaxed">
               Don't miss this once-in-a-lifetime reunion. Register today and
               reconnect with your classmates!
             </p>
             <Link to="/register">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-vintage w-full sm:w-auto text-center"
-              >
+              <button className="btn-primary w-full sm:w-auto text-center px-6 py-2.5 text-sm shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                 Register Now
-              </motion.button>
+              </button>
             </Link>
           </motion.div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-[#5D3A1A]">
+      <div className="border-t border-[#FDF4E6]/5 bg-[#111827]">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-body text-sm text-[#F4E8D1]/60 text-center sm:text-left">
+            <p className="font-body text-sm text-gray-500 text-center sm:text-left">
               © 2026 JNVTA Silver Jubilee Reunion. Made with{" "}
-              <FaHeart className="inline text-[#800020] mx-1" /> by Alumni, for
+              <FaHeart className="inline text-red-500 mx-1" /> by Alumni, for
               Alumni.
             </p>
             
             {/* Back to top button */}
             <motion.button
               onClick={scrollToTop}
-              whileHover={{ scale: 1.1, y: -3 }}
+              whileHover={{ scale: 1.1, y: -2 }}
               whileTap={{ scale: 0.9 }}
-              className="flex items-center gap-2 text-[#DAA520] hover:text-[#FDF5E6] transition-colors font-body text-sm"
+              className="flex items-center gap-2 text-gray-400 hover:text-[#D4AF37] transition-colors font-body text-sm group"
             >
               <span>Back to Top</span>
-              <span className="w-8 h-8 rounded-full bg-[#5D3A1A] flex items-center justify-center">
+              <span className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] transition-colors">
                 <HiChevronUp className="text-lg" />
               </span>
             </motion.button>
           </div>
         </div>
       </div>
-
-      {/* Decorative corner elements */}
-      <div className="absolute bottom-0 left-0 w-24 h-24 border-l-2 border-b-2 border-[#B8860B]/20 m-4 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-24 h-24 border-r-2 border-b-2 border-[#B8860B]/20 m-4 pointer-events-none" />
     </footer>
   );
 };

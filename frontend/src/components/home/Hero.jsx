@@ -1,176 +1,119 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { HiChevronDown } from "react-icons/hi";
-import { FaGraduationCap, FaHeart, FaUsers } from "react-icons/fa";
-
-const floatingIcons = [
-  { Icon: FaGraduationCap, delay: 0, position: "top-1/4 left-[10%]" },
-  { Icon: FaHeart, delay: 0.5, position: "top-1/3 right-[15%]" },
-  { Icon: FaUsers, delay: 1, position: "bottom-1/3 left-[8%]" },
-  { Icon: FaGraduationCap, delay: 1.5, position: "bottom-1/4 right-[10%]" },
-];
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 
 const Hero = () => {
-  const scrollToCountdown = () => {
-    const element = document.querySelector("#countdown");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden"
     >
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="/images/poster.jpeg"
-          alt="Reunion Background"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#3D2512]/80 via-[#5D3A1A]/70 to-[#3D2512]/90" />
-        {/* Vintage paper texture overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
+      {/* Background - Cream Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#FDF4E6] via-[#FFF8E7] to-[#FDF4E6]" />
+
+      {/* Animated Elements (Warm Tones) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-[100px] animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-[#1A237E]/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-amber-100/40 rounded-full blur-[80px]" />
       </div>
 
-      {/* Floating Icons */}
-      {floatingIcons.map(({ Icon, delay, position }, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 0.15, scale: 1, y: [0, -15, 0] }}
-          transition={{
-            opacity: { delay: delay + 1, duration: 1 },
-            scale: { delay: delay + 1, duration: 0.5 },
-            y: { delay: delay + 1.5, duration: 4, repeat: Infinity, ease: "easeInOut" },
-          }}
-          className={`absolute ${position} hidden lg:block`}
-        >
-          <Icon className="text-[#DAA520] text-4xl" />
-        </motion.div>
-      ))}
-
-      {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
         {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-6"
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/40 border border-[#1A237E]/10 backdrop-blur-sm mb-8"
         >
-          <span className="inline-block px-6 py-2 bg-[#B8860B]/20 border border-[#B8860B] rounded-full text-[#DAA520] font-body text-sm tracking-wider">
-            25 Years of Excellence
+          <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+          <span className="text-[#1A237E] text-sm font-semibold tracking-wide uppercase">
+            JNV Trivandrum • Silver Jubilee
           </span>
         </motion.div>
 
         {/* Main Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#FDF5E6] mb-6 leading-tight"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 text-[#1A237E] drop-shadow-sm leading-tight"
         >
-          JNVTA
-          <span className="block text-[#DAA520] mt-2">Silver Jubilee</span>
-          <span className="block text-3xl sm:text-4xl md:text-5xl mt-4 font-normal text-[#F4E8D1]">
-            Reunion 2026
+          25 Years of <br />
+          <span className="text-gradient-gold relative inline-block">
+            Excellence
+            {/* Underline decoration */}
+            <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#D4AF37] opacity-60" viewBox="0 0 100 10" preserveAspectRatio="none">
+               <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
+            </svg>
           </span>
         </motion.h1>
 
-        {/* Decorative Line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="w-32 h-1 bg-gradient-to-r from-transparent via-[#B8860B] to-transparent mx-auto mb-6"
-        />
-
-        {/* Tagline */}
+        {/* Subtitle */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="font-body text-lg sm:text-xl md:text-2xl text-[#F4E8D1]/90 mb-10 max-w-2xl mx-auto italic"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="font-body text-lg sm:text-xl md:text-2xl text-[#1F2937] max-w-2xl mb-12 leading-relaxed"
         >
-          "25 Years of Memories, One Grand Reunion"
+          Join us as we celebrate the bonds that time cannot break. A reunion of hearts, memories, and shared history.
         </motion.p>
 
-        {/* CTA Button */}
+        {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto"
         >
-          <Link to="/register">
-            <motion.button
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-vintage text-lg px-10 py-4"
-            >
-              Register Now
-            </motion.button>
+          <Link to="/register" className="btn-primary flex items-center justify-center gap-2 group">
+            Register Now
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </Link>
-          <motion.button
-            onClick={scrollToCountdown}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 border-2 border-[#DAA520] text-[#DAA520] rounded font-heading hover:bg-[#DAA520]/10 transition-all"
-          >
-            Learn More
-          </motion.button>
+          <a href="#journey" className="btn-outline">
+            View The Journey
+          </a>
         </motion.div>
 
-        {/* Event Date Preview */}
+        {/* Info Grid */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="mt-12 flex items-center justify-center gap-6 text-[#F4E8D1]/70"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mt-20 w-full grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#B8860B]" />
-            <span className="font-body text-sm">January 25, 2026</span>
-          </div>
-          <div className="w-px h-4 bg-[#B8860B]/50" />
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#B8860B]" />
-            <span className="font-body text-sm">Silver Jubilee Special</span>
-          </div>
+          {[
+            { icon: FaCalendarAlt, label: "Date", value: "January 25, 2026" },
+            { icon: FaMapMarkerAlt, label: "Venue", value: "JNV Campus, Trivandrum" },
+            { icon: FaUsers, label: "Batches", value: "All Alumni Welcome" },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 group hover:border-[#1A237E]/30 transition-colors"
+            >
+              <item.icon className="text-3xl text-[#1A237E] group-hover:scale-110 transition-transform duration-300" />
+              <div className="text-center">
+                <span className="block text-sm text-[#4B5563] uppercase tracking-widest mb-1">{item.label}</span>
+                <span className="block text-lg font-semibold text-[#1A237E]">{item.value}</span>
+              </div>
+            </div>
+          ))}
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{
-          opacity: { delay: 1.5, duration: 1 },
-          y: { delay: 2, duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-        }}
-        onClick={scrollToCountdown}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer"
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#4B5563]"
       >
-        <div className="flex flex-col items-center gap-2 text-[#DAA520]">
-          <span className="text-xs font-body tracking-widest uppercase">Scroll</span>
-          <HiChevronDown className="text-2xl" />
+        <span className="text-xs uppercase tracking-widest">Scroll</span>
+        <div className="w-6 h-10 border-2 border-[#9CA3AF] rounded-full p-1">
+          <div className="w-1.5 h-1.5 bg-[#4B5563] rounded-full animate-bounce mx-auto" />
         </div>
       </motion.div>
-
-      {/* Decorative corners */}
-      <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-[#B8860B]/30 m-4" />
-      <div className="absolute top-0 right-0 w-32 h-32 border-r-2 border-t-2 border-[#B8860B]/30 m-4" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 border-l-2 border-b-2 border-[#B8860B]/30 m-4" />
-      <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-[#B8860B]/30 m-4" />
     </section>
   );
 };

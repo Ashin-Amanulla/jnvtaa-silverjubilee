@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/home/Navbar";
 import Hero from "../components/home/Hero";
 import Countdown from "../components/home/Countdown";
+import TheJourney from "../components/home/TheJourney";
 import EventDetails from "../components/home/EventDetails";
 import Gallery from "../components/home/Gallery";
 import Sponsors from "../components/home/Sponsors";
@@ -13,7 +14,7 @@ import Footer from "../components/home/Footer";
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen bg-[#3D2512]">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-body selection:bg-[#D4AF37]/30 selection:text-[#1A237E]">
       {/* Navigation */}
       <Navbar />
 
@@ -24,6 +25,9 @@ const HomePage = () => {
 
         {/* Countdown Timer */}
         <Countdown />
+
+        {/* The Journey Timeline */}
+        <TheJourney />
 
         {/* Event Details */}
         <EventDetails />

@@ -296,29 +296,23 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
           ? "w-full"
           : "min-h-screen py-4 sm:py-8 relative overflow-hidden"
       }
-      style={
-        !isAdminMode
-          ? {
-              background:
-                "linear-gradient(180deg, #3D2512 0%, #F4E8D1 10%, #FDF5E6 30%, #F4E8D1 70%, #3D2512 100%)",
-            }
-          : undefined
-      }
     >
       {/* Vintage Texture Overlay - Only show in public mode */}
       {!isAdminMode && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[#FDF4E6]" />
           <div
-            className="absolute inset-0 opacity-[0.02]"
+            className="absolute inset-0 opacity-[0.03]"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
             }}
           />
-          {/* Decorative corner elements */}
-          <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-[#B8860B]/20 m-4" />
-          <div className="absolute top-0 right-0 w-32 h-32 border-r-2 border-t-2 border-[#B8860B]/20 m-4" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 border-l-2 border-b-2 border-[#B8860B]/20 m-4" />
-          <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-[#B8860B]/20 m-4" />
+           {/* Gradient Overlay for depth */}
+           <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-[#FDF4E6]/50 to-[#FDF4E6]" />
+
+          {/* Decorative corner elements - Gold Accents */}
+          <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-[#D4AF37]/10 to-transparent blur-3xl opacity-60" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-[#1A237E]/5 to-transparent blur-3xl opacity-60" />
         </div>
       )}
 
@@ -340,29 +334,29 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
           >
             {/* Event Poster */}
             <div className="mb-8">
-              <div className="relative overflow-hidden rounded-xl shadow-lg border-2 border-[#B8860B]/30">
+              <div className="relative overflow-hidden rounded-xl shadow-2xl bg-white">
                 <img
                   src="/images/poster.jpg"
                   alt="JNVTA Silver Jubilee - Alumni Reunion 2026"
                   className="w-full h-auto max-h-[500px] sm:max-h-[600px] md:max-h-[700px] object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3D2512]/60 via-[#3D2512]/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0D1642]/80 via-transparent to-transparent"></div>
               </div>
             </div>
 
             {/* Title Section */}
             <div className="mb-8 relative">
               <div className="inline-block">
-                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-[#5D3A1A]">
+                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-[#1A237E]">
                   Silver Reunion - Celebrating 25 Years
                 </h1>
                 <div className="section-divider" />
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm sm:text-base mt-6">
-                <div className="flex items-center gap-2 text-[#704214]">
+                <div className="flex items-center gap-2 text-[#0D1642]">
                   <svg
-                    className="w-5 h-5 text-[#B8860B]"
+                    className="w-5 h-5 text-[#D4AF37]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -378,9 +372,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     January 25, 2026 | 9:00 AM - 5:30 PM
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-[#704214]">
+                <div className="flex items-center gap-2 text-[#0D1642]">
                   <svg
-                    className="w-5 h-5 text-[#B8860B]"
+                    className="w-5 h-5 text-[#D4AF37]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -399,22 +393,21 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     />
                   </svg>
                   <span className="font-body font-semibold">
-                    JNV Campus, Thrissur
+                    JNV Campus, Trivandrum
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Welcome Message with Quote */}
             <div className="max-w-3xl mx-auto space-y-6">
-              <div className="vintage-card rounded-xl p-6 border-[#B8860B]/30">
-                <p className="font-body text-[#5D3A1A] text-base sm:text-lg leading-relaxed italic">
+              <div className="bg-white rounded-xl p-8 shadow-lg border-l-4 border-[#1A237E] relative">
+                <p className="font-body text-[#1A237E] text-lg sm:text-xl leading-relaxed text-center italic">
                   "25 years of cherished memories, lifelong friendships, and
                   shared dreams. Let's celebrate this milestone together and
                   create new memories to treasure!"
                 </p>
               </div>
-              <p className="font-body text-[#704214] text-base leading-relaxed">
+              <p className="font-body text-[#283593] text-base leading-relaxed">
                 Join us for the Silver Jubilee celebration of JNVTA! Reconnect
                 with old friends, relive precious memories, and celebrate 25
                 years of excellence. Be part of this memorable reunion.
@@ -443,12 +436,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
             className={
               isAdminMode
                 ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+                : "bg-white rounded-xl shadow-2xl p-6 sm:p-10 relative overflow-hidden"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#B8860B] to-[#8B4513] rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-[#1A237E] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                   <svg
                     className="w-6 h-6 text-[#FDF5E6]"
                     fill="none"
@@ -464,10 +457,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#5D3A1A]">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E]">
                     Personal Information
                   </h2>
-                  <p className="font-body text-sm text-[#8B4513] mt-1">
+                  <p className="font-body text-sm text-[#283593] mt-1">
                     Let us know who you are
                   </p>
                 </div>
@@ -477,8 +470,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
               <div className="group">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
-                  Full Name <span className="text-[#800020]">*</span>
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="name"
@@ -488,12 +481,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="text"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body placeholder:text-[#8B4513]/50 ${
+                      className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 ${
                         errors.name
-                          ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                          : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                          ? "border-red-500 focus:ring-red-200"
+                          : ""
                       }`}
-                      placeholder="Enter your full name"
+                      placeholder="Write your name here..."
                     />
                   )}
                 />
@@ -520,8 +513,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
-                  Email Address <span className="text-[#800020]">*</span>
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="email"
@@ -537,10 +530,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="email"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body placeholder:text-[#8B4513]/50 ${
+                      className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 ${
                         errors.email
-                          ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                          : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                          ? "border-red-500 focus:ring-red-200"
+                          : ""
                       }`}
                       placeholder="your.email@example.com"
                     />
@@ -569,8 +562,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
-                  Mobile Number <span className="text-[#800020]">*</span>
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
+                  Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="mobile"
@@ -585,10 +578,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="tel"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body placeholder:text-[#8B4513]/50 ${
+                      className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 ${
                         errors.mobile
-                          ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                          : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                          ? "border-red-500 focus:ring-red-200"
+                          : ""
                       }`}
                       placeholder="+91 XXXXX XXXXX"
                     />
@@ -617,8 +610,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
-                  Gender <span className="text-[#800020]">*</span>
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
+                  Gender <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="gender"
@@ -627,10 +620,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body ${
+                      className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 ${
                         errors.gender
-                          ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                          : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                          ? "border-red-500 focus:ring-red-200"
+                          : ""
                       }`}
                     >
                       <option value="">Select gender</option>
@@ -663,8 +656,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
-                  Batch <span className="text-[#800020]">*</span>
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
+                  Batch <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="batch"
@@ -673,10 +666,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body ${
+                      className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 ${
                         errors.batch
-                          ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                          : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                          ? "border-red-500 focus:ring-red-200"
+                          : ""
                       }`}
                     >
                       <option value="">Select your batch</option>
@@ -714,7 +707,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               <div className="group">
                 <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
                   Roll Number{" "}
-                  <span className="text-[#8B4513]/70 text-xs">(Optional)</span>
+                  <span className="text-[#283593]/70 text-xs font-normal">(Optional)</span>
                 </label>
                 <Controller
                   name="rollNumber"
@@ -723,7 +716,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="text"
-                      className="w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base font-body placeholder:text-[#8B4513]/50 border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
                       placeholder="Enter your roll number (optional)"
                     />
                   )}
@@ -731,9 +724,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group lg:col-span-2">
-                <label className="block text-sm font-body font-body font-semibold text-[#5D3A1A] mb-2.5">
+                <label className="block text-sm font-body font-semibold text-[#1A237E] mb-3">
                   Will you be attending the event?{" "}
-                  <span className="text-[#800020]">*</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="willAttend"
@@ -748,9 +741,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           {...field}
                           type="radio"
                           value="Yes"
-                          className="w-5 h-5 text-[#B8860B] border-gray-300 focus:ring-[#B8860B]"
+                          className="w-5 h-5 text-[#1A237E] border-gray-300 focus:ring-[#1A237E]"
                         />
-                        <span className="ml-2 text-base text-[#5D3A1A]">
+                        <span className="ml-2 text-base text-[#0D1642] font-medium">
                           Yes, I will attend
                         </span>
                       </label>
@@ -759,9 +752,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           {...field}
                           type="radio"
                           value="No"
-                          className="w-5 h-5 text-[#B8860B] border-gray-300 focus:ring-[#B8860B]"
+                          className="w-5 h-5 text-[#1A237E] border-gray-300 focus:ring-[#1A237E]"
                         />
-                        <span className="ml-2 text-base text-[#5D3A1A]">
+                        <span className="ml-2 text-base text-[#0D1642] font-medium">
                           No, but I'd like to support (virtual help,
                           sponsorship, etc.)
                         </span>
@@ -802,12 +795,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               className={
                 isAdminMode
                   ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                  : "vintage-card rounded-xl p-6 sm:p-8 lg:p-10 transition-all duration-300"
+                  : "bg-[#FDF5E6] rounded-sm p-6 sm:p-8 lg:p-10 transition-all duration-300 shadow-xl border-l-4 border-[#1A237E] relative"
               }
             >
               <div className="mb-8">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#B8860B] to-[#8B4513] rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <div className="w-12 h-12 bg-[#D4AF37] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                     <svg
                       className="w-6 h-6 text-[#FDF5E6]"
                       fill="none"
@@ -823,20 +816,20 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     </svg>
                   </div>
                   <div>
-                    <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#5D3A1A]">
+                    <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E]">
                       Event Preferences
                     </h2>
-                    <p className="font-body text-sm text-[#8B4513] mt-1">
+                    <p className="font-body text-sm text-[#283593] mt-1">
                       Help us plan better for you
                     </p>
                   </div>
                 </div>
-                <div className="h-1 w-24 bg-gradient-to-r from-[#B8860B] to-[#DAA520] rounded-full"></div>
+                <div className="h-0.5 w-full bg-[#1A237E]/20 mb-2"></div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
                 <div className="group">
-                  <label className="block text-sm font-body font-semibold text-[#5D3A1A] mb-2.5">
+                  <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
                     Food Choice <span className="text-[#800020]">*</span>
                   </label>
                   <Controller
@@ -846,10 +839,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     render={({ field }) => (
                       <select
                         {...field}
-                        className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base ${
+                        className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 ${
                           errors.foodChoice
-                            ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                            : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                            ? "border-red-500 focus:ring-red-200"
+                            : ""
                         }`}
                       >
                         <option value="">Select food preference</option>
@@ -881,7 +874,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                 </div>
 
                 <div className="group">
-                  <label className="block text-sm font-body font-semibold text-[#5D3A1A] mb-2.5">
+                  <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
                     Expected Arrival Time{" "}
                     <span className="text-[#800020]">*</span>
                   </label>
@@ -892,10 +885,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     render={({ field }) => (
                       <select
                         {...field}
-                        className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base ${
+                        className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 ${
                           errors.expectedArrivalTime
-                            ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                            : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                            ? "border-red-500 focus:ring-red-200"
+                            : ""
                         }`}
                       >
                         <option value="">Select arrival time</option>
@@ -929,7 +922,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                 </div>
 
                 <div className="group">
-                  <label className="block text-sm font-body font-semibold text-[#5D3A1A] mb-2.5">
+                  <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
                     Overnight Accommodation{" "}
                     <span className="text-[#800020]">*</span>
                   </label>
@@ -943,10 +936,10 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     render={({ field }) => (
                       <select
                         {...field}
-                        className={`w-full px-4 sm:px-5 py-3.5 bg-[#FDF5E6] border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8860B]/30 focus:border-[#B8860B] transition-all duration-200 text-base ${
+                        className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 ${
                           errors.overnightAccommodation
-                            ? "border-[#800020] focus:border-[#800020] focus:ring-[#800020]/20"
-                            : "border-[#B8860B]/30 group-hover:border-[#B8860B]/50"
+                            ? "border-red-500 focus:ring-red-200"
+                            : ""
                         }`}
                       >
                         <option value="">Select preference</option>
@@ -992,12 +985,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
             className={
               isAdminMode
                 ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-indigo-200/50 transition-all duration-300"
+                : "bg-[#FDF5E6] rounded-sm p-6 sm:p-8 lg:p-10 transition-all duration-300 shadow-xl border-l-4 border-[#1A237E] relative mt-8"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#B8860B] to-[#8B4513] rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-[#1A237E] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                   <svg
                     className="w-6 h-6 text-[#FDF5E6]"
                     fill="none"
@@ -1013,22 +1006,22 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#5D3A1A]">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E]">
                     Volunteer & Event Participation
                   </h2>
-                  <p className="font-body text-sm text-[#8B4513] mt-1">
+                  <p className="font-body text-sm text-[#283593] mt-1">
                     Help us make this event memorable
                   </p>
                 </div>
               </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-[#B8860B] to-[#DAA520] rounded-full"></div>
+              <div className="h-0.5 w-full bg-[#1A237E]/20 mb-2"></div>
             </div>
 
             <div className="space-y-8">
               {/* Volunteer Interest */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="block text-base font-body font-semibold text-[#5D3A1A]">
+                  <label className="block text-base font-body font-semibold text-[#1A237E]">
                     Would you like to volunteer for any program?
                   </label>
                   <Controller
@@ -1122,7 +1115,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               {/* Committee Interest */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="block text-base font-body font-semibold text-[#5D3A1A]">
+                  <label className="block text-base font-body font-semibold text-[#1A237E]">
                     Would you like to be part of event committees?
                   </label>
                   <Controller
@@ -1217,7 +1210,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               {/* Sponsor Interest */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="block text-base font-body font-semibold text-[#5D3A1A]">
+                  <label className="block text-base font-body font-semibold text-[#1A237E]">
                     Are you interested in sponsoring the event?
                   </label>
                   <Controller
@@ -1261,7 +1254,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                         <textarea
                           {...field}
                           rows={4}
-                          className="w-full px-4 py-3 bg-white/50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-[#8B4513]/50 resize-none"
+                          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 resize-none"
                           placeholder="Please provide details about your sponsorship interest (e.g., sponsorship level, type, contact information, etc.)"
                         />
                       )}
@@ -1272,7 +1265,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
 
               {/* Program Ideas */}
               <div className="space-y-3">
-                <label className="block text-base font-body font-semibold text-[#5D3A1A]">
+                <label className="block text-base font-body font-semibold text-[#1A237E]">
                   Do you have any program/event ideas?
                 </label>
                 <Controller
@@ -1282,7 +1275,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <textarea
                       {...field}
                       rows={4}
-                      className="w-full px-4 py-3 bg-white/50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-[#8B4513]/50 resize-none"
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 resize-none"
                       placeholder="Share your creative ideas for programs, activities, or events that could make the reunion more memorable..."
                     />
                   )}
@@ -1291,7 +1284,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
 
               {/* Skills/Expertise */}
               <div className="space-y-3">
-                <label className="block text-base font-body font-semibold text-[#5D3A1A]">
+                <label className="block text-base font-body font-semibold text-[#1A237E]">
                   What skills or expertise can you contribute?
                 </label>
                 <Controller
@@ -1301,7 +1294,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     <textarea
                       {...field}
                       rows={4}
-                      className="w-full px-4 py-3 bg-white/50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-[#8B4513]/50 resize-none"
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1A237E] focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400 resize-none"
                       placeholder="Tell us about your skills, expertise, or resources you can contribute (e.g., photography, event management, technical skills, etc.)"
                     />
                   )}
@@ -1319,12 +1312,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               className={
                 isAdminMode
                   ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                  : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
+                  : "bg-[#FDF5E6] rounded-sm p-6 sm:p-8 lg:p-10 transition-all duration-300 shadow-xl border-l-4 border-[#1A237E] relative mt-8"
               }
             >
               <div className="mb-8">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <div className="w-12 h-12 bg-[#1A237E] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="none"
@@ -1340,15 +1333,15 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      Number of Attendees including you
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[#1A237E]">
+                      Number of Attendees
                     </h2>
                     <p className="text-sm text-[#704214] mt-1">
                       How many people will join you?
                     </p>
                   </div>
                 </div>
-                <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                 <div className="h-0.5 w-full bg-[#1A237E]/20 mb-2"></div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
@@ -1597,13 +1590,13 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     className={
                       isAdminMode
                         ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                        : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
+                        : "bg-[#FDF5E6] rounded-sm p-6 sm:p-8 lg:p-10 transition-all duration-300 shadow-xl border-l-4 border-[#1A237E] relative mt-8"
                     }
                   >
                     <div className="mb-8">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                         <div className="flex items-center">
-                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                          <div className="w-12 h-12 bg-[#1A237E] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                             <svg
                               className="w-6 h-6 text-white"
                               fill="none"
@@ -1619,7 +1612,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                             </svg>
                           </div>
                           <div>
-                            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[#1A237E]">
                               Family Information
                             </h2>
                             <p className="text-sm text-[#704214] mt-1">
@@ -1632,7 +1625,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           whileTap={{ scale: 0.95 }}
                           type="button"
                           onClick={addGuest}
-                          className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+                          className="px-5 py-3 bg-[#1A237E] text-white rounded-lg hover:bg-[#283593] transition-all duration-200 flex items-center space-x-2 shadow-lg font-heading"
                         >
                           <svg
                             className="w-5 h-5"
@@ -1652,7 +1645,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                           </span>
                         </motion.button>
                       </div>
-                      <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"></div>
+                      <div className="h-0.5 w-full bg-[#1A237E]/20 mb-2"></div>
                     </div>
 
                     {guests.length === 0 ? (
@@ -1729,7 +1722,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                                     onChange={(e) =>
                                       updateGuest(index, "name", e.target.value)
                                     }
-                                    className="w-full px-4 py-2.5 bg-white/70 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder:text-[#8B4513]/50 group-hover:border-orange-300"
+                                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 placeholder-gray-400"
                                     placeholder="Name"
                                   />
                                 </div>
@@ -1815,12 +1808,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
             className={
               isAdminMode
                 ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+                : "bg-[#FDF5E6] rounded-sm p-6 sm:p-8 lg:p-10 transition-all duration-300 shadow-xl border-l-4 border-[#1A237E] relative mt-8"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-[#1A237E] rounded-full flex items-center justify-center mr-4 shadow-lg text-white">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -1836,7 +1829,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-600 to-amber-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#1A237E]">
                     Payment Details
                   </h2>
                   <p className="text-sm text-[#704214] mt-1">
@@ -1844,14 +1837,14 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   </p>
                 </div>
               </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-slate-500 to-amber-500 rounded-full"></div>
+              <div className="h-0.5 w-full bg-[#1A237E]/20 mb-2"></div>
             </div>
 
             <div className="space-y-6">
               {/* Payment Information */}
               <div className="bg-gradient-to-br from-slate-50 to-amber-50 border-2 border-slate-100 rounded-2xl p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h4 className="text-xl font-bold text-[#5D3A1A]">
+                  <h4 className="text-xl font-bold text-[#1A237E]">
                     💰 Payment Summary
                   </h4>
                   <span className="px-4 py-2 bg-amber-100 text-amber-700 font-bold rounded-full text-lg">
@@ -2140,9 +2133,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               </div>
 
               <div className="group">
-                <label className="block text-sm font-bold text-[#5D3A1A] mb-3">
+                <label className="block text-sm font-bold text-[#1A237E] mb-3">
                   Payment Transaction ID/Reference Number{" "}
-                  <span className="text-[#800020]">*</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <Controller
                   name="paymentTransactionId"
