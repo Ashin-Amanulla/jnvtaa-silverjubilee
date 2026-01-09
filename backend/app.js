@@ -57,7 +57,7 @@ app.use("/api/registrations", registrationRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Welcome to JNVTA Silver Jubilee 2026 API",     
+    message: "Welcome to JNVTA Silver Jubilee 2026 API",
     version: "1.0.0",
     endpoints: {
       health: "/health",

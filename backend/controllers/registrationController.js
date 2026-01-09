@@ -38,7 +38,7 @@ const createRegistration = async (req, res, next) => {
 
     // Create registration
     const registration = await Registration.create(req.body);
-    
+
     // Send email in background (non-blocking)
     // This won't block the response and won't cause registration to fail if email fails
     // The background function will update isEmailSent status automatically
@@ -658,12 +658,12 @@ const sendConfirmationEmail = async (req, res, next) => {
     console.log("Sending confirmation emails");
     const registrations = await Registration.find({ isEmailSent: false });
     console.log(`${registrations.length} registrations found`);
-    
+
     // Send emails in background - the background function will update status automatically
     for (const registration of registrations) {
       sendSuccessEmailBackground(registration);
     }
-    
+
     res.json({
       success: true,
       message: `Confirmation emails queued for ${registrations.length} registrations`,

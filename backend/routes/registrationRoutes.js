@@ -26,12 +26,12 @@ router.use(verifyToken);
 router.get("/search/:query", searchRegistration);
 
 // Admin routes (these would typically be protected with authentication middleware)
-router.get("/",  getRegistrations);
+router.get("/", getRegistrations);
 router.get("/download", downloadRegistrations);
 router.get("/stats/summary", getRegistrationStats);
 router.get("/send-confirmation-email", sendConfirmationEmail);
 router.get("/:id", getRegistration);
-router.put("/:id",  updateRegistration);
+router.put("/:id", updateRegistration);
 router.delete("/:id", deleteRegistration);
 router.patch("/:id/verify", verifyRegistration);
 router.patch("/:id/payment", updatePaymentStatus);
