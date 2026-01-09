@@ -20,12 +20,12 @@ const RegistrationSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 py-8 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-yellow-50 py-8 px-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-slate-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       {/* Content Container */}
@@ -43,7 +43,7 @@ const RegistrationSuccess = () => {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="flex justify-center mb-6"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-slate-500 to-amber-500 rounded-full flex items-center justify-center shadow-2xl">
               <svg
                 className="w-12 h-12 sm:w-14 sm:h-14 text-white"
                 fill="none"
@@ -68,12 +68,12 @@ const RegistrationSuccess = () => {
             className="text-center mb-8"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-slate-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                 Registration Successful! 🎉
               </span>
             </h1>
             <p className="text-lg sm:text-xl text-gray-700 font-medium">
-              You're all set for Back to the Hills 5.0!
+              You're all set for the Silver Jubilee Celebration 2026!
             </p>
           </motion.div>
 
@@ -82,11 +82,11 @@ const RegistrationSuccess = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 sm:p-8 mb-8 border-2 border-emerald-200"
+            className="bg-gradient-to-br from-slate-50 to-amber-50 rounded-2xl p-6 sm:p-8 mb-8 border-2 border-slate-200"
           >
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <svg
-                className="w-6 h-6 text-emerald-600"
+                className="w-6 h-6 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -108,7 +108,7 @@ const RegistrationSuccess = () => {
                     <p className="text-sm text-gray-600 mb-1">
                       Registration ID
                     </p>
-                    <p className="text-lg sm:text-xl font-bold text-emerald-600 font-mono">
+                    <p className="text-lg sm:text-xl font-bold text-amber-600 font-mono">
                       {registrationData.registrationId}
                     </p>
                   </div>
@@ -133,7 +133,7 @@ const RegistrationSuccess = () => {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-4 sm:p-5 text-white">
+              <div className="bg-gradient-to-r from-slate-600 to-amber-600 rounded-xl p-4 sm:p-5 text-white">
                 <div className="flex items-center justify-between">
                   <span className="text-sm sm:text-base font-medium">
                     Total Amount Paid
@@ -252,8 +252,8 @@ const RegistrationSuccess = () => {
                   />
                 </svg>
                 <span>
-                  Event Date: <strong>27-28 December 2025</strong> at JNV
-                  Calicut Campus
+                  Event Date: <strong>25th January 2026, 9:00 AM - 5:30 PM</strong> at JNV
+                  Trivandrum Campus
                 </span>
               </li>
             </ul>
@@ -276,7 +276,7 @@ const RegistrationSuccess = () => {
             <div className="space-y-3 text-sm sm:text-base text-amber-900">
               <p className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-emerald-600 flex-shrink-0"
+                  className="w-5 h-5 text-slate-600 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -284,25 +284,25 @@ const RegistrationSuccess = () => {
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
                 <a
-                  href="mailto:btth.jnvcan@gmail.com"
-                  className="hover:text-emerald-600 transition-colors"
+                  href="mailto:contact@jnvta.org"
+                  className="hover:text-amber-600 transition-colors"
                 >
-                  btth.jnvcan@gmail.com
+                  contact@jnvta.org
                 </a>
               </p>
               <p className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-teal-600 flex-shrink-0"
+                  className="w-5 h-5 text-amber-600 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                 </svg>
                 <a
-                  href="tel:+919632755221"
-                  className="hover:text-teal-600 transition-colors"
+                  href="tel:+919876543210"
+                  className="hover:text-amber-600 transition-colors"
                 >
-                  +91 9632755221
+                  +91 98765 43210
                 </a>
               </p>
             </div>
@@ -317,7 +317,7 @@ const RegistrationSuccess = () => {
           >
             <button
               onClick={() => navigate("/registration")}
-              className="flex-1 py-4 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="flex-1 py-4 px-6 bg-gradient-to-r from-slate-600 to-amber-600 text-white rounded-xl font-semibold hover:from-slate-700 hover:to-amber-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <svg
                 className="w-5 h-5"
@@ -362,11 +362,11 @@ const RegistrationSuccess = () => {
             transition={{ delay: 0.8 }}
             className="mt-8 text-center"
           >
-            <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
-              See you at the hills! 🏔️
+            <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent mb-2">
+              See you at the Silver Jubilee! 🎊
             </p>
             <p className="text-sm sm:text-base text-gray-600">
-              We're excited to celebrate this reunion with you!
+              We're excited to celebrate 25 years of excellence with you!
             </p>
           </motion.div>
         </motion.div>
@@ -398,7 +398,7 @@ const RegistrationSuccess = () => {
               href="https://www.xyvin.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-sm sm:text-base text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1 group"
+              className="font-semibold text-sm sm:text-base text-amber-600 hover:text-amber-700 transition-colors inline-flex items-center gap-1 group"
             >
               Xyvin Technologies
               <svg

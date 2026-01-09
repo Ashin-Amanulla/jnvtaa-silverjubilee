@@ -22,8 +22,8 @@ export default function App() {
         }
       >
         <Routes>
-          <Route path="/registration" element={<RegistrationClosed />} />
-          <Route path="/" element={<RegistrationClosed />} />
+          <Route path="/registration" element={<RegistrationForm />} />
+          <Route path="/" element={<RegistrationForm />} />
           <Route
             path="/registration-success"
             element={<RegistrationSuccess />}

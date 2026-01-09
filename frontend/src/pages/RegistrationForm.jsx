@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { createRegistration } from "../api/registration.api";
 
-const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
+const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [guests, setGuests] = useState([]);
@@ -27,11 +27,28 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
       mobile: "",
       gender: "",
       batch: "",
+      rollNumber: "",
 
       // Event Preferences
       foodChoice: "",
       expectedArrivalTime: "",
       overnightAccommodation: "",
+
+      // Volunteer & Event Participation
+      volunteerInterest: {
+        interested: false,
+        programs: [],
+      },
+      committeeInterest: {
+        interested: false,
+        committees: [],
+      },
+      sponsorInterest: {
+        interested: false,
+        details: "",
+      },
+      programIdeas: "",
+      skills: "",
 
       // Attendees
       attendees: {
@@ -61,7 +78,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
   useEffect(() => {
     if (watchedValues.batch) {
       const batchNumber = parseInt(watchedValues.batch.split(" ")[1]);
-      const isFreeBatch = batchNumber >= 28 && batchNumber <= 32;
+      const isFreeBatch = batchNumber >= 15 && batchNumber <= 18;
 
       const billableAdultCount = Math.max(adultCount, 1);
       const additionalAdults = Math.max(billableAdultCount - 1, 0);
@@ -70,15 +87,15 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
 
       // Calculate adult charges
       if (isFreeBatch) {
-        // First adult is free for batches 28-32
+        // First adult is free for batches 15-18
         total += additionalAdults * 200;
       } else {
         // First adult costs 300
         total += 300 + additionalAdults * 200;
       }
 
-      // Children (6-17 years) - Rs 150 each
-      total += childCount * 150;
+      // Children (6-17 years) - FREE for Silver Jubilee
+      // total += childCount * 0;
 
       // Infants are free (no charge)
 
@@ -126,9 +143,24 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             mobile: "",
             gender: "",
             batch: "",
+            rollNumber: "",
             foodChoice: "",
             expectedArrivalTime: "",
             overnightAccommodation: "",
+            volunteerInterest: {
+              interested: false,
+              programs: [],
+            },
+            committeeInterest: {
+              interested: false,
+              committees: [],
+            },
+            sponsorInterest: {
+              interested: false,
+              details: "",
+            },
+            programIdeas: "",
+            skills: "",
             attendees: {
               adults: 1,
               children: 0,
@@ -148,6 +180,13 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                 email: data.email,
                 batch: data.batch,
                 contributionAmount: data.contributionAmount,
+                attendees: {
+                  adults: parseInt(data.attendees?.adults) || 0,
+                  children: parseInt(data.attendees?.children) || 0,
+                  infants: parseInt(data.attendees?.infants) || 0,
+                },
+                guests: guests,
+                totalAttendees: response.data.totalAttendees,
               },
             });
           }, 1500);
@@ -157,7 +196,36 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.");
+
+      // Display detailed error messages from backend
+      if (
+        error.errors &&
+        Array.isArray(error.errors) &&
+        error.errors.length > 0
+      ) {
+        // Show all validation errors
+        error.errors.forEach((errorMsg, index) => {
+          setTimeout(() => {
+            toast.error(errorMsg, {
+              autoClose: 5000,
+              position: "top-right",
+            });
+          }, index * 100); // Stagger the toasts slightly
+        });
+      } else if (error.message) {
+        // Show the main error message
+        toast.error(error.message, {
+          autoClose: 5000,
+        });
+      } else {
+        // Fallback error message
+        toast.error(
+          "Registration failed. Please check all fields and try again.",
+          {
+            autoClose: 5000,
+          }
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -184,18 +252,30 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
   };
 
   return (
-    <div className={isAdminMode ? "w-full" : "min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 py-4 sm:py-8 relative overflow-hidden"}>
+    <div
+      className={
+        isAdminMode
+          ? "w-full"
+          : "min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-yellow-50 py-4 sm:py-8 relative overflow-hidden"
+      }
+    >
       {/* Animated Background Elements - Only show in public mode */}
       {!isAdminMode && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-slate-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
         </div>
       )}
 
       {/* Content Container */}
-      <div className={isAdminMode ? "w-full" : "max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 relative z-10"}>
+      <div
+        className={
+          isAdminMode
+            ? "w-full"
+            : "max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 relative z-10"
+        }
+      >
         {/* Header - Only show in public mode */}
         {!isAdminMode && (
           <motion.div
@@ -208,8 +288,8 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             <div className="mb-8">
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
                 <img
-                  src="/images/poster.jpeg"
-                  alt="Back to the Hills 5.0 - Alumni Meet 2025"
+                  src="/images/poster.jpg"
+                  alt="JNVTA Silver Jubilee - Alumni Reunion 2026"
                   className="w-full h-auto max-h-[500px] sm:max-h-[600px] md:max-h-[700px] object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
@@ -220,21 +300,21 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             <div className="mb-8 relative">
               <div className="inline-block">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3">
-                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
-                    Alumni Reunion 2025
+                  <span className="bg-gradient-to-r from-slate-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+                    Silver Reunion - Celebrating 25 Years
                   </span>
                 </h1>
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="h-1 w-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-                  <div className="h-1 w-8 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full"></div>
-                  <div className="h-1 w-4 bg-blue-500 rounded-full"></div>
+                  <div className="h-1 w-16 bg-gradient-to-r from-slate-500 to-amber-500 rounded-full"></div>
+                  <div className="h-1 w-8 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
+                  <div className="h-1 w-4 bg-yellow-500 rounded-full"></div>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm sm:text-base">
                 <div className="flex items-center gap-2 text-gray-700">
                   <svg
-                    className="w-5 h-5 text-emerald-600"
+                    className="w-5 h-5 text-slate-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -246,11 +326,13 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <span className="font-semibold">27-28 December 2025</span>
+                  <span className="font-semibold">
+                    25th January 2026 | 9:00 AM - 5:30 PM
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-700">
                   <svg
-                    className="w-5 h-5 text-teal-600"
+                    className="w-5 h-5 text-amber-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -268,25 +350,25 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  <span className="font-semibold">JNV Calicut Campus</span>
+                  <span className="font-semibold">JNV Trivandrum Campus</span>
                 </div>
               </div>
             </div>
 
             {/* Welcome Message with Quote */}
             <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border border-emerald-200/50 rounded-2xl p-6">
+              <div className="bg-gradient-to-r from-slate-500/10 to-amber-500/10 backdrop-blur-sm border border-slate-200/50 rounded-2xl p-6">
                 <p className="text-gray-700 text-base sm:text-lg leading-relaxed italic">
-                  "The memories we made within these hills shaped who we are
-                  today. Let's reunite, reminisce, and create new stories
-                  together!"
+                  "25 years of cherished memories, lifelong friendships, and
+                  shared dreams. Let's celebrate this milestone together and
+                  create new memories to treasure!"
                 </p>
               </div>
               <p className="text-gray-600 text-base leading-relaxed">
-                Welcome back to the hills! Join us for an unforgettable alumni
-                reunion where old friendships are rekindled and new connections
-                are made. Secure your spot at this special celebration of our
-                school's legacy.
+                Join us for the Silver Jubilee celebration of JNV Trivandrum!
+                Reconnect with old friends, relive precious memories, and
+                celebrate 25 years of excellence. Be part of this memorable
+                reunion.
               </p>
             </div>
           </motion.div>
@@ -295,7 +377,9 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
         {/* Admin Mode Header */}
         {isAdminMode && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">New Registration</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              New Registration
+            </h2>
             <p className="text-gray-600 mt-1">Onsite quick registration</p>
           </div>
         )}
@@ -307,14 +391,15 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className={isAdminMode 
-              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            className={
+              isAdminMode
+                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -330,7 +415,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-600 to-amber-600 bg-clip-text text-transparent">
                     Personal Information
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
@@ -338,7 +423,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </p>
                 </div>
               </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+              <div className="h-1 w-24 bg-gradient-to-r from-slate-500 to-amber-500 rounded-full"></div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
@@ -354,10 +439,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="text"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
                         errors.name
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                       placeholder="Enter your full name"
                     />
@@ -403,10 +488,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="email"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
                         errors.email
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                       placeholder="your.email@example.com"
                     />
@@ -451,10 +536,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="tel"
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base placeholder:text-gray-400 ${
                         errors.mobile
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                       placeholder="+91 XXXXX XXXXX"
                     />
@@ -493,10 +578,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
                         errors.gender
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                     >
                       <option value="">Select gender</option>
@@ -539,17 +624,17 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
                         errors.batch
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                     >
                       <option value="">Select your batch</option>
-                      {Array.from({ length: 32 }, (_, i) => (
+                      {Array.from({ length: 18 }, (_, i) => (
                         <option key={i + 1} value={`Batch ${i + 1}`}>
                           Batch {i + 1}{" "}
-                          {i + 1 >= 28 && i + 1 <= 32 ? "🎉 (Free Entry)" : ""}
+                          {i + 1 >= 15 && i + 1 <= 18 ? "🎉 (Free Entry)" : ""}
                         </option>
                       ))}
                     </select>
@@ -576,6 +661,25 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </motion.p>
                 )}
               </div>
+
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2.5">
+                  Roll Number{" "}
+                  <span className="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <Controller
+                  name="rollNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      className="w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base placeholder:text-gray-400 border-gray-200 group-hover:border-amber-300"
+                      placeholder="Enter your roll number (optional)"
+                    />
+                  )}
+                />
+              </div>
             </div>
           </motion.div>
 
@@ -584,14 +688,15 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className={isAdminMode 
-              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-teal-200/50 transition-all duration-300"
+            className={
+              isAdminMode
+                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-amber-200/50 transition-all duration-300"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -607,7 +712,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
                     Event Preferences
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
@@ -615,7 +720,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </p>
                 </div>
               </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full"></div>
+              <div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
@@ -630,10 +735,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200 text-base ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
                         errors.foodChoice
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-teal-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                     >
                       <option value="">Select food preference</option>
@@ -675,10 +780,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200 text-base ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
                         errors.expectedArrivalTime
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-teal-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                     >
                       <option value="">Select arrival time</option>
@@ -725,10 +830,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   render={({ field }) => (
                     <select
                       {...field}
-                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200 text-base ${
+                      className={`w-full px-4 sm:px-5 py-3.5 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base ${
                         errors.overnightAccommodation
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-teal-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                     >
                       <option value="">Select preference</option>
@@ -763,14 +868,341 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             </div>
           </motion.div>
 
+          {/* Volunteer & Event Participation Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className={
+              isAdminMode
+                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-indigo-200/50 transition-all duration-300"
+            }
+          >
+            <div className="mb-8">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Volunteer & Event Participation
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Help us make this event memorable
+                  </p>
+                </div>
+              </div>
+              <div className="h-1 w-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+            </div>
+
+            <div className="space-y-8">
+              {/* Volunteer Interest */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-base font-semibold text-gray-700">
+                    Would you like to volunteer for any program?
+                  </label>
+                  <Controller
+                    name="volunteerInterest.interested"
+                    control={control}
+                    render={({ field }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newValue = !field.value;
+                          field.onChange(newValue);
+                          if (!newValue) {
+                            setValue("volunteerInterest.programs", []);
+                          }
+                        }}
+                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                          field.value ? "bg-indigo-600" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                            field.value ? "translate-x-7" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    )}
+                  />
+                </div>
+
+                {watchedValues.volunteerInterest?.interested && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    <p className="text-sm text-gray-600 mb-3">
+                      Select the programs you'd like to volunteer for:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {[
+                        "Cultural Program",
+                        "Sports Event",
+                        "Photography/Videography",
+                        "Alumni Talk/Session",
+                        "Technical Support",
+                        "Other",
+                      ].map((program) => (
+                        <label
+                          key={program}
+                          className="flex items-center space-x-3 p-3 bg-indigo-50 rounded-xl border-2 border-indigo-100 hover:border-indigo-300 cursor-pointer transition-all"
+                        >
+                          <Controller
+                            name="volunteerInterest.programs"
+                            control={control}
+                            render={({ field }) => (
+                              <input
+                                type="checkbox"
+                                checked={
+                                  field.value?.includes(program) || false
+                                }
+                                onChange={(e) => {
+                                  const currentPrograms = field.value || [];
+                                  if (e.target.checked) {
+                                    field.onChange([
+                                      ...currentPrograms,
+                                      program,
+                                    ]);
+                                  } else {
+                                    field.onChange(
+                                      currentPrograms.filter(
+                                        (p) => p !== program
+                                      )
+                                    );
+                                  }
+                                }}
+                                className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              />
+                            )}
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {program}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Committee Interest */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-base font-semibold text-gray-700">
+                    Would you like to be part of event committees?
+                  </label>
+                  <Controller
+                    name="committeeInterest.interested"
+                    control={control}
+                    render={({ field }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newValue = !field.value;
+                          field.onChange(newValue);
+                          if (!newValue) {
+                            setValue("committeeInterest.committees", []);
+                          }
+                        }}
+                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                          field.value ? "bg-indigo-600" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                            field.value ? "translate-x-7" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    )}
+                  />
+                </div>
+
+                {watchedValues.committeeInterest?.interested && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    <p className="text-sm text-gray-600 mb-3">
+                      Select the committees you'd like to join:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {[
+                        "Cultural Committee",
+                        "Registration Committee",
+                        "Food & Catering Committee",
+                        "Logistics Committee",
+                        "Photography Committee",
+                        "Hospitality Committee",
+                        "Other",
+                      ].map((committee) => (
+                        <label
+                          key={committee}
+                          className="flex items-center space-x-3 p-3 bg-purple-50 rounded-xl border-2 border-purple-100 hover:border-purple-300 cursor-pointer transition-all"
+                        >
+                          <Controller
+                            name="committeeInterest.committees"
+                            control={control}
+                            render={({ field }) => (
+                              <input
+                                type="checkbox"
+                                checked={
+                                  field.value?.includes(committee) || false
+                                }
+                                onChange={(e) => {
+                                  const currentCommittees = field.value || [];
+                                  if (e.target.checked) {
+                                    field.onChange([
+                                      ...currentCommittees,
+                                      committee,
+                                    ]);
+                                  } else {
+                                    field.onChange(
+                                      currentCommittees.filter(
+                                        (c) => c !== committee
+                                      )
+                                    );
+                                  }
+                                }}
+                                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                              />
+                            )}
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {committee}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Sponsor Interest */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-base font-semibold text-gray-700">
+                    Are you interested in sponsoring the event?
+                  </label>
+                  <Controller
+                    name="sponsorInterest.interested"
+                    control={control}
+                    render={({ field }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newValue = !field.value;
+                          field.onChange(newValue);
+                          if (!newValue) {
+                            setValue("sponsorInterest.details", "");
+                          }
+                        }}
+                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                          field.value ? "bg-indigo-600" : "bg-gray-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                            field.value ? "translate-x-7" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    )}
+                  />
+                </div>
+
+                {watchedValues.sponsorInterest?.interested && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    <Controller
+                      name="sponsorInterest.details"
+                      control={control}
+                      render={({ field }) => (
+                        <textarea
+                          {...field}
+                          rows={4}
+                          className="w-full px-4 py-3 bg-white/50 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-gray-400 resize-none"
+                          placeholder="Please provide details about your sponsorship interest (e.g., sponsorship level, type, contact information, etc.)"
+                        />
+                      )}
+                    />
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Program Ideas */}
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-700">
+                  Do you have any program/event ideas?
+                </label>
+                <Controller
+                  name="programIdeas"
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      rows={4}
+                      className="w-full px-4 py-3 bg-white/50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-gray-400 resize-none"
+                      placeholder="Share your creative ideas for programs, activities, or events that could make the reunion more memorable..."
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Skills/Expertise */}
+              <div className="space-y-3">
+                <label className="block text-base font-semibold text-gray-700">
+                  What skills or expertise can you contribute?
+                </label>
+                <Controller
+                  name="skills"
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      rows={4}
+                      className="w-full px-4 py-3 bg-white/50 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 text-base placeholder:text-gray-400 resize-none"
+                      placeholder="Tell us about your skills, expertise, or resources you can contribute (e.g., photography, event management, technical skills, etc.)"
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          </motion.div>
+
           {/* Number of Attendees Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className={isAdminMode 
-              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
+            className={
+              isAdminMode
+                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-purple-200/50 transition-all duration-300"
             }
           >
             <div className="mb-8">
@@ -817,9 +1249,9 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                         watchedValues.batch?.split(" ")[1]
                       );
                       const isFreeBatch =
-                        batchNumber >= 28 && batchNumber <= 32;
+                        batchNumber >= 15 && batchNumber <= 18;
                       if (isFreeBatch)
-                        return "🎉 ₹0 for 1st adult (Batches 28-32)";
+                        return "🎉 ₹0 for 1st adult (Batches 15-18)";
                       return "₹300 for 1st adult";
                     })()}
                   </span>
@@ -892,8 +1324,12 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </span>
                 </div>
                 <div className="space-y-2 mb-4">
-                  <span className="text-sm text-gray-600 block">₹150 each</span>
-                  <span className="text-sm text-gray-400 block">&nbsp;</span>
+                  <span className="text-sm font-bold text-blue-600 block">
+                    🎁 FREE
+                  </span>
+                  <span className="text-sm text-gray-400 block">
+                    Silver Jubilee Special
+                  </span>
                 </div>
                 <div className="flex items-center justify-center space-x-3">
                   <motion.button
@@ -1039,9 +1475,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4 }}
-                  className={isAdminMode 
-                    ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-                    : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
+                  className={
+                    isAdminMode
+                      ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                      : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-orange-200/50 transition-all duration-300"
                   }
                 >
                   <div className="mb-8">
@@ -1249,14 +1686,15 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className={isAdminMode 
-              ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
-              : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
+            className={
+              isAdminMode
+                ? "bg-white rounded-lg border border-gray-200 shadow-sm p-6"
+                : "bg-white/70 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-6 sm:p-8 lg:p-10 hover:shadow-emerald-200/50 transition-all duration-300"
             }
           >
             <div className="mb-8">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -1272,7 +1710,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-600 to-amber-600 bg-clip-text text-transparent">
                     Payment Details
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
@@ -1280,17 +1718,17 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                   </p>
                 </div>
               </div>
-              <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"></div>
+              <div className="h-1 w-24 bg-gradient-to-r from-slate-500 to-amber-500 rounded-full"></div>
             </div>
 
             <div className="space-y-6">
               {/* Payment Information */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-100 rounded-2xl p-6 sm:p-8">
+              <div className="bg-gradient-to-br from-slate-50 to-amber-50 border-2 border-slate-100 rounded-2xl p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h4 className="text-xl font-bold text-gray-900">
                     💰 Payment Summary
                   </h4>
-                  <span className="px-4 py-2 bg-emerald-100 text-emerald-700 font-bold rounded-full text-lg">
+                  <span className="px-4 py-2 bg-amber-100 text-amber-700 font-bold rounded-full text-lg">
                     ₹{watchedValues.contributionAmount || 0}
                   </span>
                 </div>
@@ -1322,7 +1760,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                                 <span className="text-gray-700">
                                   👨‍👩‍👧‍👦 Adults (1st) - Batch {batchNumber}
                                 </span>
-                                <span className="font-bold text-emerald-600">
+                                <span className="font-bold text-amber-600">
                                   1 × ₹0 = ₹0
                                 </span>
                               </div>
@@ -1368,15 +1806,15 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                             <span className="text-gray-700">
                               👦👧 Children (6-17 years)
                             </span>
-                            <span className="font-bold text-gray-900">
-                              {childCount} × ₹150 = ₹{childCount * 150}
+                            <span className="font-bold text-blue-600">
+                              {childCount} × FREE = FREE
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-gray-700">
                               👶 Infants (0-5 years)
                             </span>
-                            <span className="font-bold text-emerald-600">
+                            <span className="font-bold text-amber-600">
                               {infantCount} × FREE = FREE
                             </span>
                           </div>
@@ -1386,9 +1824,9 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                           <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-gradient-to-r from-emerald-100 to-green-100 p-4 rounded-xl border-2 border-emerald-200"
+                            className="bg-gradient-to-r from-amber-100 to-yellow-100 p-4 rounded-xl border-2 border-amber-200"
                           >
-                            <p className="text-sm text-emerald-800 flex items-center font-medium">
+                            <p className="text-sm text-amber-800 flex items-center font-medium">
                               <svg
                                 className="w-5 h-5 mr-2 flex-shrink-0"
                                 fill="currentColor"
@@ -1400,13 +1838,14 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                                   clipRule="evenodd"
                                 />
                               </svg>
-                              🎉 Free registration for Batches 28-32! Only
-                              additional adults pay ₹200 each.
+                              🎉 Free registration for Batches 15-18! Only
+                              additional adults pay ₹200 each. All children
+                              FREE!
                             </p>
                           </motion.div>
                         )}
 
-                        <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl p-5 text-white">
+                        <div className="bg-gradient-to-r from-slate-600 to-amber-600 rounded-2xl p-5 text-white">
                           <div className="flex justify-between items-center">
                             <span className="text-lg font-bold">
                               Total Amount Payable
@@ -1473,32 +1912,34 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                     <div className="space-y-3">
                       <p className="flex items-start gap-2">
                         <strong className="min-w-[110px]">Bank:</strong>
-                        <span>Punjab National Bank</span>
+                        <span>Federal Bank</span>
                       </p>
                       <p className="flex items-start gap-2">
                         <strong className="min-w-[110px]">
                           Account Holder:
                         </strong>
-                        <span>
-                          JAWAHAR NAVODAYA VIDYALAYA CALICUT ALUMNI NETWORK
-                        </span>
+                        <span>MANU J</span>
                       </p>
                       <p className="flex items-start gap-2">
                         <strong className="min-w-[110px]">UPI ID:</strong>
                         <span className="font-mono bg-blue-100 px-2 py-1 rounded">
-                          9496470738m@pnb
+                          manujayendran@okaxis
                         </span>
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <strong className="min-w-[110px]">Mobile:</strong>
+                        <span className="font-mono">+91 95397 53410</span>
                       </p>
                     </div>
                     <div className="space-y-3">
                       <p className="flex items-start gap-2">
                         <strong className="min-w-[110px]">Account No:</strong>
-                        <span className="font-mono">4274000102054962</span>
+                        <span className="font-mono">99980102794869</span>
                       </p>
                       <p className="flex items-start gap-2">
                         <strong className="min-w-[110px]">IFSC Code:</strong>
                         <span className="font-mono bg-blue-100 px-2 py-1 rounded">
-                          PUNB0427400
+                          FDRL0001249
                         </span>
                       </p>
                       <p className="flex items-start gap-2">
@@ -1544,10 +1985,10 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                     <input
                       {...field}
                       type="text"
-                      className={`w-full px-5 py-4 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-base placeholder:text-gray-400 font-mono ${
+                      className={`w-full px-5 py-4 bg-white/50 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200 text-base placeholder:text-gray-400 font-mono ${
                         errors.paymentTransactionId
                           ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-gray-200 group-hover:border-emerald-300"
+                          : "border-gray-200 group-hover:border-amber-300"
                       }`}
                       placeholder="Enter transaction ID (e.g., UTR/UPI Reference Number)"
                     />
@@ -1609,11 +2050,11 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
               className={`group relative w-full py-5 px-6 text-base sm:text-lg font-bold rounded-2xl transition-all duration-300 overflow-hidden ${
                 isSubmitting || !isValid
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 text-white shadow-2xl hover:shadow-emerald-500/50 active:shadow-lg"
+                  : "bg-gradient-to-r from-slate-600 via-amber-600 to-yellow-600 text-white shadow-2xl hover:shadow-amber-500/50 active:shadow-lg"
               }`}
             >
               {!isSubmitting && isValid && (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-400 via-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               )}
 
               <div className="relative z-10">
@@ -1639,7 +2080,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span>Complete Registration for Back to Hills 5.0</span>
+                    <span>Complete Registration for Silver Jubilee 2026</span>
                     <svg
                       className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"
                       fill="none"
@@ -1686,7 +2127,7 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                 href="https://www.xyvin.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-sm sm:text-base text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1 group"
+                className="font-semibold text-sm sm:text-base text-amber-600 hover:text-amber-700 transition-colors inline-flex items-center gap-1 group"
               >
                 Xyvin Technologies
                 <svg
@@ -1715,16 +2156,16 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
           className="text-center mt-12 sm:mt-16 space-y-4 sm:space-y-6"
         >
           <div className="flex items-center justify-center gap-3 text-xl sm:text-2xl font-bold">
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
-              Welcome Back to the Hills!
+            <span className="bg-gradient-to-r from-slate-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+              Celebrating 25 Years of Excellence!
             </span>
-            <span className="text-2xl sm:text-3xl animate-bounce">🏔️</span>
+            <span className="text-2xl sm:text-3xl animate-bounce">🎊</span>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
             <div className="flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-emerald-600"
+                className="w-4 h-4 text-slate-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -1732,32 +2173,33 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
               </svg>
               <a
-                href="mailto:btth.jnvcan@gmail.com"
-                className="hover:text-emerald-600 transition-colors"
+                href="mailto:contact@jnvta.org"
+                className="hover:text-amber-600 transition-colors"
               >
-                btth.jnvcan@gmail.com
+                contact@jnvta.org
               </a>
             </div>
             <span className="hidden sm:inline text-gray-400">•</span>
             <div className="flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-teal-600"
+                className="w-4 h-4 text-amber-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
               </svg>
               <a
-                href="tel:+919632755221"
-                className="hover:text-teal-600 transition-colors"
+                href="tel:+919876543210"
+                className="hover:text-amber-600 transition-colors"
               >
-                +91 9632755221
+                +91 98765 43210
               </a>
             </div>
           </div>
 
           <p className="text-xs text-gray-500">
-            © 2025 JNV Calicut Alumni Network. All rights reserved.
+            © 2026 JNVTA - Jawahar Navodaya Vidyalaya Trivandrum Alumni
+            Association. All rights reserved.
           </p>
         </motion.div>
       </div>
@@ -1765,4 +2207,4 @@ const BackToHillsRegistrationForm = ({ isAdminMode = false }) => {
   );
 };
 
-export default BackToHillsRegistrationForm;
+export default JNVTASilverReunionForm;

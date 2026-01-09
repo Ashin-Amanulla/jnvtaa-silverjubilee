@@ -1,6 +1,6 @@
-# Back to Hills 4.0 Alumni Registration API
+# JNVTA Silver Jubilee 2026 Alumni Registration API
 
-A comprehensive backend API for managing Back to Hills 4.0 alumni meet registrations built with Node.js, Express, and MongoDB.
+A comprehensive backend API for managing JNVTA Silver Jubilee 2026 alumni meet registrations built with Node.js, Express, and MongoDB.
 
 ## 🚀 Features
 

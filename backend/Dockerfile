@@ -1,4 +1,4 @@
-# Production Dockerfile for Back to Hills Backend
+# Production Dockerfile for JNVTA Silver Jubilee 2026 Backend
 FROM node:20-alpine
 
 # Set working directory

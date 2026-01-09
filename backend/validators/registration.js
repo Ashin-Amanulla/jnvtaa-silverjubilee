@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-// Personal Details Validation for Back to Hills 4.0
+// Personal Details Validation for JNVTA Silver Jubilee 2026
 const personalDetailsSchema = {
   name: Joi.string().trim().min(2).max(100).required().messages({
     "string.empty": "Full name is required",
@@ -50,28 +50,18 @@ const personalDetailsSchema = {
       "Batch 15",
       "Batch 16",
       "Batch 17",
-      "Batch 18",
-      "Batch 19",
-      "Batch 20",
-      "Batch 21",
-      "Batch 22",
-      "Batch 23",
-      "Batch 24",
-      "Batch 25",
-      "Batch 26",
-      "Batch 27",
-      "Batch 28",
-      "Batch 29",
-      "Batch 30",
-      "Batch 31",
-      "Batch 32"
+      "Batch 18"
     )
     .required()
     .messages({
-      "any.only": "Please select a valid batch (Batch 1 - Batch 32)",
+      "any.only": "Please select a valid batch (Batch 1 - Batch 18)",
       "string.empty": "Batch is required",
       "any.required": "Batch is required",
     }),
+
+  rollNumber: Joi.string().trim().max(50).allow("").optional().messages({
+    "string.max": "Roll number cannot exceed 50 characters",
+  }),
 };
 
 // Event Preferences Validation
@@ -152,6 +142,69 @@ const guestsSchema = Joi.array().items(guestSchema).optional().messages({
   "array.base": "Guests must be an array",
 });
 
+// Volunteer & Event Participation Validation
+const volunteerPrograms = [
+  "Cultural Program",
+  "Sports Event",
+  "Photography/Videography",
+  "Alumni Talk/Session",
+  "Technical Support",
+  "Other",
+];
+
+const committees = [
+  "Cultural Committee",
+  "Registration Committee",
+  "Food & Catering Committee",
+  "Logistics Committee",
+  "Photography Committee",
+  "Hospitality Committee",
+  "Other",
+];
+
+const volunteerInterestSchema = Joi.object({
+  interested: Joi.boolean().default(false).messages({
+    "boolean.base": "Volunteer interest must be a boolean value",
+  }),
+  programs: Joi.array()
+    .items(Joi.string().valid(...volunteerPrograms))
+    .default([])
+    .messages({
+      "array.base": "Programs must be an array",
+      "any.only": "Invalid program selected",
+    }),
+}).optional();
+
+const committeeInterestSchema = Joi.object({
+  interested: Joi.boolean().default(false).messages({
+    "boolean.base": "Committee interest must be a boolean value",
+  }),
+  committees: Joi.array()
+    .items(Joi.string().valid(...committees))
+    .default([])
+    .messages({
+      "array.base": "Committees must be an array",
+      "any.only": "Invalid committee selected",
+    }),
+}).optional();
+
+const sponsorInterestSchema = Joi.object({
+  interested: Joi.boolean().default(false).messages({
+    "boolean.base": "Sponsor interest must be a boolean value",
+  }),
+  details: Joi.string().trim().max(1000).allow("").default("").messages({
+    "string.max": "Sponsor details cannot exceed 1000 characters",
+  }),
+}).optional();
+
+const programIdeasSchema = Joi.string().trim().max(2000).allow("").default("").messages({
+  "string.max": "Program ideas cannot exceed 2000 characters",
+});
+
+const skillsSchema = Joi.string().trim().max(1000).allow("").default("").messages({
+  "string.max": "Skills cannot exceed 1000 characters",
+});
+
 // Payment Validation
 const paymentSchema = {
   contributionAmount: Joi.number().min(0).required().messages({
@@ -166,7 +219,7 @@ const paymentSchema = {
   }),
 };
 
-// Main Registration Validation Schema for Back to Hills 4.0
+// Main Registration Validation Schema for JNVTA Silver Jubilee 2026
 const createRegistrationSchema = Joi.object({
   // Personal Details
   ...personalDetailsSchema,
@@ -180,6 +233,13 @@ const createRegistrationSchema = Joi.object({
   // Guest Information
   guests: guestsSchema,
 
+  // Volunteer & Event Participation
+  volunteerInterest: volunteerInterestSchema,
+  committeeInterest: committeeInterestSchema,
+  sponsorInterest: sponsorInterestSchema,
+  programIdeas: programIdeasSchema.optional(),
+  skills: skillsSchema.optional(),
+
   // Payment Information
   ...paymentSchema,
 });
@@ -192,6 +252,7 @@ const updateRegistrationSchema = Joi.object({
   mobile: personalDetailsSchema.mobile.optional(),
   gender: personalDetailsSchema.gender.optional(),
   batch: personalDetailsSchema.batch.optional(),
+  rollNumber: personalDetailsSchema.rollNumber.optional(),
 
   // Event Preferences
   foodChoice: eventPreferencesSchema.foodChoice.optional(),
@@ -202,6 +263,13 @@ const updateRegistrationSchema = Joi.object({
   // Attendees and Guests
   attendees: attendeesSchema.optional(),
   guests: guestsSchema,
+
+  // Volunteer & Event Participation
+  volunteerInterest: volunteerInterestSchema,
+  committeeInterest: committeeInterestSchema,
+  sponsorInterest: sponsorInterestSchema,
+  programIdeas: programIdeasSchema.optional(),
+  skills: skillsSchema.optional(),
 
   // Payment Information
   contributionAmount: paymentSchema.contributionAmount.optional(),

@@ -18,7 +18,7 @@ const RegistrationClosed = () => {
             <div className="relative max-w-full">
               <img
                 src="/images/poster2.jpeg"
-                alt="Back To The Hills 2025 Event Poster"
+                  alt="JNVTA Silver Jubilee 2026 Event Poster"
                 className="w-full h-auto rounded-2xl shadow-2xl border-4 border-white/30 max-w-2xl mx-auto"
               />
             </div>
@@ -44,7 +44,7 @@ const RegistrationClosed = () => {
                 />
               </svg>
               <span className="text-sm sm:text-base">
-                Jawahar Navodaya Vidyalaya Calicut Alumni Network
+                Jawahar Navodaya Vidyalaya Trivandrum Alumni Association (JNVTA)
               </span>
             </div>
           </div>
@@ -52,10 +52,10 @@ const RegistrationClosed = () => {
           {/* Event Details */}
           <div className="mt-8 text-center">
             <p className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              BTTH - Back To The Hills 2025
+              JNVTA Silver Jubilee 2026
             </p>
             <p className="text-lg text-white/80">
-              December 27-28, 2025
+              January 25th, 2026 | 9:00 AM - 5:30 PM
             </p>
           </div>
         </div>

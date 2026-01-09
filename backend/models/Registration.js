@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// Back to Hills 4.0 Alumni Meet Registration Schema
+// JNVTA Silver Jubilee 2026 Alumni Meet Registration Schema
 const registrationSchema = new mongoose.Schema(
   {
     // Registration ID
@@ -69,6 +69,11 @@ const registrationSchema = new mongoose.Schema(
         "Batch 32",
       ],
     },
+    rollNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
     // Event Preferences
     foodChoice: {
@@ -118,6 +123,46 @@ const registrationSchema = new mongoose.Schema(
         },
       },
     ],
+
+    // Volunteer & Event Participation
+    volunteerInterest: {
+      interested: {
+        type: Boolean,
+        default: false,
+      },
+      programs: {
+        type: [String],
+        default: [],
+      },
+    },
+    committeeInterest: {
+      interested: {
+        type: Boolean,
+        default: false,
+      },
+      committees: {
+        type: [String],
+        default: [],
+      },
+    },
+    sponsorInterest: {
+      interested: {
+        type: Boolean,
+        default: false,
+      },
+      details: {
+        type: String,
+        default: "",
+      },
+    },
+    programIdeas: {
+      type: String,
+      default: "",
+    },
+    skills: {
+      type: String,
+      default: "",
+    },
 
     // Payment
     contributionAmount: {
@@ -181,8 +226,37 @@ registrationSchema.virtual("isFreeBatch").get(function () {
 // Pre-save hook to generate registration ID
 registrationSchema.pre("save", async function (next) {
   // Only generate registration ID if it doesn't exist
-  if (!this.registrationId && this._id) {
-    this.registrationId = `BTH4${this._id.toString().slice(-8).toUpperCase()}`;
+  if (!this.registrationId) {
+    try {
+      // Find the highest existing registration number
+      const RegistrationModel = mongoose.model("Registration");
+      const lastRegistration = await RegistrationModel.findOne(
+        { registrationId: { $regex: /^JNTAA/ } },
+        {},
+        { sort: { registrationId: -1 } }
+      );
+
+      let nextNumber = 1;
+      if (lastRegistration && lastRegistration.registrationId) {
+        // Extract the number from the last registration ID (e.g., "JNTAA00001" -> 1)
+        const lastNumber = parseInt(
+          lastRegistration.registrationId.replace("JNTAA", ""),
+          10
+        );
+        if (!isNaN(lastNumber)) {
+          nextNumber = lastNumber + 1;
+        }
+      }
+
+      // Generate JNTAA followed by a 5-digit incrementing number (padded with zeros)
+      const registrationNumber = String(nextNumber).padStart(5, "0");
+      this.registrationId = `JNTAA${registrationNumber}`;
+    } catch (error) {
+      console.error("Error generating registration ID:", error);
+      // Fallback: use timestamp-based ID
+      const timestamp = Date.now().toString().slice(-8);
+      this.registrationId = `JNTAA${timestamp}`;
+    }
   }
   next();
 });

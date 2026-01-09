@@ -43,7 +43,7 @@ app.use(morgan("dev"));
 app.get("/health", (req, res) => {
   res.json({
     success: true,
-    message: "Back to Hills 5.0 Alumni Registration API is running",
+    message: "JNVTA Silver Jubilee 2026 Alumni Registration API is running",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
   });
@@ -57,7 +57,7 @@ app.use("/api/registrations", registrationRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Welcome to BTTH 5.0 API ",     
+    message: "Welcome to JNVTA Silver Jubilee 2026 API",     
     version: "1.0.0",
     endpoints: {
       health: "/health",
@@ -88,7 +88,7 @@ const server = app.listen(PORT, () => {
 📡 Server listening on port ${PORT}
 🌐 Health check: http://localhost:${PORT}/health
 📋 API base URL: http://localhost:${PORT}/api
-🎉 BTTH 5.0 API ready!
+🎉 JNVTA Silver Jubilee 2026 API ready!
   `);
 });
 

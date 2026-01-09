@@ -1,6 +1,6 @@
 const Registration = require("../models/Registration");
 const moment = require("moment-timezone");
-const { sendSuccessEmail } = require("../utils/email");
+const { sendSuccessEmailBackground } = require("../utils/email");
 
 // @desc    Create new registration
 // @route   POST /api/registrations
@@ -38,13 +38,12 @@ const createRegistration = async (req, res, next) => {
 
     // Create registration
     const registration = await Registration.create(req.body);
-    let emailResponse = await sendSuccessEmail(registration);
-    if (emailResponse.error) {
-      registration.isEmailSent = false;
-    } else {
-      registration.isEmailSent = true;
-    }
-    await registration.save();
+    
+    // Send email in background (non-blocking)
+    // This won't block the response and won't cause registration to fail if email fails
+    // The background function will update isEmailSent status automatically
+    sendSuccessEmailBackground(registration);
+
     res.status(201).json({
       success: true,
       message: "Registration created successfully",
@@ -333,7 +332,7 @@ const getRegistrationStats = async (req, res, next) => {
       JSON.stringify(sampleReg, null, 2)
     );
 
-    // Additional statistics for Back to Hills 4.0
+    // Additional statistics for JNVTA Silver Jubilee 2026
     const batchStats = await Registration.aggregate([
       {
         $group: {
@@ -659,15 +658,16 @@ const sendConfirmationEmail = async (req, res, next) => {
     console.log("Sending confirmation emails");
     const registrations = await Registration.find({ isEmailSent: false });
     console.log(`${registrations.length} registrations found`);
+    
+    // Send emails in background - the background function will update status automatically
     for (const registration of registrations) {
-      await sendSuccessEmail(registration);
-      registration.isEmailSent = true;
-      await registration.save();
-      console.log(`${registration.name} email sent`);
+      sendSuccessEmailBackground(registration);
     }
+    
     res.json({
       success: true,
-      message: "Confirmation emails sent successfully",
+      message: `Confirmation emails queued for ${registrations.length} registrations`,
+      queued: registrations.length,
     });
   } catch (error) {
     console.error("Error sending confirmation emails:", error);

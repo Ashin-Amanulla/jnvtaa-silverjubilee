@@ -1,6 +1,6 @@
-# Back to Hills 4.0 Alumni Registration Form
+# JNVTA Silver Jubilee 2026 Alumni Registration Form
 
-A beautiful, responsive registration form for Back to Hills 4.0 alumni meet built with React, Tailwind CSS, and Framer Motion.
+A beautiful, responsive registration form for JNVTA Silver Jubilee 2026 alumni meet built with React, Tailwind CSS, and Framer Motion.
 
 ## Features
 

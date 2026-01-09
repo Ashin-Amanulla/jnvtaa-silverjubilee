@@ -1,5 +1,5 @@
 You are given an existing MERN stack project cloned from another event.
-Now adapt this project for a school alumni meet called "Back to Hills 4.0".
+This project is for JNVTA (Jawahar Navodaya Vidyalaya Trivandrum Alumni Association) Silver Jubilee 2026 alumni meet registration.
 
 Tasks:
 
@@ -89,4 +89,4 @@ Updated backend routes to handle new schema and store data.
 
 Ensure proper payment summary logic before submission.
 
-Rename the project and references to "Back to Hills 4.0".
+The project has been configured for "JNVTA Silver Jubilee 2026 - Celebrating 25 Years".

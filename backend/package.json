@@ -1,7 +1,7 @@
 {
-  "name": "back-to-hills-registration-backend",
+  "name": "jnvta-silver-reunion-backend",
   "version": "1.0.0",
-  "description": "Backend API for Back to Hills 4.0 Alumni Meet Registration",
+  "description": "Backend API for JNVTA Silver Jubilee 2026 Alumni Meet Registration",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

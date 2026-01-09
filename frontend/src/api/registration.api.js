@@ -6,11 +6,37 @@ const API_URL =
   import.meta.env.VITE_API_URL || "https://api-btth.jnvcan.com/api";
 
 export const createRegistration = async (registrationData) => {
-  const response = await axios.post(
-    `${API_URL}/registrations`,
-    registrationData
-  );
-  return response.data;
+  try {
+    const response = await axios.post(
+      `${API_URL}/registrations`,
+      registrationData
+    );
+    return response.data;
+  } catch (error) {
+    // Extract error details from backend response
+    if (error.response) {
+      // Backend returned an error response
+      const errorData = error.response.data;
+      throw {
+        message: errorData.message || "Registration failed",
+        errors: errorData.errors || [],
+        status: error.response.status,
+        data: errorData,
+      };
+    } else if (error.request) {
+      // Request was made but no response received
+      throw {
+        message: "Network error. Please check your connection and try again.",
+        errors: [],
+      };
+    } else {
+      // Something else happened
+      throw {
+        message: error.message || "An unexpected error occurred",
+        errors: [],
+      };
+    }
+  }
 };
 
 export const getRegistrations = async (params) => {

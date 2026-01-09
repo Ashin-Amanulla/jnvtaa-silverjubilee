@@ -2,8 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
 const sampleAdmin = {
-  username: "btth.jnvcan@gmail.com",
-  password: "btth@2025",
+  username: "admin@jnvta.org",
+  password: "jnvta@2026",
 };
 
 const seedDatabase = async () => {

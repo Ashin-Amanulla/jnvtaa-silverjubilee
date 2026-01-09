@@ -14,12 +14,12 @@ const {
   sendConfirmationEmail,
 } = require("../controllers/registrationController");
 const {
-
+  validateRegistrationData,
   validateQueryParams,
 } = require("../middlewares/validation");
 const verifyToken = require("../middlewares/auth");
-// Public routess
-router.post("/", createRegistration);
+// Public routes
+router.post("/", validateRegistrationData, createRegistration);
 
 //create auth routes
 router.use(verifyToken);

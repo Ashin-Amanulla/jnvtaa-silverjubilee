@@ -43,7 +43,7 @@ const DashboardLayout = ({ children }) => {
             {children}
             <div className="my-6 text-center">
             <p className="text-sm text-gray-500"> Created by  <a href="https://www.xyvin.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500"> Xyvin Technologies </a> </p>
-            <p className="text-sm text-gray-500"> © 2025 JNV Calicut Alumni Network. All rights reserved. </p>
+            <p className="text-sm text-gray-500"> © 2026 JNVTA. All rights reserved. </p>
             </div>
           </div>
         </main>
