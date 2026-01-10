@@ -49,22 +49,19 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-blue-500 rounded-full blur opacity-20"></div>
               <img
-                src="/images/logo.jpeg"
+                src="/logo.png"
                 alt="JNVTA Logo"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#1A237E] object-cover relative z-10"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full  object-cover relative z-10"
               />
             </div>
             <div className="flex flex-col">
               <span className={`font-heading font-bold text-xl sm:text-2xl leading-none ${
                   isScrolled ? "text-[#1A237E]" : "text-[#1A237E]"
               }`}>
-                JNVTA
+                JNV Trivandrum Alumni Association
               </span>
-              <span className="text-[0.65rem] sm:text-xs tracking-widest uppercase text-[#D4AF37] font-semibold">
-                Silver Jubilee 2026
-              </span>
+             
             </div>
           </Link>
 
