@@ -6,25 +6,39 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Navigate } from "react-router-dom";
-import RegistrationClosed from "./pages/RegistrationClosed";
 
-const HomePage = lazy(() => import("./pages/HomePage"));
+// Lazy load pages
+const AssociationHome = lazy(() => import("./pages/AssociationHome"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const EventsPage = lazy(() => import("./pages/EventsPage"));
+const SilverJubileePage = lazy(() => import("./pages/SilverJubileePage"));
+const NewsPage = lazy(() => import("./pages/NewsPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
+
+// Loading component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#FDF4E6]">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-[#1A237E]/20 border-t-[#1A237E] rounded-full animate-spin mx-auto mb-4"></div>
+      <p className="text-[#4B5563] font-medium">Loading...</p>
+    </div>
+  </div>
+);
 
 export default function App() {
   return (
     <Router>
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            Loading...
-          </div>
-        }
-      >
+      <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Home Page - Landing Page */}
-          <Route path="/" element={<HomePage />} />
+          {/* Main Association Pages */}
+          <Route path="/" element={<AssociationHome />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/silver-jubilee" element={<SilverJubileePage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* Registration Routes */}
           <Route path="/register" element={<RegistrationForm />} />
@@ -33,6 +47,8 @@ export default function App() {
             path="/registration-success"
             element={<RegistrationSuccess />}
           />
+
+          {/* Admin Routes */}
           <Route path="/login" element={<Login />} />
           <Route
             path="/dashboard"
@@ -67,6 +83,7 @@ export default function App() {
             }
           />
 
+          {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
@@ -85,3 +102,4 @@ export default function App() {
     </Router>
   );
 }
+

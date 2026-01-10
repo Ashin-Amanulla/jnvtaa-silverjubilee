@@ -38,8 +38,8 @@ const contactInfo = [
   {
     icon: FaEnvelope,
     label: "Email",
-    value: "jnvta.reunion@gmail.com",
-    href: "mailto:jnvta.reunion@gmail.com",
+    value: "info@jnvtaa.in",
+    href: "mailto:info@jnvtaa.in",
   },
   {
     icon: FaMapMarkerAlt,
