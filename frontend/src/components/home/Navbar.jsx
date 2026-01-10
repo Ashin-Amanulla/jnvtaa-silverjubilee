@@ -59,9 +59,11 @@ const Navbar = () => {
               <span className={`font-heading font-bold text-xl sm:text-2xl leading-none ${
                   isScrolled ? "text-[#1A237E]" : "text-[#1A237E]"
               }`}>
-                JNV Trivandrum Alumni Association
+                JNV Trivandrum
               </span>
-             
+              <span className="text-[0.65rem] sm:text-xs tracking-widest uppercase text-[#D4AF37] font-semibold">
+                Alumni Association
+              </span>
             </div>
           </Link>
 

@@ -91,16 +91,16 @@ const Footer = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-500 rounded-full blur opacity-30"></div>
                 <img
-                  src="/images/logo.jpeg"
+                  src="/logo.png"
                   alt="JNVTA Logo"
                   className="relative w-14 h-14 rounded-full border-2 border-[#D4AF37] object-cover"
                 />
               </div>
               <div>
                 <h3 className="font-heading text-xl font-bold text-[#FDF4E6]">
-                  JNVTA
+                  JNV Trivandrum
                 </h3>
-                <p className="text-xs text-[#D4AF37] uppercase tracking-wider">Silver Jubilee 2026</p>
+                <p className="text-xs text-[#D4AF37] uppercase tracking-wider">Alumni Association</p>
               </div>
             </div>
             <p className="font-body text-gray-400 text-sm leading-relaxed mb-6">
