@@ -1,6 +1,7 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react"; // Added hooks
+import { motion, AnimatePresence } from "framer-motion"; // Added AnimatePresence
 import { Link } from "react-router-dom";
+import { fetchAllImages } from "../api/galleryApi"; // Added API import
 import {
   FaCalendarAlt,
   FaUsers,
@@ -67,21 +68,66 @@ const getCountdown = () => {
 
 const AssociationHome = () => {
   const daysLeft = getCountdown();
+  const [heroImages, setHeroImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const data = await fetchAllImages();
+        if (data.success && data.data.allImages.length > 0) {
+          // Shuffle and pick a few images for the hero
+          const shuffled = data.data.allImages.sort(() => 0.5 - Math.random());
+          setHeroImages(shuffled.slice(0, 5));
+        }
+      } catch (error) {
+        console.error("Failed to load hero images:", error);
+      }
+    };
+    loadImages();
+  }, []);
+
+  useEffect(() => {
+    if (heroImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // Change image every 5 seconds
+    return () => clearInterval(interval);
+  }, [heroImages]);
 
   return (
     <PageLayout>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FDF4E6] via-[#FFF8E7] to-[#FDF4E6]" />
+        {/* Carousel Background */}
+        <div className="absolute inset-0 z-0">
+           <AnimatePresence mode="popLayout">
+            {heroImages.length > 0 ? (
+              <motion.img
+                key={currentImageIndex}
+                src={heroImages[currentImageIndex].url}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5 }}
+                className="absolute inset-0 w-full h-full object-cover"
+                alt="Association Hero Background"
+              />
+            ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FDF4E6] via-[#FFF8E7] to-[#FDF4E6]" />
+            )}
+           </AnimatePresence>
+            {/* Overlay to ensure text readability */}
+           <div className="absolute inset-0 bg-[#FDF4E6]/90" />
+        </div>
         
         {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-[100px] animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-[#1A237E]/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: "2s" }} />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px] animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-[#1A237E]/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: "2s" }} />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-16">
           <div className="text-center">
             {/* Badge */}
             <motion.div

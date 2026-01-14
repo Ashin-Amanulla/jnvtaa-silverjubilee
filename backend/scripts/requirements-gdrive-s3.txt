@@ -1,0 +1,13 @@
+# Google Drive to S3 Transfer Script Dependencies
+# Install with: pip install -r requirements-gdrive-s3.txt
+
+# Google APIs
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-api-python-client>=2.0.0
+
+# AWS
+boto3>=1.26.0
+
+# Environment variables
+python-dotenv>=1.0.0

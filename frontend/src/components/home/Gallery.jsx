@@ -2,52 +2,20 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiX, HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { FaCamera } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { fetchAllImages } from "../../api/galleryApi";
 
-// Default gallery images
-const defaultGalleryImages = [
-  {
-    src: "/images/poster.jpg",
-    alt: "JNV Campus Memory",
-    caption: "Our Beautiful Campus",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Alumni Gathering",
-    caption: "Alumni Gathering",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "JNVTA Pride",
-    caption: "JNVTA Pride",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Classroom",
-    caption: "Classroom Memories",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Cultural Fest",
-    caption: "Cultural Fest",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Sports Day",
-    caption: "Sports Day",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Assembly",
-    caption: "Morning Assembly",
-  },
-  {
-    src: "/images/poster.jpg",
-    alt: "Friends",
-    caption: "Lifelong Friends",
-  },
-];
+// Default fallback images in case API fails or returns empty
+// Default fallback is now empty as we rely on S3
+const defaultGalleryImages = [];
 
 const MarqueeRow = ({ images, direction = "left", speed = 25, onImageClick }) => {
+  // If no images, don't render anything
+  if (!images || images.length === 0) return null;
+
+  // Ensure we have enough images to loop smoothly
+  const displayImages = images.length < 5 ? [...images, ...images, ...images, ...images] : [...images, ...images];
+
   return (
     <div className="flex overflow-hidden relative">
       <motion.div
@@ -63,10 +31,9 @@ const MarqueeRow = ({ images, direction = "left", speed = 25, onImageClick }) =>
         }}
         className="flex gap-6 py-4 flex-nowrap"
       >
-        {/* Triplicate the images to ensure seamless loop without gaps */}
-        {[...images, ...images, ...images].map((image, index) => (
+        {displayImages.map((image, index) => (
           <motion.div
-            key={index}
+            key={`${image.src}-${index}`}
             whileHover={{ scale: 1.05, y: -5 }}
             onClick={() => onImageClick(index % images.length)}
             className="relative flex-none w-72 h-56 rounded-xl overflow-hidden cursor-pointer shadow-lg group"
@@ -74,8 +41,10 @@ const MarqueeRow = ({ images, direction = "left", speed = 25, onImageClick }) =>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
             <img
               src={image.src}
-              alt={image.alt}
+              alt={image.alt || "Gallery Image"}
               className="w-full h-full object-cover transition-transform duration-500"
+              loading="lazy"
+              decoding="async"
             />
             <p className="absolute bottom-4 left-4 text-white font-medium z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
               {image.caption}
@@ -87,13 +56,45 @@ const MarqueeRow = ({ images, direction = "left", speed = 25, onImageClick }) =>
   );
 };
 
-const Gallery = ({ images = defaultGalleryImages }) => {
+const Gallery = () => {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Split images for two rows
-  const row1Images = images;
-  const row2Images = [...images].reverse();
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const data = await fetchAllImages();
+        if (data.success && data.data.allImages.length > 0) {
+          const apiImages = data.data.allImages.map((img) => ({
+            src: img.url,
+            alt: img.folder.name,
+            caption: img.folder.name,
+          }));
+          
+          // Shuffle images for random display
+          const shuffledImages = apiImages.sort(() => 0.5 - Math.random());
+          setImages(shuffledImages);
+        }
+      } catch (error) {
+        console.error("Failed to fetch gallery images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  // Split images for two rows if we have enough
+  const midPoint = Math.ceil(images.length / 2);
+  const row1Images = images.slice(0, midPoint);
+  const row2Images = images.length > 1 ? images.slice(midPoint) : images;
+  
+  // If not enough images for 2 rows, just duplicate (only if we have images)
+  const finalRow1 = row1Images.length > 0 ? row1Images : [];
+  const finalRow2 = row2Images.length > 0 ? row2Images : [];
 
   const openLightbox = (index) => {
     setCurrentIndex(index);
@@ -160,27 +161,37 @@ const Gallery = ({ images = defaultGalleryImages }) => {
         </motion.div>
       </div>
 
-      {/* Marquee Rows */}
-      <div className="space-y-8">
-        <MarqueeRow 
-          images={row1Images} 
-          direction="left" 
-          speed={40} 
-          onImageClick={openLightbox} 
-        />
-        <MarqueeRow 
-          images={row2Images} 
-          direction="right" 
-          speed={50} 
-          onImageClick={(idx) => openLightbox(images.length - 1 - idx)} 
-        />
-      </div>
+      {/* Content */}
+      {loading ? (
+        <div className="flex justify-center py-12">
+           <div className="w-12 h-12 border-4 border-[#1A237E]/20 border-t-[#1A237E] rounded-full animate-spin"></div>
+        </div>
+      ) : images.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <p>No images found in the gallery.</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          <MarqueeRow 
+            images={finalRow1} 
+            direction="left" 
+            speed={300} 
+            onImageClick={(idx) => openLightbox(idx)} 
+          />
+          <MarqueeRow 
+            images={finalRow2} 
+            direction="right" 
+            speed={300} 
+            onImageClick={(idx) => openLightbox(midPoint + idx)} 
+          />
+        </div>
+      )}
 
       {/* Add Photos CTA */}
       <div className="text-center mt-12">
-        <button className="btn-outline">
+        <Link to="/gallery" className="btn-outline inline-block">
           View All Gallery
-        </button>
+        </Link>
       </div>
 
       {/* Lightbox Modal */}

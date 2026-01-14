@@ -1,14 +1,9 @@
-import axios from "axios";
 import axiosInstance from "./axios";
-
-// backend api url
-const API_URL =
-  import.meta.env.VITE_API_URL || "https://api-btth.jnvcan.com/api";
 
 export const createRegistration = async (registrationData) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/registrations`,
+    const response = await axiosInstance.post(
+      `/registrations`,
       registrationData
     );
     return response.data;
@@ -76,6 +71,6 @@ export const getRegistration = async (id) => {
 };
 
 export const searchRegistration = async (query) => {
-  const response = await axios.get(`${API_URL}/registrations/search/${query}`);
+  const response = await axiosInstance.get(`/registrations/search/${query}`);
   return response.data;
 };

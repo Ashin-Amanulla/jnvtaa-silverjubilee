@@ -86,30 +86,15 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
     }
   }, [willAttend, adultCount, setValue]);
 
-  // Calculate payment amount based on batch and attendees (only if attending)
+  // Calculate payment amount - Alumni are FREE, only guests are charged
   useEffect(() => {
     if (willAttend === "Yes" && watchedValues.batch) {
-      const batchNumber = parseInt(watchedValues.batch.split(" ")[1]);
-      const isDiscountedBatch = batchNumber >= 15 && batchNumber <= 18;
+      // First adult (alumni) is FREE
+      // Only charge for additional adults (guests) at ₹200 each
+      const additionalAdults = Math.max(adultCount - 1, 0);
+      const total = additionalAdults * 200;
 
-      const billableAdultCount = Math.max(adultCount, 1);
-      const additionalAdults = Math.max(billableAdultCount - 1, 0);
-
-      let total = 0;
-
-      // Calculate adult charges
-      if (isDiscountedBatch) {
-        // First adult is ₹100 for batches 15-18
-        total += 100 + additionalAdults * 200;
-      } else {
-        // First adult costs 300
-        total += 300 + additionalAdults * 200;
-      }
-
-      // Children (6-17 years) - FREE for Silver Jubilee
-      // total += childCount * 0;
-
-      // Infants are free (no charge)
+      // Children and infants are free
 
       setValue("contributionAmount", total);
     } else if (willAttend === "No") {
@@ -297,6 +282,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
           : "min-h-screen py-4 sm:py-8 relative overflow-hidden"
       }
     >
+
+      
       {/* Vintage Texture Overlay - Only show in public mode */}
       {!isAdminMode && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1892,70 +1879,29 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   ) : (
                     <>
                       {(() => {
-                        const batchNumber = parseInt(
-                          watchedValues.batch?.split(" ")[1],
-                          10
-                        );
-                        const isDiscountedBatch =
-                          batchNumber >= 15 && batchNumber <= 18;
-                        const billableAdultCount = Math.max(adultCount, 1);
-                        const additionalAdultsForBilling = Math.max(
-                          billableAdultCount - 1,
-                          0
-                        );
-                        const additionalAdultsForDisplay = Math.max(
-                          adultCount - 1,
-                          0
-                        );
+                        const additionalAdults = Math.max(adultCount - 1, 0);
 
                         return (
                           <>
-                            {/* Adults breakdown */}
+                            {/* Alumni and Guests breakdown */}
                             <div className="bg-white/70 rounded-xl p-4 space-y-2">
-                              {isDiscountedBatch ? (
-                                <>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-[#5D3A1A]">
-                                      👨‍👩‍👧‍👦 Adults (1st) - Batch {batchNumber}
-                                    </span>
-                                    <span className="font-bold text-[#B8860B]">
-                                      1 × ₹100 = ₹100
-                                    </span>
-                                  </div>
-                                  {additionalAdultsForDisplay > 0 && (
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-[#5D3A1A]">
-                                        👥 Additional Adults
-                                      </span>
-                                      <span className="font-bold text-[#5D3A1A]">
-                                        {additionalAdultsForDisplay} × ₹200 = ₹
-                                        {additionalAdultsForBilling * 200}
-                                      </span>
-                                    </div>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-[#5D3A1A]">
-                                      👨‍👩‍👧‍👦 Adults (1st)
-                                    </span>
-                                    <span className="font-bold text-[#5D3A1A]">
-                                      1 × ₹300 = ₹300
-                                    </span>
-                                  </div>
-                                  {additionalAdultsForDisplay > 0 && (
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-[#5D3A1A]">
-                                        👥 Additional Adults
-                                      </span>
-                                      <span className="font-bold text-[#5D3A1A]">
-                                        {additionalAdultsForDisplay} × ₹200 = ₹
-                                        {additionalAdultsForBilling * 200}
-                                      </span>
-                                    </div>
-                                  )}
-                                </>
+                              <div className="flex justify-between items-center">
+                                <span className="text-[#5D3A1A]">
+                                  🎓 Alumni (You)
+                                </span>
+                                <span className="font-bold text-emerald-600">
+                                  1 × FREE = FREE
+                                </span>
+                              </div>
+                              {additionalAdults > 0 && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[#5D3A1A]">
+                                    👥 Additional Guests
+                                  </span>
+                                  <span className="font-bold text-[#5D3A1A]">
+                                    {additionalAdults} × ₹200 = ₹{additionalAdults * 200}
+                                  </span>
+                                </div>
                               )}
                             </div>
 
@@ -1978,30 +1924,26 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                               </div>
                             </div>
 
-                            {isDiscountedBatch && (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="bg-gradient-to-r from-amber-100 to-yellow-100 p-4 rounded-xl border-2 border-amber-200"
-                              >
-                                <p className="text-sm text-amber-800 flex items-center font-medium">
-                                  <svg
-                                    className="w-5 h-5 mr-2 flex-shrink-0"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  🎉 Discounted registration for Batches 15-18!
-                                  Only ₹100 for first adult. Additional adults
-                                  pay ₹200 each. All children FREE!
-                                </p>
-                              </motion.div>
-                            )}
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="bg-gradient-to-r from-emerald-100 to-teal-100 p-4 rounded-xl border-2 border-emerald-200"
+                            >
+                              <p className="text-sm text-emerald-800 flex items-center font-medium">
+                                <svg
+                                  className="w-5 h-5 mr-2 flex-shrink-0"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                🎉 Alumni registration is FREE! Only additional guests are charged ₹200 each. All children and infants are FREE!
+                              </p>
+                            </motion.div>
 
                             <div className="bg-gradient-to-r from-slate-600 to-amber-600 rounded-2xl p-5 text-white">
                               <div className="flex justify-between items-center">
@@ -2132,15 +2074,68 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                 </div>
               </div>
 
+              {/* Sponsorship Message */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-6 sm:p-8 rounded-2xl border-2 border-purple-200 shadow-lg"
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-bold text-purple-900 mb-3">
+                      💝 Would You Like to Sponsor Our Silver Jubilee?
+                    </h4>
+                    <div className="space-y-3 text-purple-800">
+                      <p className="text-base leading-relaxed">
+                        As we celebrate the <strong>25th anniversary</strong> of our beloved school, we have an ambitious goal: to organize <strong>at least 25 memorable events</strong> culminating on School Day! 🎉
+                      </p>
+                      <p className="text-base leading-relaxed">
+                        Your generous sponsorship will help us create unforgettable experiences for current students and honor the legacy we all cherish. Every contribution, big or small, brings us closer to making this milestone celebration truly special.
+                      </p>
+                      <p className="text-base leading-relaxed font-semibold text-purple-900">
+                        ✨ Together, let's make this Silver Jubilee a celebration to remember for generations to come!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
               <div className="group">
                 <label className="block text-sm font-bold text-[#1A237E] mb-3">
                   Payment Transaction ID/Reference Number{" "}
-                  <span className="text-red-500">*</span>
+                  {watchedValues.contributionAmount > 0 && (
+                    <span className="text-red-500">*</span>
+                  )}
+                  {watchedValues.contributionAmount === 0 && (
+                    <span className="text-[#283593]/70 text-xs font-normal ml-2">
+                      (Optional - Only if you're sponsoring)
+                    </span>
+                  )}
                 </label>
                 <Controller
                   name="paymentTransactionId"
                   control={control}
-                  rules={{ required: "Payment transaction ID is required" }}
+                  rules={{
+                    required:
+                      watchedValues.contributionAmount > 0
+                        ? "Payment transaction ID is required"
+                        : false,
+                  }}
                   render={({ field }) => (
                     <input
                       {...field}
@@ -2188,8 +2183,9 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  Enter the transaction ID from your payment confirmation
-                  message/email
+                  {watchedValues.contributionAmount > 0
+                    ? "Enter the transaction ID from your payment confirmation message/email"
+                    : "If you're sponsoring, enter the transaction ID from your payment confirmation"}
                 </p>
               </div>
             </div>

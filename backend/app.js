@@ -12,6 +12,7 @@ const connectDB = require("./config/database");
 // Import routes
 const userRoutes = require("./routes/userRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
 // Import middlewares
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -52,6 +53,7 @@ app.get("/health", (req, res) => {
 // API route
 app.use("/api/users", userRoutes);
 app.use("/api/registrations", registrationRoutes);
+app.use("/api/gallery", galleryRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -64,6 +66,7 @@ app.get("/", (req, res) => {
       registrations: "/api/registrations",
       search: "/api/registrations/search/:query",
       stats: "/api/registrations/stats/summary",
+      gallery: "/api/gallery/images",
     },
     documentation: "API documentation available at /api/docs (coming soon)",
   });

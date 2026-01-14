@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 // Import all home page sections
-import Navbar from "../components/home/Navbar";
+import MainNavbar from "../components/shared/MainNavbar";
 import Hero from "../components/home/Hero";
 import Countdown from "../components/home/Countdown";
 import TheJourney from "../components/home/TheJourney";
@@ -16,7 +16,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-body selection:bg-[#D4AF37]/30 selection:text-[#1A237E]">
       {/* Navigation */}
-      <Navbar />
+      <MainNavbar />
 
       {/* Main Content */}
       <main>

@@ -237,9 +237,8 @@ const paymentSchema = {
     "any.required": "Contribution amount is required",
   }),
 
-  paymentTransactionId: Joi.string().trim().required().messages({
-    "string.empty": "Payment transaction ID is required",
-    "any.required": "Payment transaction ID is required",
+  paymentTransactionId: Joi.string().trim().optional().allow("").messages({
+    "string.empty": "Payment transaction ID is optional",
   }),
 };
 

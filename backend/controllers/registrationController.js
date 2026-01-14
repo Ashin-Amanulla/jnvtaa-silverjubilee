@@ -25,15 +25,17 @@ const createRegistration = async (req, res, next) => {
     }
 
     // Check if payment transaction ID already exists
-    const existingTransaction = await Registration.findOne({
-      paymentTransactionId: req.body.paymentTransactionId,
-    });
-
-    if (existingTransaction) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment transaction ID already used",
+    if (req.body.paymentTransactionId) {
+      const existingTransaction = await Registration.findOne({
+        paymentTransactionId: req.body.paymentTransactionId,
       });
+
+      if (existingTransaction) {
+        return res.status(400).json({
+          success: false,
+          message: "Payment transaction ID already used",
+        });
+      }
     }
 
     // Create registration

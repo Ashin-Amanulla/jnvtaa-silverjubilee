@@ -189,7 +189,7 @@ const registrationSchema = new mongoose.Schema(
     },
     paymentTransactionId: {
       type: String,
-      required: [true, "Payment transaction ID is required"],
+      default: "",
     },
 
     // Status

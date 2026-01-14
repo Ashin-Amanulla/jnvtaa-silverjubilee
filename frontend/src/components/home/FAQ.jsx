@@ -63,27 +63,30 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className={`glass-panel-dark rounded-xl overflow-hidden mb-4 border transition-all duration-300 ${
-        isOpen ? "border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "border-white/5 hover:border-white/10"
+      className={`glass-panel-dark rounded-2xl overflow-hidden mb-5 border-2 transition-all duration-300 ${
+        isOpen ? "border-[#D4AF37]/60 shadow-[0_0_20px_rgba(212,175,55,0.15)]" : "border-white/5 hover:border-white/15"
       }`}
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left transition-colors"
+        className="w-full flex items-center justify-between p-6 sm:p-7 text-left transition-colors group"
       >
-        <span className={`font-heading text-lg sm:text-xl pr-4 transition-colors ${
-            isOpen ? "text-[#D4AF37]" : "text-white group-hover:text-blue-200"
+        <span className={`font-heading text-lg sm:text-xl pr-4 transition-colors duration-300 ${
+            isOpen ? "text-[#D4AF37]" : "text-white hover:text-blue-200"
         }`}>
           {question}
         </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
-          className="flex-shrink-0"
+          className="flex-shrink-0 transition-transform duration-300"
         >
-          <div className={`p-2 rounded-full ${isOpen ? "bg-[#D4AF37]/20" : "bg-white/5"}`}>
-             <HiChevronDown className={`w-5 h-5 ${isOpen ? "text-[#D4AF37]" : "text-blue-300"}`} />
-          </div>
+          <motion.div 
+            className={`p-2.5 rounded-full transition-all duration-300 ${isOpen ? "bg-[#D4AF37]/25" : "bg-white/5 group-hover:bg-white/10"}`}
+            whileHover={{ scale: 1.1 }}
+          >
+             <HiChevronDown className={`w-5 h-5 transition-colors duration-300 ${isOpen ? "text-[#D4AF37]" : "text-blue-300"}`} />
+          </motion.div>
         </motion.div>
       </button>
 
@@ -95,9 +98,9 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <div className="px-5 sm:px-6 pb-6 pt-0">
-               <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent mb-4" />
-              <p className="font-body text-blue-100/80 leading-relaxed">
+            <div className="px-6 sm:px-7 pb-7 pt-0">
+               <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent mb-5" />
+              <p className="font-body text-blue-100/90 leading-relaxed text-base">
                 {answer}
               </p>
             </div>
@@ -118,7 +121,7 @@ const FAQ = () => {
   return (
     <section
       id="faq"
-      className="relative py-20 sm:py-28 overflow-hidden bg-[#05091A]"
+      className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-b from-[#05091A] via-[#0A0F1E] to-[#05091A]"
     >
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         {/* Section Header */}
@@ -129,14 +132,19 @@ const FAQ = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-3 mb-4">
-            <HiQuestionMarkCircle className="text-3xl text-[#D4AF37]" />
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+          <div className="inline-flex items-center gap-3 mb-5">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <HiQuestionMarkCircle className="text-4xl text-[#D4AF37]" />
+            </motion.div>
+            <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white">
               Frequently Asked Questions
             </h2>
           </div>
           <div className="section-divider-modern" />
-          <p className="font-body text-blue-200 text-lg max-w-2xl mx-auto">
+          <p className="font-body text-blue-200 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
             Find answers to common questions about our Silver Jubilee Reunion
           </p>
         </motion.div>
@@ -161,7 +169,7 @@ const FAQ = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="text-center mt-16"
+          className="text-center mt-20"
         >
           <p className="font-body text-blue-300 mb-6 font-medium">
             Still have questions? We're here to help.

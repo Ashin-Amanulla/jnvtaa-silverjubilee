@@ -14,6 +14,7 @@ const EventsPage = lazy(() => import("./pages/EventsPage"));
 const SilverJubileePage = lazy(() => import("./pages/SilverJubileePage"));
 const NewsPage = lazy(() => import("./pages/NewsPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const GalleryPage = lazy(() => import("./pages/GalleryPage"));
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
 
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/silver-jubilee" element={<SilverJubileePage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
 

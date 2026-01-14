@@ -35,6 +35,7 @@ const MainNavbar = () => {
         { name: "🎉 Silver Jubilee 2026", path: "/events/silver-jubilee", featured: true },
       ]
     },
+    { name: "Gallery", path: "/gallery" },
     { name: "News", path: "/news" },
     { name: "Contact", path: "/contact" },
   ];
