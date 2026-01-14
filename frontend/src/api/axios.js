@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 // Request interceptor for adding auth token
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
+    // Get token from localStorages
     const token = localStorage.getItem("adminToken") || "";
 
     // If token exists, add to headers
