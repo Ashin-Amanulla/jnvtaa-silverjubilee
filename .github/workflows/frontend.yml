@@ -41,6 +41,8 @@ jobs:
 
             - name: Build application
               working-directory: ./frontend
+              env:
+                NODE_OPTIONS: "--max-old-space-size=1024"
               run: npm run build
 
             - name: Upload build artifacts
