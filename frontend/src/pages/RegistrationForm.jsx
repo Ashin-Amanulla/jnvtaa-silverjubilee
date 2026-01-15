@@ -663,7 +663,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                       {Array.from({ length: 18 }, (_, i) => (
                         <option key={i + 1} value={`Batch ${i + 1}`}>
                           Batch {i + 1}{" "}
-                          {i + 1 >= 15 && i + 1 <= 18 ? "🎉 (₹100 Only)" : ""}
+                         
                         </option>
                       ))}
                     </select>
