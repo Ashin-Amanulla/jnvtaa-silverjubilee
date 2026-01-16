@@ -18,7 +18,7 @@ const createTransporter = (options = {}) => {
   const port = parseInt(options.port || process.env.SMTP_PORT || "465", 10);
   const isSecure = port === 465;
 
-  // Hostinger SMTP configuration
+  // Hostinger SMTP configurations
   // Port 465 requires secure: true with SSL/TLS
   const config = {
     host: process.env.SMTP_HOST || "smtp.hostinger.com",
