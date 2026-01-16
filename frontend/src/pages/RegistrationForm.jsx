@@ -1348,8 +1348,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                         const isDiscountedBatch =
                           batchNumber >= 15 && batchNumber <= 18;
                         if (isDiscountedBatch)
-                          return "🎉 ₹100 for 1st adult (Batches 15-18)";
-                        return "₹300 for 1st adult";
+                          return "🎉 ₹0 for 1st adult (Batches 15-18)";
+                        return "₹0 for 1st adult";
                       })()}
                     </span>
                     <span className="text-sm text-[#704214] block">
