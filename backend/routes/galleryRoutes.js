@@ -19,4 +19,7 @@ router.get('/folders', galleryController.getFolders);
 // Get images from a specific folder
 router.get('/folders/:folderId', galleryController.getFolderImages);
 
+// Delete gallery images (public)
+router.delete('/images', galleryController.deleteGalleryImages);
+
 module.exports = router;

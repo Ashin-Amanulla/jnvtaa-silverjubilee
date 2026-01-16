@@ -1,4 +1,4 @@
-const { getConfiguredFolders, listImagesFromFolder } = require('../config/s3Service');
+const { getConfiguredFolders, listImagesFromFolder, deleteObjectsFromS3 } = require('../config/s3Service');
 
 /**
  * Gallery Controller - AWS S3 Implementation
@@ -173,6 +173,56 @@ exports.getFolders = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to fetch folders',
+            error: error.message,
+        });
+    }
+};
+
+/**
+ * Delete gallery images from S3
+ * Expects array of S3 object keys in request body
+ */
+exports.deleteGalleryImages = async (req, res) => {
+    try {
+        const { keys } = req.body;
+
+        if (!keys || !Array.isArray(keys) || keys.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide an array of image keys to delete',
+            });
+        }
+
+        // Validate that all keys are strings
+        const invalidKeys = keys.filter(key => typeof key !== 'string' || key.trim() === '');
+        if (invalidKeys.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'All keys must be valid non-empty strings',
+            });
+        }
+
+        // Delete objects from S3
+        const result = await deleteObjectsFromS3(keys);
+
+        // If there are errors, still return success but include error details
+        const statusCode = result.errors.length > 0 ? 207 : 200; // 207 = Multi-Status
+
+        res.status(statusCode).json({
+            success: result.errors.length === 0,
+            message: `Deleted ${result.deleted.length} image(s)${result.errors.length > 0 ? `, ${result.errors.length} failed` : ''}`,
+            data: {
+                deleted: result.deleted,
+                deletedCount: result.deleted.length,
+                errors: result.errors,
+                errorCount: result.errors.length,
+            },
+        });
+    } catch (error) {
+        console.error('Error in deleteGalleryImages:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete gallery images from S3',
             error: error.message,
         });
     }

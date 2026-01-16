@@ -54,3 +54,20 @@ export const fetchFolders = async () => {
         throw error;
     }
 };
+
+/**
+ * Delete gallery images from S3
+ * @param {Array<string>} keys - Array of S3 object keys to delete
+ * @returns {Promise<Object>} Response data with deletion results
+ */
+export const deleteGalleryImages = async (keys) => {
+    try {
+        const response = await axiosInstance.delete('/gallery/images', {
+            data: { keys },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting gallery images:', error);
+        throw error;
+    }
+};

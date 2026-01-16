@@ -1,4 +1,4 @@
-const { S3Client, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 require('dotenv').config();
 
@@ -133,10 +133,65 @@ function getBucketName() {
     return BUCKET_NAME;
 }
 
+/**
+ * Delete objects from S3 bucket
+ * @param {Array<string>} keys - Array of S3 object keys to delete
+ * @returns {Promise<Object>} Result object with deleted and errors
+ */
+async function deleteObjectsFromS3(keys) {
+    try {
+        if (!keys || keys.length === 0) {
+            throw new Error('No keys provided for deletion');
+        }
+
+        // S3 DeleteObjects can handle up to 1000 objects per request
+        // For bulk operations, we'll process in batches of 1000
+        const batchSize = 1000;
+        const results = {
+            deleted: [],
+            errors: [],
+        };
+
+        for (let i = 0; i < keys.length; i += batchSize) {
+            const batch = keys.slice(i, i + batchSize);
+            
+            const command = new DeleteObjectsCommand({
+                Bucket: BUCKET_NAME,
+                Delete: {
+                    Objects: batch.map(key => ({ Key: key })),
+                    Quiet: false, // Return detailed response
+                },
+            });
+
+            const response = await s3Client.send(command);
+            
+            // Collect successfully deleted keys
+            if (response.Deleted) {
+                results.deleted.push(...response.Deleted.map(item => item.Key));
+            }
+
+            // Collect errors
+            if (response.Errors) {
+                results.errors.push(...response.Errors.map(error => ({
+                    key: error.Key,
+                    code: error.Code,
+                    message: error.Message,
+                })));
+            }
+        }
+
+        return results;
+    } catch (error) {
+        console.error('Error deleting objects from S3:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     s3Client,
     getS3Client,
     getBucketName,
     getConfiguredFolders,
     listImagesFromFolder,
+    deleteObjectsFromS3,
 };
