@@ -17,9 +17,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
     watch,
     setValue,
     reset,
+    trigger,
+    getValues,
     formState: { errors, isValid },
   } = useForm({
     mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       // Personal Details
       name: "",
@@ -83,8 +86,13 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
       setValue("foodChoice", "");
       setValue("expectedArrivalTime", "");
       setValue("overnightAccommodation", "");
+      // Clear validation errors for conditional fields when not attending
+      trigger(["foodChoice", "expectedArrivalTime", "overnightAccommodation", "paymentTransactionId"]);
+    } else if (willAttend === "Yes") {
+      // Trigger validation for conditional fields when attending
+      trigger(["foodChoice", "expectedArrivalTime", "overnightAccommodation", "paymentTransactionId"]);
     }
-  }, [willAttend, adultCount, setValue]);
+  }, [willAttend, adultCount, setValue, trigger]);
 
   // Calculate payment amount - Alumni are FREE, only guests are charged
   useEffect(() => {
@@ -552,16 +560,17 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                 <label className="block text-sm font-body font-semibold text-[#1A237E] mb-1">
                   Mobile Number <span className="text-red-500">*</span>
                 </label>
-                <Controller
-                  name="mobile"
-                  control={control}
-                  rules={{
-                    required: "Mobile number is required",
-                    pattern: {
-                      message: "Please enter your mobile number",
-                    },
-                  }}
-                  render={({ field }) => (
+                  <Controller
+                    name="mobile"
+                    control={control}
+                    rules={{
+                      required: "Mobile number is required",
+                      pattern: {
+                        value: /^[6-9]\d{9}$/,
+                        message: "Please enter a valid 10-digit mobile number starting with 6-9",
+                      },
+                    }}
+                    render={({ field }) => (
                     <input
                       {...field}
                       type="tel"
@@ -822,7 +831,15 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   <Controller
                     name="foodChoice"
                     control={control}
-                    rules={{ required: "Food choice is required" }}
+                    rules={{
+                      validate: (value) => {
+                        const currentWillAttend = getValues("willAttend");
+                        if (currentWillAttend === "Yes" && !value) {
+                          return "Food choice is required";
+                        }
+                        return true;
+                      },
+                    }}
                     render={({ field }) => (
                       <select
                         {...field}
@@ -868,7 +885,15 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   <Controller
                     name="expectedArrivalTime"
                     control={control}
-                    rules={{ required: "Expected arrival time is required" }}
+                    rules={{
+                      validate: (value) => {
+                        const currentWillAttend = getValues("willAttend");
+                        if (currentWillAttend === "Yes" && !value) {
+                          return "Expected arrival time is required";
+                        }
+                        return true;
+                      },
+                    }}
                     render={({ field }) => (
                       <select
                         {...field}
@@ -917,8 +942,13 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                     name="overnightAccommodation"
                     control={control}
                     rules={{
-                      required:
-                        "Overnight accommodation preference is required",
+                      validate: (value) => {
+                        const currentWillAttend = getValues("willAttend");
+                        if (currentWillAttend === "Yes" && !value) {
+                          return "Overnight accommodation preference is required";
+                        }
+                        return true;
+                      },
                     }}
                     render={({ field }) => (
                       <select
@@ -1864,6 +1894,8 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                                 const value = parseInt(e.target.value) || 0;
                                 field.onChange(value);
                                 setValue("contributionAmount", value);
+                                // Trigger re-validation of payment transaction ID
+                                trigger("paymentTransactionId");
                               }}
                               className="w-32 px-3 py-2 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="0"
@@ -2118,12 +2150,12 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               <div className="group">
                 <label className="block text-sm font-bold text-[#1A237E] mb-3">
                   Payment Transaction ID/Reference Number{" "}
-                  {watchedValues.contributionAmount > 0 && (
+                  {willAttend === "Yes" && watchedValues.contributionAmount > 0 && (
                     <span className="text-red-500">*</span>
                   )}
-                  {watchedValues.contributionAmount === 0 && (
+                  {(willAttend === "No" || watchedValues.contributionAmount === 0) && (
                     <span className="text-[#283593]/70 text-xs font-normal ml-2">
-                      (Optional - Only if you're sponsoring)
+                      (Optional{willAttend === "No" ? " - for sponsorship" : " - Only if you're sponsoring"})
                     </span>
                   )}
                 </label>
@@ -2131,10 +2163,16 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                   name="paymentTransactionId"
                   control={control}
                   rules={{
-                    required:
-                      watchedValues.contributionAmount > 0
-                        ? "Payment transaction ID is required"
-                        : false,
+                    validate: (value) => {
+                      // Get current values at validation time (not stale closure values)
+                      const currentWillAttend = getValues("willAttend");
+                      const currentContribution = getValues("contributionAmount");
+                      // Only require transaction ID if attending AND there's a contribution amount
+                      if (currentWillAttend === "Yes" && currentContribution > 0 && !value) {
+                        return "Payment transaction ID is required";
+                      }
+                      return true;
+                    },
                   }}
                   render={({ field }) => (
                     <input
@@ -2183,9 +2221,11 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  {watchedValues.contributionAmount > 0
-                    ? "Enter the transaction ID from your payment confirmation message/email"
-                    : "If you're sponsoring, enter the transaction ID from your payment confirmation"}
+                  {willAttend === "No"
+                    ? "Optional: If you made a contribution, enter the transaction ID from your payment confirmation"
+                    : watchedValues.contributionAmount > 0
+                      ? "Enter the transaction ID from your payment confirmation message/email"
+                      : "If you're sponsoring, enter the transaction ID from your payment confirmation"}
                 </p>
               </div>
             </div>

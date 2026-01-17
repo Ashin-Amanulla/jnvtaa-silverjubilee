@@ -88,21 +88,24 @@ const registrationSchema = new mongoose.Schema(
       required: function () {
         return this.willAttend === "Yes";
       },
-      enum: ["Veg", "Non-Veg"],
+      enum: ["Veg", "Non-Veg", "", null],
+      default: null,
     },
     expectedArrivalTime: {
       type: String,
       required: function () {
         return this.willAttend === "Yes";
       },
-      enum: ["8-11", "11-14", "14-17", "17-20"],
+      enum: ["8-11", "11-14", "14-17", "17-20", "", null],
+      default: null,
     },
     overnightAccommodation: {
       type: String,
       required: function () {
         return this.willAttend === "Yes";
       },
-      enum: ["Yes", "No"],
+      enum: ["Yes", "No", "", null],
+      default: null,
     },
 
     // Attendees

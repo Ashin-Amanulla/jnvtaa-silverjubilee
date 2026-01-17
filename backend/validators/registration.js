@@ -72,45 +72,35 @@ const personalDetailsSchema = {
 
 // Event Preferences Validation (conditional - only required if willAttend is "Yes")
 const eventPreferencesSchema = {
-  foodChoice: Joi.string()
-    .valid("Veg", "Non-Veg")
-    .when("willAttend", {
-      is: "Yes",
-      then: Joi.required(),
-      otherwise: Joi.optional().allow(""),
-    })
-    .messages({
+  foodChoice: Joi.when("willAttend", {
+    is: "Yes",
+    then: Joi.string().valid("Veg", "Non-Veg").required().messages({
       "any.only": "Food choice must be either Veg or Non-Veg",
       "string.empty": "Food choice is required if attending",
       "any.required": "Food choice is required if attending",
     }),
+    otherwise: Joi.string().allow("", null).optional(),
+  }),
 
-  expectedArrivalTime: Joi.string()
-    .valid("8-11", "11-14", "14-17", "17-20")
-    .when("willAttend", {
-      is: "Yes",
-      then: Joi.required(),
-      otherwise: Joi.optional().allow(""),
-    })
-    .messages({
-      "any.only":
-        "Expected arrival time must be one of: 8-11, 11-14, 14-17, 17-20",
+  expectedArrivalTime: Joi.when("willAttend", {
+    is: "Yes",
+    then: Joi.string().valid("8-11", "11-14", "14-17", "17-20").required().messages({
+      "any.only": "Expected arrival time must be one of: 8-11, 11-14, 14-17, 17-20",
       "string.empty": "Expected arrival time is required if attending",
       "any.required": "Expected arrival time is required if attending",
     }),
+    otherwise: Joi.string().allow("", null).optional(),
+  }),
 
-  overnightAccommodation: Joi.string()
-    .valid("Yes", "No")
-    .when("willAttend", {
-      is: "Yes",
-      then: Joi.required(),
-      otherwise: Joi.optional().allow(""),
-    })
-    .messages({
+  overnightAccommodation: Joi.when("willAttend", {
+    is: "Yes",
+    then: Joi.string().valid("Yes", "No").required().messages({
       "any.only": "Overnight accommodation must be Yes or No",
       "string.empty": "Overnight accommodation preference is required if attending",
       "any.required": "Overnight accommodation preference is required if attending",
     }),
+    otherwise: Joi.string().allow("", null).optional(),
+  }),
 };
 
 // Attendees Validation
@@ -282,11 +272,10 @@ const updateRegistrationSchema = Joi.object({
   rollNumber: personalDetailsSchema.rollNumber.optional(),
   willAttend: personalDetailsSchema.willAttend.optional(),
 
-  // Event Preferences
-  foodChoice: eventPreferencesSchema.foodChoice.optional(),
-  expectedArrivalTime: eventPreferencesSchema.expectedArrivalTime.optional(),
-  overnightAccommodation:
-    eventPreferencesSchema.overnightAccommodation.optional(),
+  // Event Preferences (all optional for updates, allow empty/null)
+  foodChoice: Joi.string().valid("Veg", "Non-Veg", "", null).optional(),
+  expectedArrivalTime: Joi.string().valid("8-11", "11-14", "14-17", "17-20", "", null).optional(),
+  overnightAccommodation: Joi.string().valid("Yes", "No", "", null).optional(),
 
   // Attendees and Guests
   attendees: attendeesSchema.optional(),
