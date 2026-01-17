@@ -41,7 +41,7 @@ app.use(compression());
 app.use(morgan("dev"));
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
     success: true,
     message: "JNVTA Silver Jubilee 2026 Alumni Registration API is running",
@@ -62,7 +62,7 @@ app.get("/", (req, res) => {
     message: "Welcome to JNVTA Silver Jubilee 2026 API",
     version: "1.0.0",
     endpoints: {
-      health: "/health",
+      health: "/api/health",
       registrations: "/api/registrations",
       search: "/api/registrations/search/:query",
       stats: "/api/registrations/stats/summary",
@@ -89,7 +89,7 @@ const server = app.listen(PORT, () => {
   console.log(`
 🚀 Server running in ${process.env.NODE_ENV || "development"} mode
 📡 Server listening on port ${PORT}
-🌐 Health check: http://localhost:${PORT}/health
+🌐 Health check: http://localhost:${PORT}/api/health
 📋 API base URL: http://localhost:${PORT}/api
 🎉 JNVTA Silver Jubilee 2026 API ready!
   `);
