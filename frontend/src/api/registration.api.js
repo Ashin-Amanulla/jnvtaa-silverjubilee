@@ -74,3 +74,86 @@ export const searchRegistration = async (query) => {
   const response = await axiosInstance.get(`/registrations/search/${query}`);
   return response.data;
 };
+
+// Check-in related API functions
+export const searchForCheckin = async (email, mobile) => {
+  try {
+    const params = new URLSearchParams();
+    if (email) params.append("email", email);
+    if (mobile) params.append("mobile", mobile);
+    
+    const response = await axiosInstance.get(
+      `/registrations/checkin/search?${params.toString()}`
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw {
+        message: error.response.data.message || "Search failed",
+        status: error.response.status,
+      };
+    }
+    throw {
+      message: "Network error. Please check your connection.",
+    };
+  }
+};
+
+export const selfCheckin = async (registrationId) => {
+  try {
+    const response = await axiosInstance.post(
+      `/registrations/checkin/${registrationId}`
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw {
+        message: error.response.data.message || "Check-in failed",
+        status: error.response.status,
+      };
+    }
+    throw {
+      message: "Network error. Please check your connection.",
+    };
+  }
+};
+
+export const verifyRegistrationForCheckin = async (registrationId) => {
+  try {
+    const response = await axiosInstance.get(
+      `/registrations/checkin/verify/${registrationId}`
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw {
+        message: error.response.data.message || "Verification failed",
+        status: error.response.status,
+      };
+    }
+    throw {
+      message: "Network error. Please check your connection.",
+    };
+  }
+};
+
+export const addGuestsToRegistration = async (id, guestsData) => {
+  try {
+    const response = await axiosInstance.post(
+      `/registrations/${id}/add-guests`,
+      { guests: guestsData }
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw {
+        message: error.response.data.message || "Failed to add guests",
+        errors: error.response.data.errors || [],
+        status: error.response.status,
+      };
+    }
+    throw {
+      message: "Network error. Please check your connection.",
+    };
+  }
+};

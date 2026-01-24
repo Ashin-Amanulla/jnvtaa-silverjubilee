@@ -332,11 +332,31 @@ const validateQuery = (data) => {
   return queryParamsSchema.validate(data, { abortEarly: false });
 };
 
+// Add Guests Schema
+const addGuestsSchema = Joi.object({
+  guests: Joi.array()
+    .items(guestSchema)
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Guests must be an array",
+      "array.min": "At least one guest is required",
+      "any.required": "Guests array is required",
+    }),
+});
+
+// Validate add guests data
+const validateAddGuests = (data) => {
+  return addGuestsSchema.validate(data, { abortEarly: false });
+};
+
 module.exports = {
   createRegistrationSchema,
   updateRegistrationSchema,
   queryParamsSchema,
+  addGuestsSchema,
   validateRegistration,
   validateUpdate,
   validateQuery,
+  validateAddGuests,
 };

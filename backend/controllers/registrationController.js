@@ -680,6 +680,274 @@ const sendConfirmationEmail = async (req, res, next) => {
   }
 };
 
+// @desc    Search registration for check-in (public)
+// @route   GET /api/registrations/checkin/search
+// @access  Public
+const searchForCheckin = async (req, res, next) => {
+  try {
+    const { email, mobile } = req.query;
+
+    if (!email && !mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Email or mobile number is required",
+      });
+    }
+
+    // Build search query
+    const searchQuery = {};
+    if (email) {
+      searchQuery.email = email.toLowerCase().trim();
+    }
+    if (mobile) {
+      searchQuery.mobile = mobile.trim();
+    }
+
+    // Search for registration
+    const registration = await Registration.findOne(searchQuery).select(
+      "-__v -volunteerInterest -committeeInterest -sponsorInterest -programIdeas -skills"
+    );
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration not found",
+      });
+    }
+
+    // Return limited data for check-in
+    res.json({
+      success: true,
+      data: {
+        id: registration._id,
+        registrationId: registration.registrationId,
+        name: registration.name,
+        email: registration.email,
+        mobile: registration.mobile,
+        batch: registration.batch,
+        attendance: registration.attendance,
+        paymentStatus: registration.paymentStatus,
+        verified: registration.verified,
+        attendees: registration.attendees,
+        guests: registration.guests || [],
+        totalAttendees: registration.totalAttendees,
+        contributionAmount: registration.contributionAmount,
+        willAttend: registration.willAttend,
+        foodChoice: registration.foodChoice,
+        expectedArrivalTime: registration.expectedArrivalTime,
+        overnightAccommodation: registration.overnightAccommodation,
+      },
+    });
+  } catch (error) {
+    console.error("Error searching for check-in:", error);
+    next(error);
+  }
+};
+
+// @desc    Self check-in
+// @route   POST /api/registrations/checkin/:id
+// @access  Public
+const selfCheckin = async (req, res, next) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration not found",
+      });
+    }
+
+    // Mark as checked in
+    registration.attendance = true;
+    await registration.save();
+
+    res.json({
+      success: true,
+      message: "Check-in successful",
+      data: {
+        id: registration._id,
+        registrationId: registration.registrationId,
+        name: registration.name,
+        attendance: registration.attendance,
+        totalAttendees: registration.totalAttendees,
+        guests: registration.guests || [],
+      },
+    });
+  } catch (error) {
+    console.error("Error during check-in:", error);
+    next(error);
+  }
+};
+
+// @desc    Verify registration by ID for check-in page
+// @route   GET /api/registrations/checkin/verify/:id
+// @access  Public
+const verifyRegistrationForCheckin = async (req, res, next) => {
+  try {
+    const registration = await Registration.findById(req.params.id).select(
+      "-__v -volunteerInterest -committeeInterest -sponsorInterest -programIdeas -skills"
+    );
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration not found",
+      });
+    }
+
+    // Return limited data for check-in
+    res.json({
+      success: true,
+      data: {
+        id: registration._id,
+        registrationId: registration.registrationId,
+        name: registration.name,
+        email: registration.email,
+        mobile: registration.mobile,
+        batch: registration.batch,
+        attendance: registration.attendance,
+        paymentStatus: registration.paymentStatus,
+        verified: registration.verified,
+        attendees: registration.attendees,
+        guests: registration.guests || [],
+        totalAttendees: registration.totalAttendees,
+        contributionAmount: registration.contributionAmount,
+        willAttend: registration.willAttend,
+        foodChoice: registration.foodChoice,
+        expectedArrivalTime: registration.expectedArrivalTime,
+        overnightAccommodation: registration.overnightAccommodation,
+      },
+    });
+  } catch (error) {
+    console.error("Error verifying registration for check-in:", error);
+    next(error);
+  }
+};
+
+// @desc    Add guests to existing registration
+// @route   POST /api/registrations/:id/add-guests
+// @access  Public
+const addGuests = async (req, res, next) => {
+  try {
+    const { guests } = req.body;
+
+    if (!guests || !Array.isArray(guests) || guests.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Guests array is required",
+      });
+    }
+
+    const registration = await Registration.findById(req.params.id);
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration not found",
+      });
+    }
+
+    // Validate guests data
+    const guestSchema = {
+      name: { type: String, required: true },
+      gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
+      foodChoice: { type: String, enum: ["Veg", "Non-Veg"], required: true },
+      ageCategory: { type: String, enum: ["Adult", "Child", "Infant"], required: true },
+    };
+
+    // Validate each guest
+    for (const guest of guests) {
+      if (!guest.name || !guest.gender || !guest.foodChoice || !guest.ageCategory) {
+        return res.status(400).json({
+          success: false,
+          message: "Each guest must have name, gender, foodChoice, and ageCategory",
+        });
+      }
+      if (!["Male", "Female", "Other"].includes(guest.gender)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid gender for guest",
+        });
+      }
+      if (!["Veg", "Non-Veg"].includes(guest.foodChoice)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid food choice for guest",
+        });
+      }
+      if (!["Adult", "Child", "Infant"].includes(guest.ageCategory)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid age category for guest",
+        });
+      }
+    }
+
+    // Add new guests to existing guests array
+    const existingGuests = registration.guests || [];
+    registration.guests = [...existingGuests, ...guests];
+
+    // Update attendees count based on new guests
+    let additionalAdults = 0;
+    let additionalChildren = 0;
+    let additionalInfants = 0;
+
+    guests.forEach((guest) => {
+      if (guest.ageCategory === "Adult") {
+        additionalAdults++;
+      } else if (guest.ageCategory === "Child") {
+        additionalChildren++;
+      } else if (guest.ageCategory === "Infant") {
+        additionalInfants++;
+      }
+    });
+
+    // Update attendees count
+    registration.attendees = {
+      adults: (registration.attendees?.adults || 0) + additionalAdults,
+      children: (registration.attendees?.children || 0) + additionalChildren,
+      infants: (registration.attendees?.infants || 0) + additionalInfants,
+    };
+
+    // Calculate additional payment amount
+    const batchNumber = parseInt(registration.batch.split(" ")[1]);
+    const isFreeBatch = batchNumber >= 28 && batchNumber <= 32;
+
+    let additionalAmount = 0;
+    // Additional adults: Rs 200 each
+    additionalAmount += additionalAdults * 200;
+    // Additional children: Rs 150 each
+    additionalAmount += additionalChildren * 150;
+    // Infants are free
+
+    // Update contribution amount
+    const originalAmount = registration.contributionAmount || 0;
+    registration.contributionAmount = originalAmount + additionalAmount;
+
+    await registration.save();
+
+    res.json({
+      success: true,
+      message: "Guests added successfully",
+      data: {
+        id: registration._id,
+        registrationId: registration.registrationId,
+        name: registration.name,
+        guests: registration.guests,
+        attendees: registration.attendees,
+        totalAttendees: registration.totalAttendees,
+        contributionAmount: registration.contributionAmount,
+        additionalAmount: additionalAmount,
+        amountDue: additionalAmount, // Amount due for new guests
+      },
+    });
+  } catch (error) {
+    console.error("Error adding guests:", error);
+    next(error);
+  }
+};
+
 module.exports = {
   createRegistration,
   getRegistrations,
@@ -692,4 +960,8 @@ module.exports = {
   searchRegistration,
   downloadRegistrations,
   sendConfirmationEmail,
+  searchForCheckin,
+  selfCheckin,
+  verifyRegistrationForCheckin,
+  addGuests,
 };

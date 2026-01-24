@@ -2,6 +2,7 @@ const {
   validateRegistration,
   validateUpdate,
   validateQuery,
+  validateAddGuests,
 } = require("../validators/registration");
 
 // Validate registration data
@@ -55,8 +56,26 @@ const validateQueryParams = (req, res, next) => {
   next();
 };
 
+// Validate add guests data
+const validateAddGuestsData = (req, res, next) => {
+  const { error, value } = validateAddGuests(req.body);
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      success: false,
+      message: "Validation Error",
+      errors: errorMessages,
+    });
+  }
+
+  req.body = value;
+  next();
+};
+
 module.exports = {
   validateRegistrationData,
   validateUpdateData,
   validateQueryParams,
+  validateAddGuestsData,
 };

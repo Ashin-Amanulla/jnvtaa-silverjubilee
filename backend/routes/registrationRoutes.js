@@ -12,14 +12,25 @@ const {
   searchRegistration,
   downloadRegistrations,
   sendConfirmationEmail,
+  searchForCheckin,
+  selfCheckin,
+  verifyRegistrationForCheckin,
+  addGuests,
 } = require("../controllers/registrationController");
 const {
   validateRegistrationData,
   validateQueryParams,
+  validateAddGuestsData,
 } = require("../middlewares/validation");
 const verifyToken = require("../middlewares/auth");
 // Public routes
 router.post("/", validateRegistrationData, createRegistration);
+
+// Public check-in routes
+router.get("/checkin/search", searchForCheckin);
+router.get("/checkin/verify/:id", verifyRegistrationForCheckin);
+router.post("/checkin/:id", selfCheckin);
+router.post("/:id/add-guests", validateAddGuestsData, addGuests);
 
 //create auth routes
 router.use(verifyToken);

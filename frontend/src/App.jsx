@@ -17,6 +17,7 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const GalleryPage = lazy(() => import("./pages/GalleryPage"));
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
+const CheckinPage = lazy(() => import("./pages/CheckinPage"));
 
 // Loading component
 const PageLoader = () => (
@@ -49,6 +50,9 @@ export default function App() {
             path="/registration-success"
             element={<RegistrationSuccess />}
           />
+
+          {/* Check-in Route */}
+          <Route path="/checkin" element={<CheckinPage />} />
 
           {/* Admin Routes */}
           <Route path="/login" element={<Login />} />
