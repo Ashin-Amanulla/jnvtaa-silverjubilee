@@ -2246,7 +2246,7 @@ const JNVTASilverReunionForm = ({ isAdminMode = false }) => {
               className={`group relative w-full py-5 px-6 text-base sm:text-lg font-heading font-bold rounded-lg transition-all duration-300 overflow-hidden ${
                 isSubmitting || !isValid
                   ? "bg-[#8B4513]/30 text-[#8B4513]/50 cursor-not-allowed"
-                  : "btn-vintage"
+                  : "bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl"
               }`}
             >
               {!isSubmitting && isValid && (
