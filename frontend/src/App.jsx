@@ -15,6 +15,7 @@ const SilverJubileePage = lazy(() => import("./pages/SilverJubileePage"));
 const NewsPage = lazy(() => import("./pages/NewsPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const GalleryPage = lazy(() => import("./pages/GalleryPage"));
+const TVCarouselPage = lazy(() => import("./pages/TVCarouselPage"));
 const RegistrationForm = lazy(() => import("./pages/RegistrationForm"));
 const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
 const CheckinPage = lazy(() => import("./pages/CheckinPage"));
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/silver-jubilee" element={<SilverJubileePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/tv" element={<TVCarouselPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
 
