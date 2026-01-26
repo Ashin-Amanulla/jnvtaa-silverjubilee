@@ -19,9 +19,9 @@ const allowedMimeTypes = [
 // Allowed file extensions
 const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
 
-// Maximum file size: 25MB (will be compressed before upload to S3)
+// Maximum file size: 50MB (will be compressed before upload to S3)
 // This allows large images to be uploaded, which will then be compressed and resized
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 
 // Configure multer with memory storage
 const storage = multer.memoryStorage();
@@ -69,7 +69,7 @@ const handleUpload = (req, res, next) => {
                 if (err.code === 'LIMIT_FILE_SIZE') {
                     return res.status(400).json({
                         success: false,
-                        message: 'File size exceeds 25MB limit. Images will be automatically compressed after upload.',
+                        message: 'File size exceeds 50MB limit. Images will be automatically compressed after upload.',
                     });
                 }
                 if (err.code === 'LIMIT_FILE_COUNT') {

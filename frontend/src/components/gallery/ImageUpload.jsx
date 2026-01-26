@@ -24,8 +24,8 @@ const ImageUpload = ({ galleryPath, onUploadSuccess, onClose }) => {
     const dropZoneRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
 
-    // Maximum file size: 10MB
-    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    // Maximum file size: 50MB
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
 
     const validateFile = (file) => {
@@ -38,7 +38,7 @@ const ImageUpload = ({ galleryPath, onUploadSuccess, onClose }) => {
         if (file.size > MAX_FILE_SIZE) {
             return {
                 valid: false,
-                error: `File size exceeds 10MB limit`,
+                error: `File size exceeds 50MB limit`,
             };
         }
         return { valid: true };
@@ -255,7 +255,7 @@ const ImageUpload = ({ galleryPath, onUploadSuccess, onClose }) => {
                     Drag and drop images here, or click to select
                 </p>
                 <p className="text-gray-500 text-sm mb-4">
-                    Supported formats: JPG, PNG, GIF, WEBP, BMP (Max 10MB per file)
+                    Supported formats: JPG, PNG, GIF, WEBP, BMP (Max 50MB per file)
                 </p>
                 <button
                     onClick={() => fileInputRef.current?.click()}
