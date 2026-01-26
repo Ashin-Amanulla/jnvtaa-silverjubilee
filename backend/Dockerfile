@@ -18,7 +18,9 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install dependencies with clean slate
-RUN npm ci --production --no-optional && \
+# node-gyp is required for sharp to build from source on Alpine
+RUN npm install -g node-gyp && \
+    npm ci --omit=dev && \
     npm cache clean --force
 
 # Copy application code
