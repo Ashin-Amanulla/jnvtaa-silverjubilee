@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaImages,
   FaExclamationTriangle,
   FaTrash,
   FaCheckSquare,
   FaSquare,
+  FaUpload,
 } from "react-icons/fa";
-import { fetchAllImages, deleteGalleryImages } from "../api/galleryApi";
+import { fetchFolderImages, deleteGalleryImages } from "../api/galleryApi";
 import ImageGrid from "../components/gallery/ImageGrid";
 import ImageLightbox from "../components/gallery/ImageLightbox";
+import GalleryTree from "../components/gallery/GalleryTree";
+import ImageUpload from "../components/gallery/ImageUpload";
 import MainNavbar from "../components/shared/MainNavbar";
 import Footer from "../components/home/Footer";
 
@@ -20,28 +23,32 @@ import Footer from "../components/home/Footer";
 const GalleryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [allImages, setAllImages] = useState([]);
-  const [imagesByFolder, setImagesByFolder] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState("all");
+  const [displayImages, setDisplayImages] = useState([]);
+  // Default to first gallery
+  const [currentFolderPath, setCurrentFolderPath] = useState("alumni-meet-2026");
+  const [currentFolderName, setCurrentFolderName] = useState("Alumni Meet 2026");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedKeys, setSelectedKeys] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   useEffect(() => {
-    loadGalleryImages();
-  }, []);
+    loadFolderImages(currentFolderPath);
+  }, [currentFolderPath]);
 
-  const loadGalleryImages = async () => {
+  const loadFolderImages = async (folderPath = "") => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetchAllImages();
+      const response = await fetchFolderImages(folderPath);
 
       if (response.success) {
-        setAllImages(response.data.allImages || []);
-        setImagesByFolder(response.data.imagesByFolder || []);
+        setDisplayImages(response.data.images || []);
+        if (response.data.folder) {
+          setCurrentFolderName(response.data.folder.name || "All Photos");
+        }
       } else {
         setError(response.message || "Failed to load gallery images");
       }
@@ -56,6 +63,16 @@ const GalleryPage = () => {
     }
   };
 
+  const handleFolderSelect = (folderPath) => {
+    setCurrentFolderPath(folderPath);
+    setSelectedKeys(new Set()); // Clear selection when folder changes
+  };
+
+  const handleUploadSuccess = () => {
+    // Refresh images after successful upload
+    loadFolderImages(currentFolderPath);
+  };
+
   const handleImageClick = (index) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
@@ -68,13 +85,6 @@ const GalleryPage = () => {
   const handleLightboxNavigate = (newIndex) => {
     setCurrentImageIndex(newIndex);
   };
-
-  // Get images to display based on selected folder
-  const displayImages =
-    selectedFolder === "all"
-      ? allImages
-      : imagesByFolder.find((f) => f.folder.id === selectedFolder)?.images ||
-        [];
 
   // Handle selection toggle
   const handleSelectionToggle = (imageKey) => {
@@ -131,7 +141,7 @@ const GalleryPage = () => {
         setSelectedKeys(new Set());
 
         // Refresh gallery
-        await loadGalleryImages();
+        await loadFolderImages(currentFolderPath);
       } else {
         setError(response.message || "Failed to delete images");
       }
@@ -146,10 +156,6 @@ const GalleryPage = () => {
     }
   };
 
-  // Clear selection when folder changes
-  useEffect(() => {
-    setSelectedKeys(new Set());
-  }, [selectedFolder]);
 
   return (
     <div className="min-h-screen bg-[#FDF4E6]">
@@ -183,98 +189,98 @@ const GalleryPage = () => {
       {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          {/* Bulk Action Controls */}
-          {!loading && !error && displayImages.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-white rounded-lg shadow-md p-4"
-            >
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleSelectAll}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1A237E] hover:bg-[#1A237E]/10 rounded-lg transition-colors"
-                >
-                  {selectedKeys.size === displayImages.length ? (
-                    <>
-                      <FaCheckSquare className="w-5 h-5" />
-                      Deselect All
-                    </>
-                  ) : (
-                    <>
-                      <FaSquare className="w-5 h-5" />
-                      Select All
-                    </>
-                  )}
-                </button>
-                {selectedKeys.size > 0 && (
-                  <>
-                    <span className="text-sm text-gray-600">
-                      {selectedKeys.size} image
-                      {selectedKeys.size !== 1 ? "s" : ""} selected
-                    </span>
-                    <button
-                      onClick={handleClearSelection}
-                      className="text-sm text-gray-600 hover:text-gray-800 underline"
-                    >
-                      Clear
-                    </button>
-                  </>
-                )}
-              </div>
-              {selectedKeys.size > 0 && (
-                <button
-                  onClick={handleDeleteClick}
-                  disabled={deleting}
-                  className="flex items-center gap-2 px-6 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-                >
-                  <FaTrash className="w-4 h-4" />
-                  {deleting
-                    ? "Deleting..."
-                    : `Delete ${selectedKeys.size} Image${
-                        selectedKeys.size !== 1 ? "s" : ""
-                      }`}
-                </button>
-              )}
-            </motion.div>
-          )}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar - Gallery Tree */}
+            <div className="lg:col-span-1">
+              <GalleryTree
+                onFolderSelect={handleFolderSelect}
+                currentPath={currentFolderPath}
+              />
+            </div>
 
-          {/* Folder Filter Tabs */}
-          {!loading && !error && imagesByFolder.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-12"
-            >
-              <div className="flex flex-wrap gap-3 justify-center">
-                <button
-                  onClick={() => setSelectedFolder("all")}
-                  className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
-                    selectedFolder === "all"
-                      ? "bg-[#1A237E] text-white shadow-lg scale-105"
-                      : "bg-white text-[#1A237E] hover:bg-[#1A237E]/10"
-                  }`}
+            {/* Main Gallery Area */}
+            <div className="lg:col-span-3">
+              {/* Gallery Header with Upload Button */}
+              {!loading && !error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-white rounded-lg shadow-md p-4"
                 >
-                  All Photos ({allImages.length})
-                </button>
-                {imagesByFolder.map((folderData) => (
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                      {currentFolderName}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {displayImages.length} {displayImages.length === 1 ? "image" : "images"}
+                    </p>
+                  </div>
                   <button
-                    key={folderData.folder.id}
-                    onClick={() => setSelectedFolder(folderData.folder.id)}
-                    className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
-                      selectedFolder === folderData.folder.id
-                        ? "bg-[#1A237E] text-white shadow-lg scale-105"
-                        : "bg-white text-[#1A237E] hover:bg-[#1A237E]/10"
-                    }`}
+                    onClick={() => setShowUploadModal(true)}
+                    className="flex items-center gap-2 px-6 py-2 bg-[#1A237E] hover:bg-[#283593] text-white font-semibold rounded-lg transition-colors"
                   >
-                    {folderData.folder.name} ({folderData.images.length})
+                    <FaUpload className="w-4 h-4" />
+                    Upload Photos
                   </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
+                </motion.div>
+              )}
+
+              {/* Bulk Action Controls */}
+              {!loading && !error && displayImages.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-white rounded-lg shadow-md p-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={handleSelectAll}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1A237E] hover:bg-[#1A237E]/10 rounded-lg transition-colors"
+                    >
+                      {selectedKeys.size === displayImages.length ? (
+                        <>
+                          <FaCheckSquare className="w-5 h-5" />
+                          Deselect All
+                        </>
+                      ) : (
+                        <>
+                          <FaSquare className="w-5 h-5" />
+                          Select All
+                        </>
+                      )}
+                    </button>
+                    {selectedKeys.size > 0 && (
+                      <>
+                        <span className="text-sm text-gray-600">
+                          {selectedKeys.size} image
+                          {selectedKeys.size !== 1 ? "s" : ""} selected
+                        </span>
+                        <button
+                          onClick={handleClearSelection}
+                          className="text-sm text-gray-600 hover:text-gray-800 underline"
+                        >
+                          Clear
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {selectedKeys.size > 0 && (
+                    <button
+                      onClick={handleDeleteClick}
+                      disabled={deleting}
+                      className="flex items-center gap-2 px-6 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                    >
+                      <FaTrash className="w-4 h-4" />
+                      {deleting
+                        ? "Deleting..."
+                        : `Delete ${selectedKeys.size} Image${
+                            selectedKeys.size !== 1 ? "s" : ""
+                          }`}
+                    </button>
+                  )}
+                </motion.div>
+              )}
 
           {/* Loading State */}
           {loading && (
@@ -317,13 +323,24 @@ const GalleryPage = () => {
             />
           )}
 
-          {/* Empty State */}
-          {!loading && !error && displayImages.length === 0 && (
-            <div className="text-center py-20">
-              <FaImages className="text-6xl text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">No images available yet</p>
+              {/* Empty State */}
+              {!loading && !error && displayImages.length === 0 && (
+                <div className="text-center py-20 bg-white rounded-lg shadow-md">
+                  <FaImages className="text-6xl text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg mb-4">
+                    No images available in this gallery yet
+                  </p>
+                  <button
+                    onClick={() => setShowUploadModal(true)}
+                    className="flex items-center gap-2 px-6 py-2 bg-[#1A237E] hover:bg-[#283593] text-white font-semibold rounded-lg transition-colors mx-auto"
+                  >
+                    <FaUpload className="w-4 h-4" />
+                    Upload Photos
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
@@ -336,6 +353,25 @@ const GalleryPage = () => {
           onNavigate={handleLightboxNavigate}
         />
       )}
+
+      {/* Upload Modal */}
+      <AnimatePresence>
+        {showUploadModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <ImageUpload
+                galleryPath={currentFolderPath}
+                onUploadSuccess={handleUploadSuccess}
+                onClose={() => setShowUploadModal(false)}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (

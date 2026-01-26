@@ -1,10 +1,10 @@
-const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
+const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectsCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 require('dotenv').config();
 
 /**
  * AWS S3 Configuration for Gallery
- * Bucket: school-jnv
+ * Bucket: jnv-tvm
  */
 
 // Initialize S3 Client
@@ -16,7 +16,25 @@ const s3Client = new S3Client({
     },
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || 'school-jnv';
+const BUCKET_NAME = 'jnv-tvm';
+
+/**
+ * Hardcoded gallery folder configuration
+ * Bucket: jnv-tvm
+ * Subfolders: alumni-meet-2026, school-old-photos
+ */
+const GALLERY_FOLDERS = [
+    {
+        path: 'alumni-meet-2026',
+        name: 'Alumni Meet 2026',
+        children: [],
+    },
+    {
+        path: 'school-old-photos',
+        name: 'School Old Photos',
+        children: [],
+    },
+];
 
 /**
  * Get configured folders/prefixes from environment
@@ -42,7 +60,7 @@ function getConfiguredFolders() {
 }
 
 /**
- * List all image files in a folder/prefix
+ * List all image files in a folder/prefix (with pagination support)
  * @param {string} prefix - S3 folder prefix
  * @param {string} folderName - Display name for the folder
  * @param {string} folderId - ID for the folder
@@ -50,24 +68,34 @@ function getConfiguredFolders() {
  */
 async function listImagesFromFolder(prefix, folderName, folderId) {
     try {
-        const command = new ListObjectsV2Command({
-            Bucket: BUCKET_NAME,
-            Prefix: prefix,
-        });
-
-        const response = await s3Client.send(command);
-        const contents = response.Contents || [];
-
-        // Filter for image files
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-        const imageFiles = contents.filter(file => {
-            const key = file.Key.toLowerCase();
-            return imageExtensions.some(ext => key.endsWith(ext));
-        });
+        const allImageFiles = [];
+        let continuationToken = null;
+
+        // Paginate through all objects in the folder
+        do {
+            const command = new ListObjectsV2Command({
+                Bucket: BUCKET_NAME,
+                Prefix: prefix,
+                ContinuationToken: continuationToken,
+            });
+
+            const response = await s3Client.send(command);
+            const contents = response.Contents || [];
+
+            // Filter for image files
+            const imageFiles = contents.filter(file => {
+                const key = file.Key.toLowerCase();
+                return imageExtensions.some(ext => key.endsWith(ext));
+            });
+
+            allImageFiles.push(...imageFiles);
+            continuationToken = response.NextContinuationToken;
+        } while (continuationToken);
 
         // Generate URLs for each image
         const images = await Promise.all(
-            imageFiles.map(async (file) => {
+            allImageFiles.map(async (file) => {
                 let url;
 
                 // Check if we should use public URLs (better for caching)
@@ -187,6 +215,134 @@ async function deleteObjectsFromS3(keys) {
     }
 }
 
+/**
+ * Upload image to S3 bucket
+ * @param {Buffer} fileBuffer - File buffer to upload
+ * @param {string} folderPath - S3 folder path (e.g., 'jnv-tvm/alumni-meet-2026')
+ * @param {string} fileName - Original filename
+ * @param {string} contentType - MIME type of the file
+ * @returns {Promise<Object>} Upload result with key and URL
+ */
+async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType) {
+    try {
+        // Sanitize folder path and filename
+        const sanitizedPath = folderPath.replace(/^\/+|\/+$/g, '').replace(/\.\./g, '');
+        const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+        
+        // Generate unique filename with timestamp
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const uniqueFileName = `${timestamp}-${randomSuffix}-${sanitizedFileName}`;
+        
+        // Construct S3 key
+        const key = sanitizedPath ? `${sanitizedPath}/${uniqueFileName}` : uniqueFileName;
+
+        // Upload to S3
+        // Note: ACL is not used as the bucket has ACLs disabled
+        // Public access is managed via bucket policies instead
+        const command = new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+            Body: fileBuffer,
+            ContentType: contentType,
+        });
+
+        await s3Client.send(command);
+
+        // Generate public URL
+        const region = process.env.AWS_REGION || 'ap-south-1';
+        const encodedKey = key.split('/').map(part => encodeURIComponent(part)).join('/');
+        const url = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedKey}`;
+
+        return {
+            key,
+            url,
+            fileName: uniqueFileName,
+        };
+    } catch (error) {
+        console.error('Error uploading image to S3:', error.message);
+        throw error;
+    }
+}
+
+/**
+ * Get image count for a specific folder path from S3
+ * @param {string} folderPath - Folder path (e.g., 'jnv-tvm/alumni-meet-2026')
+ * @returns {Promise<number>} Number of images in the folder
+ */
+async function getImageCountForFolder(folderPath) {
+    try {
+        const prefix = folderPath ? `${folderPath}/` : '';
+        const command = new ListObjectsV2Command({
+            Bucket: BUCKET_NAME,
+            Prefix: prefix,
+        });
+
+        let continuationToken = null;
+        let imageCount = 0;
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+
+        // Paginate through all objects
+        do {
+            const response = await s3Client.send(new ListObjectsV2Command({
+                Bucket: BUCKET_NAME,
+                Prefix: prefix,
+                ContinuationToken: continuationToken,
+            }));
+
+            if (response.Contents) {
+                // Count only image files
+                imageCount += response.Contents.filter(obj => {
+                    const key = obj.Key.toLowerCase();
+                    return imageExtensions.some(ext => key.endsWith(ext));
+                }).length;
+            }
+
+            continuationToken = response.NextContinuationToken;
+        } while (continuationToken);
+
+        return imageCount;
+    } catch (error) {
+        console.error(`Error getting image count for folder ${folderPath}:`, error.message);
+        return 0; // Return 0 on error to prevent breaking the UI
+    }
+}
+
+/**
+ * List folders using hardcoded configuration with S3 image counts
+ * @param {string} prefix - Optional prefix to start from (default: '') - not used with hardcoded folders
+ * @returns {Promise<Array>} Hierarchical folder structure with image counts
+ */
+async function listFoldersRecursively(prefix = '') {
+    try {
+        // Use hardcoded folder structure
+        const folders = JSON.parse(JSON.stringify(GALLERY_FOLDERS)); // Deep clone
+
+        // Fetch image counts for each folder from S3
+        const countPromises = [];
+
+        // Function to recursively process folders and add image counts
+        const processFolder = async (folder) => {
+            // Get image count for this folder
+            const imageCount = await getImageCountForFolder(folder.path);
+            folder.imageCount = imageCount;
+
+            // Process children recursively
+            if (folder.children && folder.children.length > 0) {
+                await Promise.all(folder.children.map(child => processFolder(child)));
+            }
+        };
+
+        // Process all folders in parallel
+        await Promise.all(folders.map(folder => processFolder(folder)));
+
+        return folders;
+    } catch (error) {
+        console.error('Error listing folders recursively from S3:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     s3Client,
     getS3Client,
@@ -194,4 +350,6 @@ module.exports = {
     getConfiguredFolders,
     listImagesFromFolder,
     deleteObjectsFromS3,
+    uploadImageToS3,
+    listFoldersRecursively,
 };

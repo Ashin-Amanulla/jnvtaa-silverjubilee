@@ -1,4 +1,4 @@
-const { getConfiguredFolders, listImagesFromFolder, deleteObjectsFromS3 } = require('../config/s3Service');
+const { getConfiguredFolders, listImagesFromFolder, deleteObjectsFromS3, uploadImageToS3, listFoldersRecursively } = require('../config/s3Service');
 
 /**
  * Gallery Controller - AWS S3 Implementation
@@ -114,31 +114,44 @@ exports.getRandomImage = async (req, res) => {
 };
 
 /**
- * Get images from a specific folder
+ * Get images from a specific folder (supports nested paths)
  */
 exports.getFolderImages = async (req, res) => {
     try {
-        const { folderId } = req.params;
-        const folders = getConfiguredFolders();
-
-        // Find folder configuration
-        const folderConfig = folders.find(f => f.id === folderId);
-
-        if (!folderConfig) {
-            return res.status(404).json({
-                success: false,
-                message: 'Folder not found in configuration',
-            });
+        // Express wildcard routes (*) capture the path in req.params[0]
+        const folderPath = req.params[0] || req.params.folderId || '';
+        
+        // Sanitize folder path
+        const sanitizedPath = folderPath ? folderPath.replace(/^\/+|\/+$/g, '').replace(/\.\./g, '') : '';
+        
+        // Use folder path directly if provided, otherwise fall back to folderId for backward compatibility
+        let prefix = sanitizedPath;
+        let folderName = sanitizedPath.split('/').pop() || 'All Photos';
+        
+        // Format folder name (convert kebab-case to title case)
+        if (folderName) {
+            folderName = folderName
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
         }
-
-        const images = await listImagesFromFolder(folderConfig.prefix, folderConfig.name, folderConfig.id);
+        
+        // Ensure prefix ends with / for proper S3 listing
+        if (prefix && !prefix.endsWith('/')) {
+            prefix = `${prefix}/`;
+        }
+        
+        const folderId = sanitizedPath.replace(/\//g, '-') || 'root';
+        
+        const images = await listImagesFromFolder(prefix, folderName, folderId);
 
         res.json({
             success: true,
             data: {
                 folder: {
-                    id: folderConfig.id,
-                    name: folderConfig.name,
+                    id: folderId,
+                    path: sanitizedPath,
+                    name: folderName,
                 },
                 images,
                 totalImages: images.length,
@@ -223,6 +236,87 @@ exports.deleteGalleryImages = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to delete gallery images from S3',
+            error: error.message,
+        });
+    }
+};
+
+/**
+ * Get hierarchical folder tree structure from S3
+ */
+exports.getGalleryTree = async (req, res) => {
+    try {
+        const folders = await listFoldersRecursively();
+
+        res.json({
+            success: true,
+            data: {
+                folders,
+                totalFolders: folders.length,
+            },
+        });
+    } catch (error) {
+        console.error('Error in getGalleryTree:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch gallery folder structure from S3',
+            error: error.message,
+        });
+    }
+};
+
+/**
+ * Upload images to a specific gallery folder
+ */
+exports.uploadGalleryImages = async (req, res) => {
+    try {
+        // Express wildcard routes (*) capture the path in req.params[0]
+        const galleryPath = req.params[0] || '';
+        const files = req.files;
+
+        if (!files || files.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No files uploaded',
+            });
+        }
+
+        // Sanitize gallery path
+        const sanitizedPath = galleryPath ? galleryPath.replace(/^\/+|\/+$/g, '').replace(/\.\./g, '') : '';
+        
+        // Validate path contains only allowed characters
+        if (sanitizedPath && !/^[a-zA-Z0-9\/_-]+$/.test(sanitizedPath)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid gallery path. Only alphanumeric characters, hyphens, underscores, and slashes are allowed.',
+            });
+        }
+
+        // Upload all files to S3
+        const uploadPromises = files.map(file => {
+            return uploadImageToS3(
+                file.buffer,
+                sanitizedPath,
+                file.originalname,
+                file.mimetype
+            );
+        });
+
+        const uploadResults = await Promise.all(uploadPromises);
+
+        res.json({
+            success: true,
+            message: `Successfully uploaded ${uploadResults.length} image(s)`,
+            data: {
+                uploaded: uploadResults,
+                count: uploadResults.length,
+            },
+        });
+    } catch (error) {
+        console.error('Error in uploadGalleryImages:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to upload images to S3',
             error: error.message,
         });
     }
