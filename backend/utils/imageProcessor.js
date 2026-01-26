@@ -1,4 +1,11 @@
-const sharp = require('sharp');
+// Try to require sharp, but handle if it's not installed
+let sharp;
+try {
+    sharp = require('sharp');
+} catch (error) {
+    console.warn('Sharp library not available. Image compression will be disabled.');
+    sharp = null;
+}
 
 /**
  * Image Processing Utility
@@ -23,6 +30,12 @@ const THUMBNAIL_QUALITY = 75; // Lower quality for thumbnails
  */
 async function compressImage(imageBuffer, mimeType) {
     try {
+        // If sharp is not available, return original buffer
+        if (!sharp) {
+            console.warn('Sharp not available, skipping compression');
+            return imageBuffer;
+        }
+        
         let sharpInstance = sharp(imageBuffer);
 
         // Get image metadata
@@ -77,8 +90,14 @@ async function compressImage(imageBuffer, mimeType) {
         const originalSize = imageBuffer.length;
         const compressedSize = compressedBuffer.length;
         const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(2);
+        const sizeMB = (originalSize / (1024 * 1024)).toFixed(2);
+        const compressedMB = (compressedSize / (1024 * 1024)).toFixed(2);
         
-        console.log(`Image compressed: ${(originalSize / 1024).toFixed(2)}KB → ${(compressedSize / 1024).toFixed(2)}KB (${compressionRatio}% reduction)`);
+        if (originalSize > 1024 * 1024) { // Log if > 1MB
+            console.log(`Image compressed: ${sizeMB}MB → ${compressedMB}MB (${compressionRatio}% reduction)`);
+        } else {
+            console.log(`Image compressed: ${(originalSize / 1024).toFixed(2)}KB → ${(compressedSize / 1024).toFixed(2)}KB (${compressionRatio}% reduction)`);
+        }
 
         return compressedBuffer;
     } catch (error) {
@@ -95,6 +114,11 @@ async function compressImage(imageBuffer, mimeType) {
  */
 async function generateThumbnail(imageBuffer) {
     try {
+        // If sharp is not available, throw error (should be caught by caller)
+        if (!sharp) {
+            throw new Error('Sharp library not available');
+        }
+        
         const thumbnailBuffer = await sharp(imageBuffer)
             .resize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, {
                 fit: 'cover', // Cover the entire area (may crop)
@@ -122,6 +146,17 @@ async function generateThumbnail(imageBuffer) {
  */
 async function processImage(imageBuffer, mimeType) {
     try {
+        // If sharp is not available, return original image without thumbnail
+        if (!sharp) {
+            return {
+                compressed: imageBuffer,
+                thumbnail: null,
+                originalSize: imageBuffer.length,
+                compressedSize: imageBuffer.length,
+                thumbnailSize: 0
+            };
+        }
+        
         // Process in parallel for better performance
         const [compressedImage, thumbnail] = await Promise.all([
             compressImage(imageBuffer, mimeType),

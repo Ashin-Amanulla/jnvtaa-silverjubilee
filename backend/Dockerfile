@@ -5,10 +5,13 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install production dependencies for better compatibility
+# Sharp requires vips and vips-dev for image processing
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
+    vips \
+    vips-dev \
     && rm -rf /var/cache/apk/*
 
 # Copy package files

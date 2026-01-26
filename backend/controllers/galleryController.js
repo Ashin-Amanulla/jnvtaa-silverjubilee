@@ -1,5 +1,4 @@
 const { getConfiguredFolders, listImagesFromFolder, deleteObjectsFromS3, uploadImageToS3, listFoldersRecursively } = require('../config/s3Service');
-const { processImage, getOptimizedContentType } = require('../utils/imageProcessor');
 
 /**
  * Gallery Controller - AWS S3 Implementation
@@ -294,25 +293,44 @@ exports.uploadGalleryImages = async (req, res) => {
         }
 
         // Process and upload all files to S3
+        // Dynamically require imageProcessor only when needed (to avoid startup errors if sharp isn't installed)
+        let imageProcessor;
+        try {
+            imageProcessor = require('../utils/imageProcessor');
+        } catch (error) {
+            console.warn('Image processor not available, uploading images without compression:', error.message);
+            imageProcessor = null;
+        }
+
         const uploadPromises = files.map(async (file) => {
             try {
-                // Process image: compress and generate thumbnail
-                const processed = await processImage(file.buffer, file.mimetype);
-                
-                // Get optimized content type
-                const optimizedContentType = getOptimizedContentType(file.mimetype);
-                
-                // Extract base filename without extension for thumbnail naming
-                const baseFileName = file.originalname.replace(/\.[^/.]+$/, '') + '.jpg';
-                
-                // Upload compressed image and thumbnail to S3
-                return await uploadImageToS3(
-                    processed.compressed,
-                    sanitizedPath,
-                    baseFileName,
-                    optimizedContentType,
-                    processed.thumbnail
-                );
+                // Process image if processor is available
+                if (imageProcessor) {
+                    const processed = await imageProcessor.processImage(file.buffer, file.mimetype);
+                    
+                    // Get optimized content type
+                    const optimizedContentType = imageProcessor.getOptimizedContentType(file.mimetype);
+                    
+                    // Extract base filename without extension for thumbnail naming
+                    const baseFileName = file.originalname.replace(/\.[^/.]+$/, '') + '.jpg';
+                    
+                    // Upload compressed image and thumbnail to S3
+                    return await uploadImageToS3(
+                        processed.compressed,
+                        sanitizedPath,
+                        baseFileName,
+                        optimizedContentType,
+                        processed.thumbnail
+                    );
+                } else {
+                    // Fallback: upload original without processing
+                    return await uploadImageToS3(
+                        file.buffer,
+                        sanitizedPath,
+                        file.originalname,
+                        file.mimetype
+                    );
+                }
             } catch (error) {
                 console.error(`Error processing file ${file.originalname}:`, error);
                 // Fallback: upload original if processing fails
