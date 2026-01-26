@@ -156,6 +156,12 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
                     src={thumbnails[0].thumbnailLink}
                     alt={folder.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to main image URL if thumbnail fails to load
+                      if (thumbnails[0].url && e.target.src !== thumbnails[0].url) {
+                        e.target.src = thumbnails[0].url;
+                      }
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-[#1A237E]/10 to-[#3949AB]/20 flex items-center justify-center">

@@ -121,26 +121,8 @@ async function listImagesFromFolder(prefix, folderName, folderId) {
                     url = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
                 }
 
-                // Generate thumbnail URL - thumbnails are stored in {prefix}/thumbnails/{filename}
-                let thumbnailUrl = url; // Default to main image URL
-                const region = process.env.AWS_REGION || 'ap-south-1';
-                
-                // Construct thumbnail key: insert 'thumbnails' folder before filename
-                const keyParts = file.Key.split('/');
-                const filename = keyParts.pop();
-                const thumbnailKey = keyParts.length > 0 
-                    ? `${keyParts.join('/')}/thumbnails/${filename}`
-                    : `thumbnails/${filename}`;
-                
-                // Generate thumbnail URL (we'll use it even if thumbnail doesn't exist yet - S3 will return 404 if missing)
-                if (usePublicUrls) {
-                    const encodedThumbnailKey = thumbnailKey.split('/').map(part => encodeURIComponent(part)).join('/');
-                    thumbnailUrl = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedThumbnailKey}`;
-                } else {
-                    // For signed URLs, we'd need to check if thumbnail exists first
-                    // For now, use main URL as fallback
-                    thumbnailUrl = url;
-                }
+                // Use same URL for thumbnail (no separate thumbnail files)
+                const thumbnailUrl = url;
 
                 // Extract filename from key
                 const fileName = file.Key.split('/').pop();
@@ -243,10 +225,9 @@ async function deleteObjectsFromS3(keys) {
  * @param {string} folderPath - S3 folder path (e.g., 'jnv-tvm/alumni-meet-2026')
  * @param {string} fileName - Original filename
  * @param {string} contentType - MIME type of the file
- * @param {Buffer} thumbnailBuffer - Optional thumbnail buffer
- * @returns {Promise<Object>} Upload result with key, URL, and thumbnail URL
+ * @returns {Promise<Object>} Upload result with key, URL, and thumbnail URL (same as main URL)
  */
-async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType, thumbnailBuffer = null) {
+async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType) {
     try {
         // Sanitize folder path and filename
         const sanitizedPath = folderPath.replace(/^\/+|\/+$/g, '').replace(/\.\./g, '');
@@ -257,15 +238,12 @@ async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType, th
         const randomSuffix = Math.random().toString(36).substring(2, 8);
         const uniqueFileName = `${timestamp}-${randomSuffix}-${sanitizedFileName}`;
         
-        // Construct S3 keys
+        // Construct S3 key
         const key = sanitizedPath ? `${sanitizedPath}/${uniqueFileName}` : uniqueFileName;
-        const thumbnailKey = thumbnailBuffer 
-            ? (sanitizedPath ? `${sanitizedPath}/thumbnails/${uniqueFileName}` : `thumbnails/${uniqueFileName}`)
-            : null;
 
         const region = process.env.AWS_REGION || 'ap-south-1';
 
-        // Upload main image to S3
+        // Upload image to S3
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
@@ -276,24 +254,6 @@ async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType, th
 
         await s3Client.send(command);
 
-        // Upload thumbnail if provided
-        let thumbnailUrl = null;
-        if (thumbnailBuffer && thumbnailKey) {
-            const thumbnailCommand = new PutObjectCommand({
-                Bucket: BUCKET_NAME,
-                Key: thumbnailKey,
-                Body: thumbnailBuffer,
-                ContentType: 'image/jpeg',
-                CacheControl: 'max-age=31536000', // Cache for 1 year
-            });
-
-            await s3Client.send(thumbnailCommand);
-
-            // Generate thumbnail URL
-            const encodedThumbnailKey = thumbnailKey.split('/').map(part => encodeURIComponent(part)).join('/');
-            thumbnailUrl = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedThumbnailKey}`;
-        }
-
         // Generate public URL
         const encodedKey = key.split('/').map(part => encodeURIComponent(part)).join('/');
         const url = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedKey}`;
@@ -301,8 +261,8 @@ async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType, th
         return {
             key,
             url,
-            thumbnailKey: thumbnailKey || null,
-            thumbnailUrl: thumbnailUrl || url, // Fallback to main URL if no thumbnail
+            thumbnailKey: null,
+            thumbnailUrl: url, // Use same URL for thumbnail
             fileName: uniqueFileName,
         };
     } catch (error) {

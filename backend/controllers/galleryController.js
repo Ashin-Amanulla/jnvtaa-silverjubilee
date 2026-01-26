@@ -304,23 +304,22 @@ exports.uploadGalleryImages = async (req, res) => {
 
         const uploadPromises = files.map(async (file) => {
             try {
-                // Process image if processor is available
+                // Compress image if processor is available (no thumbnail generation)
                 if (imageProcessor) {
-                    const processed = await imageProcessor.processImage(file.buffer, file.mimetype);
+                    const compressedBuffer = await imageProcessor.compressImage(file.buffer, file.mimetype);
                     
                     // Get optimized content type
                     const optimizedContentType = imageProcessor.getOptimizedContentType(file.mimetype);
                     
-                    // Extract base filename without extension for thumbnail naming
+                    // Extract base filename without extension
                     const baseFileName = file.originalname.replace(/\.[^/.]+$/, '') + '.jpg';
                     
-                    // Upload compressed image and thumbnail to S3
+                    // Upload compressed image (thumbnail URL will be same as main URL)
                     return await uploadImageToS3(
-                        processed.compressed,
+                        compressedBuffer,
                         sanitizedPath,
                         baseFileName,
-                        optimizedContentType,
-                        processed.thumbnail
+                        optimizedContentType
                     );
                 } else {
                     // Fallback: upload original without processing

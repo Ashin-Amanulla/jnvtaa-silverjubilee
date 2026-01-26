@@ -71,6 +71,12 @@ const ImageGrid = ({
                 loadedImages.has(image.id) ? "opacity-100" : "opacity-0"
               } ${selected ? "scale-95" : "group-hover:scale-110"}`}
               onLoad={() => handleImageLoad(image.id)}
+              onError={(e) => {
+                // Fallback to main image URL if thumbnail fails to load
+                if (image.url && e.target.src !== image.url) {
+                  e.target.src = image.url;
+                }
+              }}
               loading="lazy"
             />
 
