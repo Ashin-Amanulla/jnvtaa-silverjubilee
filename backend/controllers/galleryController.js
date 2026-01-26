@@ -1,4 +1,5 @@
 const { getConfiguredFolders, listImagesFromFolder, deleteObjectsFromS3, uploadImageToS3, listFoldersRecursively } = require('../config/s3Service');
+const { processImage, getOptimizedContentType } = require('../utils/imageProcessor');
 
 /**
  * Gallery Controller - AWS S3 Implementation
@@ -292,14 +293,36 @@ exports.uploadGalleryImages = async (req, res) => {
             });
         }
 
-        // Upload all files to S3
-        const uploadPromises = files.map(file => {
-            return uploadImageToS3(
-                file.buffer,
-                sanitizedPath,
-                file.originalname,
-                file.mimetype
-            );
+        // Process and upload all files to S3
+        const uploadPromises = files.map(async (file) => {
+            try {
+                // Process image: compress and generate thumbnail
+                const processed = await processImage(file.buffer, file.mimetype);
+                
+                // Get optimized content type
+                const optimizedContentType = getOptimizedContentType(file.mimetype);
+                
+                // Extract base filename without extension for thumbnail naming
+                const baseFileName = file.originalname.replace(/\.[^/.]+$/, '') + '.jpg';
+                
+                // Upload compressed image and thumbnail to S3
+                return await uploadImageToS3(
+                    processed.compressed,
+                    sanitizedPath,
+                    baseFileName,
+                    optimizedContentType,
+                    processed.thumbnail
+                );
+            } catch (error) {
+                console.error(`Error processing file ${file.originalname}:`, error);
+                // Fallback: upload original if processing fails
+                return await uploadImageToS3(
+                    file.buffer,
+                    sanitizedPath,
+                    file.originalname,
+                    file.mimetype
+                );
+            }
         });
 
         const uploadResults = await Promise.all(uploadPromises);

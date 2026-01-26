@@ -83,9 +83,13 @@ async function listImagesFromFolder(prefix, folderName, folderId) {
             const response = await s3Client.send(command);
             const contents = response.Contents || [];
 
-            // Filter for image files
+            // Filter for image files (exclude thumbnails folder)
             const imageFiles = contents.filter(file => {
                 const key = file.Key.toLowerCase();
+                // Exclude files in thumbnails folder
+                if (key.includes('/thumbnails/')) {
+                    return false;
+                }
                 return imageExtensions.some(ext => key.endsWith(ext));
             });
 
@@ -117,8 +121,26 @@ async function listImagesFromFolder(prefix, folderName, folderId) {
                     url = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
                 }
 
-                // Generate thumbnail URL (same as main URL for now)
-                const thumbnailUrl = url;
+                // Generate thumbnail URL - thumbnails are stored in {prefix}/thumbnails/{filename}
+                let thumbnailUrl = url; // Default to main image URL
+                const region = process.env.AWS_REGION || 'ap-south-1';
+                
+                // Construct thumbnail key: insert 'thumbnails' folder before filename
+                const keyParts = file.Key.split('/');
+                const filename = keyParts.pop();
+                const thumbnailKey = keyParts.length > 0 
+                    ? `${keyParts.join('/')}/thumbnails/${filename}`
+                    : `thumbnails/${filename}`;
+                
+                // Generate thumbnail URL (we'll use it even if thumbnail doesn't exist yet - S3 will return 404 if missing)
+                if (usePublicUrls) {
+                    const encodedThumbnailKey = thumbnailKey.split('/').map(part => encodeURIComponent(part)).join('/');
+                    thumbnailUrl = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedThumbnailKey}`;
+                } else {
+                    // For signed URLs, we'd need to check if thumbnail exists first
+                    // For now, use main URL as fallback
+                    thumbnailUrl = url;
+                }
 
                 // Extract filename from key
                 const fileName = file.Key.split('/').pop();
@@ -221,9 +243,10 @@ async function deleteObjectsFromS3(keys) {
  * @param {string} folderPath - S3 folder path (e.g., 'jnv-tvm/alumni-meet-2026')
  * @param {string} fileName - Original filename
  * @param {string} contentType - MIME type of the file
- * @returns {Promise<Object>} Upload result with key and URL
+ * @param {Buffer} thumbnailBuffer - Optional thumbnail buffer
+ * @returns {Promise<Object>} Upload result with key, URL, and thumbnail URL
  */
-async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType) {
+async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType, thumbnailBuffer = null) {
     try {
         // Sanitize folder path and filename
         const sanitizedPath = folderPath.replace(/^\/+|\/+$/g, '').replace(/\.\./g, '');
@@ -234,29 +257,52 @@ async function uploadImageToS3(fileBuffer, folderPath, fileName, contentType) {
         const randomSuffix = Math.random().toString(36).substring(2, 8);
         const uniqueFileName = `${timestamp}-${randomSuffix}-${sanitizedFileName}`;
         
-        // Construct S3 key
+        // Construct S3 keys
         const key = sanitizedPath ? `${sanitizedPath}/${uniqueFileName}` : uniqueFileName;
+        const thumbnailKey = thumbnailBuffer 
+            ? (sanitizedPath ? `${sanitizedPath}/thumbnails/${uniqueFileName}` : `thumbnails/${uniqueFileName}`)
+            : null;
 
-        // Upload to S3
-        // Note: ACL is not used as the bucket has ACLs disabled
-        // Public access is managed via bucket policies instead
+        const region = process.env.AWS_REGION || 'ap-south-1';
+
+        // Upload main image to S3
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
             Body: fileBuffer,
             ContentType: contentType,
+            CacheControl: 'max-age=31536000', // Cache for 1 year
         });
 
         await s3Client.send(command);
 
+        // Upload thumbnail if provided
+        let thumbnailUrl = null;
+        if (thumbnailBuffer && thumbnailKey) {
+            const thumbnailCommand = new PutObjectCommand({
+                Bucket: BUCKET_NAME,
+                Key: thumbnailKey,
+                Body: thumbnailBuffer,
+                ContentType: 'image/jpeg',
+                CacheControl: 'max-age=31536000', // Cache for 1 year
+            });
+
+            await s3Client.send(thumbnailCommand);
+
+            // Generate thumbnail URL
+            const encodedThumbnailKey = thumbnailKey.split('/').map(part => encodeURIComponent(part)).join('/');
+            thumbnailUrl = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedThumbnailKey}`;
+        }
+
         // Generate public URL
-        const region = process.env.AWS_REGION || 'ap-south-1';
         const encodedKey = key.split('/').map(part => encodeURIComponent(part)).join('/');
         const url = `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${encodedKey}`;
 
         return {
             key,
             url,
+            thumbnailKey: thumbnailKey || null,
+            thumbnailUrl: thumbnailUrl || url, // Fallback to main URL if no thumbnail
             fileName: uniqueFileName,
         };
     } catch (error) {
