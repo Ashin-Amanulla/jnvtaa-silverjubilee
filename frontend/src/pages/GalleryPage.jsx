@@ -11,18 +11,17 @@ import ImageGrid from "../components/gallery/ImageGrid";
 import ImageLightbox from "../components/gallery/ImageLightbox";
 import GalleryFolderGrid from "../components/gallery/GalleryFolderGrid";
 import ImageUpload from "../components/gallery/ImageUpload";
-import MainNavbar from "../components/shared/MainNavbar";
-import Footer from "../components/home/Footer";
+import PageLayout from "../components/shared/PageLayout";
+import { KineticText } from "../components/artistic";
 
 /**
  * GalleryPage Component
- * Main gallery page with folder filtering and image viewing
+ * Main gallery page with folder filtering and image viewing - Artistic redesign
  */
 const GalleryPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [displayImages, setDisplayImages] = useState([]);
-  // null means show gallery folder grid, string means show specific folder images
   const [currentFolderPath, setCurrentFolderPath] = useState(null);
   const [currentFolderName, setCurrentFolderName] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -82,7 +81,6 @@ const GalleryPage = () => {
   };
 
   const handleUploadSuccess = () => {
-    // Refresh images after successful upload
     loadFolderImages(currentFolderPath);
   };
 
@@ -100,37 +98,65 @@ const GalleryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF4E6]">
-      <MainNavbar />
-
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-[#1A237E] via-[#283593] to-[#3949AB] text-white py-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] animate-[slide_20s_linear_infinite]" />
+    <PageLayout>
+      {/* ============================================
+          HERO SECTION
+          ============================================ */}
+      <section className="relative min-h-[50vh] flex items-center overflow-hidden bg-[var(--color-bg-primary)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[20%] right-[10%] w-64 h-64 rounded-full border border-[var(--color-accent-cyan)]/20"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute bottom-[20%] left-[5%] w-48 h-48 rounded-full bg-[var(--color-accent-gold)]/10 blur-3xl"
+          />
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <FaImages className="text-6xl mb-6 mx-auto" />
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Photo Gallery
-            </h1>
-            <p className="text-xl text-white/90">
-              Relive the memories through our collection of moments captured
-              during the event
-            </p>
-          </motion.div>
+        <div className="container-asymmetric relative z-10 py-32">
+          <div className="max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-8"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-cyan)]" />
+              <span className="text-[var(--color-accent-cyan)] font-display text-sm tracking-[0.3em] uppercase">
+                Memories Captured
+              </span>
+            </motion.div>
+
+            <div className="space-y-2 mb-8">
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.3}
+                className="font-display text-display text-[var(--color-text-primary)] leading-[0.9]"
+              >
+                GALLERY
+              </KineticText>
+            </div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl leading-relaxed"
+            >
+              Relive the memories through our collection of moments captured during events and gatherings.
+            </motion.p>
+          </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      {/* ============================================
+          GALLERY CONTENT
+          ============================================ */}
+      <section className="py-20 bg-[var(--color-bg-secondary)]">
+        <div className="container-asymmetric">
           {/* Show Gallery Folder Grid when no folder is selected */}
           {!currentFolderPath && (
             <GalleryFolderGrid onFolderSelect={handleFolderSelect} />
@@ -143,21 +169,21 @@ const GalleryPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-white rounded-lg shadow-md p-4"
+                className="mb-8 flex flex-wrap items-center justify-between gap-4 bg-[var(--color-bg-primary)] border border-[var(--color-text-primary)]/20 p-6"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-6">
                   <button
                     onClick={handleBackToGalleries}
-                    className="flex items-center gap-2 px-4 py-2 text-[#1A237E] hover:bg-[#1A237E]/10 rounded-lg transition-colors font-semibold"
+                    className="flex items-center gap-2 px-4 py-2 text-[var(--color-text-primary)] border border-[var(--color-text-primary)]/20 hover:border-[var(--color-accent-coral)] hover:text-[var(--color-accent-coral)] transition-all font-display text-sm tracking-wider"
                   >
                     <FaArrowLeft className="w-4 h-4" />
-                    Back to Galleries
+                    BACK
                   </button>
-                  <div className="border-l border-gray-300 pl-4">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                      {currentFolderName}
+                  <div className="border-l border-[var(--color-text-primary)]/20 pl-6">
+                    <h2 className="font-display text-2xl text-[var(--color-text-primary)] mb-1">
+                      {currentFolderName.toUpperCase()}
                     </h2>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-[var(--color-text-muted)]">
                       {displayImages.length}{" "}
                       {displayImages.length === 1 ? "image" : "images"}
                     </p>
@@ -165,19 +191,19 @@ const GalleryPage = () => {
                 </div>
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="flex items-center gap-2 px-6 py-2 bg-[#1A237E] hover:bg-[#283593] text-white font-semibold rounded-lg transition-colors"
+                  className="btn-primary"
                 >
                   <FaUpload className="w-4 h-4" />
-                  Upload Photos
+                  <span>UPLOAD PHOTOS</span>
                 </button>
               </motion.div>
 
               {/* Loading State */}
               {loading && (
                 <div className="text-center py-20">
-                  <div className="w-16 h-16 border-4 border-[#1A237E]/20 border-t-[#1A237E] rounded-full animate-spin mx-auto mb-6" />
-                  <p className="text-gray-600 text-lg font-medium">
-                    Loading gallery...
+                  <div className="w-16 h-16 border-2 border-[var(--color-accent-coral)]/20 border-t-[var(--color-accent-coral)] rounded-full animate-spin mx-auto mb-6" />
+                  <p className="text-[var(--color-text-muted)] text-lg font-display tracking-wider">
+                    LOADING GALLERY...
                   </p>
                 </div>
               )}
@@ -187,23 +213,23 @@ const GalleryPage = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="max-w-2xl mx-auto bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-center"
+                  className="max-w-2xl mx-auto card-brutal p-12 text-center"
                 >
-                  <FaExclamationTriangle className="text-5xl text-red-500 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-red-800 mb-3">
-                    Unable to Load Gallery
+                  <FaExclamationTriangle className="text-5xl text-[var(--color-accent-coral)] mx-auto mb-6" />
+                  <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-4">
+                    UNABLE TO LOAD GALLERY
                   </h3>
-                  <p className="text-red-600 mb-6">{error}</p>
+                  <p className="text-[var(--color-text-muted)] mb-8">{error}</p>
                   <button
                     onClick={() => loadFolderImages(currentFolderPath)}
-                    className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full transition-colors"
+                    className="btn-primary"
                   >
-                    Try Again
+                    TRY AGAIN
                   </button>
                 </motion.div>
               )}
 
-              {/* Image Grid - Without selection functionality */}
+              {/* Image Grid */}
               {!loading && !error && displayImages.length > 0 && (
                 <ImageGrid
                   images={displayImages}
@@ -213,17 +239,17 @@ const GalleryPage = () => {
 
               {/* Empty State */}
               {!loading && !error && displayImages.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-lg shadow-md">
-                  <FaImages className="text-6xl text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg mb-4">
+                <div className="text-center py-20 card-brutal p-12">
+                  <FaImages className="text-6xl text-[var(--color-text-primary)]/20 mx-auto mb-6" />
+                  <p className="text-[var(--color-text-muted)] text-lg mb-6">
                     No images available in this gallery yet
                   </p>
                   <button
                     onClick={() => setShowUploadModal(true)}
-                    className="flex items-center gap-2 px-6 py-2 bg-[#1A237E] hover:bg-[#283593] text-white font-semibold rounded-lg transition-colors mx-auto"
+                    className="btn-primary"
                   >
                     <FaUpload className="w-4 h-4" />
-                    Upload Photos
+                    <span>UPLOAD PHOTOS</span>
                   </button>
                 </div>
               )}
@@ -245,7 +271,7 @@ const GalleryPage = () => {
       {/* Upload Modal */}
       <AnimatePresence>
         {showUploadModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -260,9 +286,7 @@ const GalleryPage = () => {
           </div>
         )}
       </AnimatePresence>
-
-      <Footer />
-    </div>
+    </PageLayout>
   );
 };
 

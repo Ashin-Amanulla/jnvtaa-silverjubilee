@@ -5,33 +5,33 @@ import {
   FaEnvelope,
   FaPhone,
   FaMapMarkerAlt,
-  FaFacebookF,
   FaInstagram,
   FaWhatsapp,
   FaYoutube,
   FaPaperPlane,
+  FaArrowRight,
 } from "react-icons/fa";
-import { HiMail, HiLocationMarker, HiPhone } from "react-icons/hi";
 import PageLayout from "../components/shared/PageLayout";
+import { KineticText } from "../components/artistic";
 
 // Contact info
 const contactInfo = [
   {
-    icon: HiMail,
+    icon: FaEnvelope,
     label: "Email",
     value: "info@jnvtaa.in",
     href: "mailto:info@jnvtaa.in",
     description: "For general inquiries and support",
   },
   {
-    icon: HiPhone,
+    icon: FaPhone,
     label: "Phone",
     value: "+91 XXXXX XXXXX",
     href: "tel:+91XXXXXXXXXX",
     description: "Available on weekdays 10 AM - 6 PM",
   },
   {
-    icon: HiLocationMarker,
+    icon: FaMapMarkerAlt,
     label: "Address",
     value: "JNV Campus, Trivandrum, Kerala",
     href: "#",
@@ -41,10 +41,9 @@ const contactInfo = [
 
 // Social links
 const socialLinks = [
-  { name: "Facebook", icon: FaFacebookF, href: "#", color: "bg-blue-600 hover:bg-blue-700" },
-  { name: "Instagram", icon: FaInstagram, href: "#", color: "bg-pink-600 hover:bg-pink-700" },
-  { name: "WhatsApp", icon: FaWhatsapp, href: "#", color: "bg-green-600 hover:bg-green-700" },
-  { name: "YouTube", icon: FaYoutube, href: "#", color: "bg-red-600 hover:bg-red-700" },
+  { name: "Instagram", icon: FaInstagram, href: "#" },
+  { name: "WhatsApp", icon: FaWhatsapp, href: "#" },
+  { name: "YouTube", icon: FaYoutube, href: "#" },
 ];
 
 const ContactPage = () => {
@@ -65,7 +64,6 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
@@ -75,107 +73,133 @@ const ContactPage = () => {
 
   return (
     <PageLayout showPopup={false}>
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB]" />
-        
-        <div className="absolute inset-0 opacity-10 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 border-2 border-white rounded-full" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 border-2 border-white rounded-full" />
+      {/* ============================================
+          HERO SECTION
+          ============================================ */}
+      <section className="relative min-h-[50vh] flex items-center overflow-hidden bg-[var(--color-bg-primary)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[20%] right-[10%] w-64 h-64 rounded-full border border-[var(--color-accent-gold)]/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-              <FaEnvelope className="text-[#D4AF37]" />
-              <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+        <div className="container-asymmetric relative z-10 py-32">
+          <div className="max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-8"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-gold)]" />
+              <span className="text-[var(--color-accent-gold)] font-display text-sm tracking-[0.3em] uppercase">
                 Get in Touch
               </span>
+            </motion.div>
+
+            <div className="space-y-2 mb-8">
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.3}
+                className="font-display text-display text-[var(--color-text-primary)] leading-[0.9]"
+              >
+                CONTACT
+              </KineticText>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-              Contact Us
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl leading-relaxed"
+            >
               Have questions about JNVTAA or the Silver Jubilee event? 
               We'd love to hear from you.
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
         </div>
       </section>
 
-      {/* Contact Content */}
-      <section className="py-16 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Info */}
+      {/* ============================================
+          CONTACT CONTENT
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-secondary)]">
+        <div className="container-asymmetric">
+          <div className="grid lg:grid-cols-2 gap-16">
+            {/* Left — Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E] mb-8">
-                Reach Out to Us
+              <h2 className="font-display text-3xl text-[var(--color-text-primary)] mb-10">
+                REACH OUT TO US
               </h2>
 
-              <div className="space-y-6 mb-10">
-                {contactInfo.map((info) => (
-                  <a
+              <div className="space-y-6 mb-12">
+                {contactInfo.map((info, index) => (
+                  <motion.a
                     key={info.label}
                     href={info.href}
-                    className="flex items-start gap-4 p-4 bg-white rounded-xl hover:shadow-md transition-shadow group"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start gap-5 p-6 bg-[var(--color-bg-primary)] border border-[var(--color-text-primary)]/10 hover:border-[var(--color-accent-coral)] transition-all group"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-[#1A237E]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#1A237E] transition-colors">
-                      <info.icon className="text-xl text-[#1A237E] group-hover:text-white transition-colors" />
-                    </div>
+                    <span className="w-14 h-14 flex items-center justify-center border border-[var(--color-text-primary)]/20 group-hover:border-[var(--color-accent-coral)] group-hover:bg-[var(--color-accent-coral)] transition-all">
+                      <info.icon className="text-xl text-[var(--color-accent-coral)] group-hover:text-[var(--color-bg-primary)]" />
+                    </span>
                     <div>
-                      <span className="text-xs text-[#9CA3AF] uppercase tracking-wider block mb-1">
+                      <span className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
                         {info.label}
                       </span>
-                      <span className="text-[#1A237E] font-semibold block mb-1">
+                      <span className="text-[var(--color-text-primary)] font-display text-lg block mb-1">
                         {info.value}
                       </span>
-                      <span className="text-[#4B5563] text-sm">
+                      <span className="text-[var(--color-text-muted)] text-sm">
                         {info.description}
                       </span>
                     </div>
-                  </a>
+                  </motion.a>
                 ))}
               </div>
 
               {/* Social Links */}
               <div>
-                <h3 className="font-heading text-lg font-semibold text-[#1A237E] mb-4">
-                  Follow Us
+                <h3 className="font-display text-sm tracking-[0.2em] text-[var(--color-accent-coral)] mb-6">
+                  FOLLOW US
                 </h3>
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   {socialLinks.map((social) => (
-                    <a
+                    <motion.a
                       key={social.name}
                       href={social.href}
-                      className={`w-12 h-12 rounded-xl ${social.color} flex items-center justify-center transition-all hover:scale-110`}
+                      whileHover={{ scale: 1.1, y: -4 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-14 h-14 flex items-center justify-center border border-[var(--color-text-primary)]/20 hover:border-[var(--color-accent-coral)] hover:bg-[var(--color-accent-coral)] text-[var(--color-text-muted)] hover:text-[var(--color-bg-primary)] transition-all"
                       aria-label={social.name}
                     >
-                      <social.icon className="text-white text-lg" />
-                    </a>
+                      <social.icon className="text-xl" />
+                    </motion.a>
                   ))}
                 </div>
               </div>
             </motion.div>
 
-            {/* Contact Form */}
+            {/* Right — Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h2 className="font-heading text-2xl font-bold text-[#1A237E] mb-6">
-                  Send us a Message
+              <div className="card-brutal p-10">
+                <h2 className="font-display text-2xl text-[var(--color-text-primary)] mb-8">
+                  SEND US A MESSAGE
                 </h2>
 
                 {submitted ? (
@@ -184,27 +208,27 @@ const ContactPage = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-12"
                   >
-                    <div className="w-16 h-16 rounded-full bg-green-100 mx-auto mb-4 flex items-center justify-center">
-                      <FaPaperPlane className="text-green-600 text-2xl" />
+                    <div className="w-20 h-20 bg-[#22c55e] mx-auto mb-6 flex items-center justify-center">
+                      <FaPaperPlane className="text-white text-3xl" />
                     </div>
-                    <h3 className="font-heading text-xl font-semibold text-[#1A237E] mb-2">
-                      Message Sent!
+                    <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-3">
+                      MESSAGE SENT!
                     </h3>
-                    <p className="text-[#4B5563] mb-6">
+                    <p className="text-[var(--color-text-muted)] mb-8">
                       Thank you for reaching out. We'll get back to you soon.
                     </p>
                     <button
                       onClick={() => setSubmitted(false)}
                       className="btn-outline"
                     >
-                      Send Another Message
+                      SEND ANOTHER MESSAGE
                     </button>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-[#4B5563] mb-2">
-                        Your Name
+                      <label className="block text-sm font-display tracking-wider text-[var(--color-text-muted)] mb-2">
+                        YOUR NAME
                       </label>
                       <input
                         type="text"
@@ -212,14 +236,14 @@ const ContactPage = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1A237E] focus:ring-2 focus:ring-[#1A237E]/20 outline-none transition-all"
+                        className="input-artistic"
                         placeholder="John Doe"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-[#4B5563] mb-2">
-                        Email Address
+                      <label className="block text-sm font-display tracking-wider text-[var(--color-text-muted)] mb-2">
+                        EMAIL ADDRESS
                       </label>
                       <input
                         type="email"
@@ -227,14 +251,14 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1A237E] focus:ring-2 focus:ring-[#1A237E]/20 outline-none transition-all"
+                        className="input-artistic"
                         placeholder="john@example.com"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-[#4B5563] mb-2">
-                        Subject
+                      <label className="block text-sm font-display tracking-wider text-[var(--color-text-muted)] mb-2">
+                        SUBJECT
                       </label>
                       <input
                         type="text"
@@ -242,14 +266,14 @@ const ContactPage = () => {
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1A237E] focus:ring-2 focus:ring-[#1A237E]/20 outline-none transition-all"
+                        className="input-artistic"
                         placeholder="Silver Jubilee Inquiry"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-[#4B5563] mb-2">
-                        Message
+                      <label className="block text-sm font-display tracking-wider text-[var(--color-text-muted)] mb-2">
+                        MESSAGE
                       </label>
                       <textarea
                         name="message"
@@ -257,7 +281,7 @@ const ContactPage = () => {
                         onChange={handleChange}
                         required
                         rows={5}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#1A237E] focus:ring-2 focus:ring-[#1A237E]/20 outline-none transition-all resize-none"
+                        className="input-artistic resize-none"
                         placeholder="Your message here..."
                       />
                     </div>
@@ -265,17 +289,17 @@ const ContactPage = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-70"
+                      className="w-full btn-primary justify-center disabled:opacity-70"
                     >
                       {isSubmitting ? (
                         <>
                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Sending...
+                          SENDING...
                         </>
                       ) : (
                         <>
-                          Send Message
-                          <FaPaperPlane className="text-sm" />
+                          <span>SEND MESSAGE</span>
+                          <FaPaperPlane />
                         </>
                       )}
                     </button>
@@ -287,25 +311,35 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* Map placeholder / CTA */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ============================================
+          CTA SECTION
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)]">
+        <div className="container-asymmetric text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-panel rounded-3xl p-8 sm:p-12 text-center"
+            className="max-w-2xl mx-auto"
           >
-            <FaMapMarkerAlt className="text-4xl text-[#1A237E] mx-auto mb-4" />
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E] mb-4">
-              Visit Us at JNV Campus
+            <FaMapMarkerAlt className="text-5xl text-[var(--color-accent-coral)] mx-auto mb-6" />
+            <h2 className="font-display text-heading text-[var(--color-text-primary)] mb-6">
+              CELEBRATING<br />
+              <span className="text-gradient-sunset">25 YEARS</span>
             </h2>
-            <p className="text-[#4B5563] mb-6 max-w-xl mx-auto">
-              The Silver Jubilee celebration will be held at our beloved JNV Trivandrum campus. 
-              Come back to where it all began!
+            <p className="text-[var(--color-text-muted)] text-xl leading-relaxed mb-10">
+              2026 marks our Silver Jubilee Year! Join us for year-long celebrations, 
+              batch meetups, and special programs throughout the year.
             </p>
-            <Link to="/register" className="btn-primary inline-flex items-center gap-2">
-              Register for Silver Jubilee
+            <Link to="/events">
+              <motion.button
+                className="btn-primary text-lg px-12 py-5"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span>VIEW UPCOMING EVENTS</span>
+                <FaArrowRight />
+              </motion.button>
             </Link>
           </motion.div>
         </div>

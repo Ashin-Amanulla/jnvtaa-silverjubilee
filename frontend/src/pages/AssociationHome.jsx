@@ -1,61 +1,10 @@
-import React, { useState, useEffect } from "react"; // Added hooks
-import { motion, AnimatePresence } from "framer-motion"; // Added AnimatePresence
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { fetchAllImages } from "../api/galleryApi"; // Added API import
-import {
-  FaCalendarAlt,
-  FaUsers,
-  FaNewspaper,
-  FaHandshake,
-  FaArrowRight,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
-import { HiSparkles, HiChevronRight } from "react-icons/hi";
+import { fetchAllImages } from "../api/galleryApi";
+import { FaArrowRight, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImages, FaEnvelope, FaInfoCircle } from "react-icons/fa";
+import { KineticText, MarqueeText, ParallaxSection } from "../components/artistic";
 import PageLayout from "../components/shared/PageLayout";
-
-// Mission statement data
-const missionPoints = [
-  {
-    icon: FaUsers,
-    title: "Connect Alumni",
-    description: "Building bridges between generations of Navodayans",
-  },
-  {
-    icon: FaHandshake,
-    title: "Support Community",
-    description: "Giving back to the institution that shaped us",
-  },
-  {
-    icon: HiSparkles,
-    title: "Celebrate Excellence",
-    description: "Recognizing achievements of our alumni network",
-  },
-];
-
-// Sample news data
-const latestNews = [
-  {
-    id: 1,
-    title: "Silver Jubilee 2026 Registrations Now Open!",
-    excerpt: "Join us for the grand 25-year celebration of JNV Trivandrum alumni.",
-    date: "January 5, 2026",
-    category: "Event",
-  },
-  {
-    id: 2,
-    title: "JNVTAA Committee Meeting Held",
-    excerpt: "Key decisions made for the upcoming Silver Jubilee celebrations.",
-    date: "December 20, 2025",
-    category: "Association",
-  },
-  {
-    id: 3,
-    title: "Call for Volunteers",
-    excerpt: "Be part of organizing team for Silver Jubilee 2026.",
-    date: "December 15, 2025",
-    category: "Announcement",
-  },
-];
 
 // Calculate countdown
 const getCountdown = () => {
@@ -76,7 +25,6 @@ const AssociationHome = () => {
       try {
         const data = await fetchAllImages();
         if (data.success && data.data.allImages.length > 0) {
-          // Shuffle and pick a few images for the hero
           const shuffled = data.data.allImages.sort(() => 0.5 - Math.random());
           setHeroImages(shuffled.slice(0, 5));
         }
@@ -91,308 +39,470 @@ const AssociationHome = () => {
     if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000); // Change image every 5 seconds
+    }, 6000);
     return () => clearInterval(interval);
   }, [heroImages]);
 
   return (
     <PageLayout>
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Carousel Background */}
+      {/* ============================================
+          HERO SECTION — Kinetic Typography
+          ============================================ */}
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-[var(--color-bg-primary)] texture-grain">
+        {/* Background Image with Parallax */}
         <div className="absolute inset-0 z-0">
-           <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             {heroImages.length > 0 ? (
               <motion.img
                 key={currentImageIndex}
                 src={heroImages[currentImageIndex].url}
                 initial={{ opacity: 0, scale: 1.1 }}
-                animate={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: 0.45, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.5 }}
                 className="absolute inset-0 w-full h-full object-cover"
-                alt="Association Hero Background"
+                alt="Hero Background"
               />
             ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#FDF4E6] via-[#FFF8E7] to-[#FDF4E6]" />
+              <div className="absolute inset-0 bg-gradient-mesh" />
             )}
-           </AnimatePresence>
-            {/* Overlay to ensure text readability */}
-           <div className="absolute inset-0 bg-[#FDF4E6]/90" />
-        </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px] animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-[#1A237E]/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: "2s" }} />
+          </AnimatePresence>
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-primary)]/80 via-[var(--color-bg-primary)]/60 to-[var(--color-bg-primary)]" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-16">
-          <div className="text-center">
-            {/* Badge */}
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Floating coral circle */}
+          <motion.div
+            className="absolute top-[20%] right-[10%] w-64 h-64 rounded-full border border-[var(--color-accent-coral)]/30"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          />
+          {/* Floating cyan circle */}
+          <motion.div
+            className="absolute bottom-[20%] left-[5%] w-48 h-48 rounded-full bg-[var(--color-accent-cyan)]/10 blur-3xl"
+            animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          {/* Vertical accent line */}
+          <motion.div
+            className="absolute right-[15%] top-[10%] w-[1px] h-[30vh] bg-gradient-to-b from-transparent via-[var(--color-accent-coral)] to-transparent"
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ duration: 1.5, delay: 0.5 }}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="container-asymmetric relative z-10 py-32 lg:py-40">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            {/* Left Column — Typography */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                className="inline-flex items-center gap-3"
+              >
+                <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+                <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
+                  JNV Trivandrum Alumni
+                </span>
+              </motion.div>
+
+              {/* Main Headline — Kinetic */}
+              <div className="space-y-2">
+                <KineticText
+                  as="h1"
+                  variant="letters"
+                  delay={0.3}
+                  staggerChildren={0.02}
+                  className="font-display text-hero text-[var(--color-text-primary)] leading-[0.85]"
+                >
+                  NURTURING
+                </KineticText>
+                <KineticText
+                  as="h1"
+                  variant="letters"
+                  delay={0.6}
+                  staggerChildren={0.02}
+                  className="font-display text-hero text-outline leading-[0.85]"
+                >
+                  BONDS
+                </KineticText>
+              </div>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-xl leading-relaxed"
+              >
+                Connecting Navodayans across generations. Celebrating our shared 
+                heritage and building a vibrant community of achievers.
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="flex flex-wrap gap-4 pt-4"
+              >
+                <Link to="/events">
+                  <motion.button
+                    className="btn-primary"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>View Events</span>
+                    <FaArrowRight />
+                  </motion.button>
+                </Link>
+                <Link to="/about">
+                  <motion.button
+                    className="btn-outline"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    About Us
+                  </motion.button>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Right Column — Vertical Text & Accent */}
+            <div className="lg:col-span-4 hidden lg:flex flex-col items-end justify-center">
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.8 }}
+                className="text-vertical"
+              >
+                <span className="font-display text-6xl text-[var(--color-text-primary)]/20 tracking-widest">
+                  25TH YEAR CELEBRATION
+                </span>
+              </motion.div>
+            </div>
+
+            {/* Mobile 25th Year Badge */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-[#1A237E]/10 backdrop-blur-sm mb-8"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#1A237E] animate-pulse" />
-              <span className="text-[#1A237E] text-sm font-semibold tracking-wide">
-                JNV Trivandrum Alumni Association
-              </span>
-            </motion.div>
-
-            {/* Main Title */}
-            <motion.h1
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-[#1A237E] leading-tight"
+              transition={{ duration: 0.8, delay: 1.4 }}
+              className="lg:hidden mt-8 inline-flex items-center gap-3 bg-[var(--color-accent-coral)]/10 border border-[var(--color-accent-coral)]/30 px-6 py-3"
             >
-              Nurturing Bonds,
-              <br />
-              <span className="text-gradient-gold">Building Futures</span>
-            </motion.h1>
+              <span className="font-display text-2xl text-[var(--color-accent-coral)]">25</span>
+              <span className="text-sm text-[var(--color-text-muted)] uppercase tracking-wider">Years of Excellence</span>
+            </motion.div>
+          </div>
+        </div>
 
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-body text-lg sm:text-xl text-[#4B5563] max-w-2xl mx-auto mb-12"
-            >
-              Connecting Navodayans across generations. Celebrating our shared heritage and 
-              building a vibrant community of achievers.
-            </motion.p>
+        {/* Scroll Indicator — Enhanced with glow */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+        >
+          <span className="text-xs uppercase tracking-[0.3em] text-[var(--color-accent-coral)] font-display">
+            Scroll
+          </span>
+          <motion.div
+            className="w-[2px] h-14 bg-gradient-to-b from-[var(--color-accent-coral)] to-transparent rounded-full"
+            animate={{ scaleY: [0, 1, 0], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            style={{ transformOrigin: "top", boxShadow: "0 0 20px rgba(255, 107, 107, 0.5)" }}
+          />
+        </motion.div>
+      </section>
 
-            {/* CTA Buttons */}
+      {/* ============================================
+          MARQUEE SECTION — Infinite Scroll Text
+          ============================================ */}
+      <section className="py-6 bg-[var(--color-accent-coral)] overflow-hidden">
+        <MarqueeText
+          className="font-display text-3xl md:text-4xl text-[var(--color-bg-primary)] py-2"
+          speed={25}
+          separator=" ★ "
+        >
+          CELEBRATING 25 YEARS — 2026 SILVER JUBILEE YEAR — JNVTAA — YEAR-LONG CELEBRATION
+        </MarqueeText>
+      </section>
+
+      {/* ============================================
+          FEATURED EVENT — Silver Jubilee
+          ============================================ */}
+      <section className="relative py-32 bg-[var(--color-bg-secondary)] overflow-hidden">
+        {/* Background number */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.span
+            initial={{ opacity: 0, x: 100 }}
+            whileInView={{ opacity: 0.06, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+            className="absolute -right-20 top-1/2 -translate-y-1/2 font-display text-[40vw] text-[var(--color-text-primary)] leading-none"
+          >
+            25
+          </motion.span>
+        </div>
+
+        <div className="container-asymmetric relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left — Content */}
+            <div className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-3"
+              >
+                <span className="accent-dot animate-pulse-glow" />
+                <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
+                  Featured Event
+                </span>
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="font-display text-display text-[var(--color-text-primary)]"
+              >
+                SILVER<br />
+                <span className="text-gradient-sunset">JUBILEE</span>
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="text-[var(--color-text-muted)] text-lg max-w-md leading-relaxed"
+              >
+                2026 marks 25 glorious years of JNV Trivandrum! We're celebrating this 
+                milestone throughout the year with various programs and events.
+              </motion.p>
+
+              {/* Celebration Declaration */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="bg-[var(--color-accent-coral)]/10 border border-[var(--color-accent-coral)]/30 p-6"
+              >
+                <span className="block text-xs text-[var(--color-accent-coral)] uppercase tracking-[0.2em] mb-2">Declaration</span>
+                <p className="text-[var(--color-text-primary)] font-display text-xl">
+                  2026 IS THE YEAR OF CELEBRATION
+                </p>
+                <p className="text-[var(--color-text-muted)] text-sm mt-2">
+                  Multiple events, meetups, and programs throughout the year
+                </p>
+              </motion.div>
+
+              {/* CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-wrap gap-4 pt-4"
+              >
+                <Link to="/events">
+                  <button className="btn-primary">
+                    <span>View Upcoming Events</span>
+                    <FaArrowRight />
+                  </button>
+                </Link>
+                <Link to="/gallery">
+                  <button className="btn-outline">
+                    View Gallery
+                  </button>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Right — Countdown Card */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="flex justify-center lg:justify-end"
             >
-              <Link to="/about" className="btn-outline flex items-center justify-center gap-2">
-                Learn About Us
-                <FaArrowRight className="text-sm" />
-              </Link>
-              <Link to="/events" className="btn-outline flex items-center justify-center gap-2">
-                View Events
-              </Link>
+              <div className="card-brutal p-12 max-w-sm w-full text-center">
+                <div className="w-32 h-32 rounded-full bg-[var(--color-accent-coral)] mx-auto mb-8 flex items-center justify-center">
+                  <span className="font-display text-6xl text-[var(--color-bg-primary)]">25</span>
+                </div>
+                <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-2">
+                  YEARS OF EXCELLENCE
+                </h3>
+                <p className="text-[var(--color-text-muted)] text-sm mb-8">
+                  2001 – 2026
+                </p>
+                
+                <div className="bg-[var(--color-accent-coral)] p-6">
+                  <span className="block text-xs text-[var(--color-bg-primary)]/70 uppercase tracking-wider mb-2">
+                    Silver Jubilee Year
+                  </span>
+                  <span className="font-display text-3xl text-[var(--color-bg-primary)]">
+                    CELEBRATING NOW
+                  </span>
+                  <span className="block text-[var(--color-bg-primary)]/80 text-sm mt-2">
+                    Year-long programs & events
+                  </span>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Featured Event - Silver Jubilee */}
-      <section className="py-16 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB] relative overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 border border-white rounded-full" />
-          <div className="absolute bottom-10 right-10 w-48 h-48 border border-white rounded-full" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-white rounded-full" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Content */}
+      {/* ============================================
+          MISSION SECTION — Staggered Cards
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)] relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-radial-coral opacity-50" />
+        
+        <div className="container-asymmetric relative z-10">
+          {/* Section Header */}
+          <div className="max-w-2xl mb-20">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-6"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-                <HiSparkles className="text-[#D4AF37]" />
-                <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
-                  Featured Event
-                </span>
-              </div>
-
-              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                Silver Jubilee 2026
-              </h2>
-              
-              <p className="text-white/80 text-lg mb-6 leading-relaxed">
-                25 years of memories, friendships, and excellence. Join us for the grand reunion 
-                celebrating a quarter century of Navodayan spirit.
-              </p>
-
-              <div className="flex flex-wrap gap-6 mb-8">
-                <div className="flex items-center gap-2 text-white/80">
-                  <FaCalendarAlt className="text-[#D4AF37]" />
-                  <span>January 25, 2026</span>
-                </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <FaMapMarkerAlt className="text-[#D4AF37]" />
-                  <span>JNV Campus, Trivandrum</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/register" 
-                  className="px-8 py-3 rounded-full bg-[#D4AF37] text-[#1A237E] font-semibold hover:bg-[#E5C048] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  Register Now
-                  <FaArrowRight className="text-sm" />
-                </Link>
-                <Link 
-                  to="/events/silver-jubilee" 
-                  className="px-8 py-3 rounded-full bg-white/10 text-white border border-white/30 font-semibold hover:bg-white/20 transition-all duration-300 flex items-center justify-center"
-                >
-                  View Details
-                </Link>
-              </div>
+              <span className="w-12 h-[2px] bg-[var(--color-accent-cyan)]" />
+              <span className="text-[var(--color-accent-cyan)] font-display text-sm tracking-[0.3em] uppercase">
+                Our Purpose
+              </span>
             </motion.div>
-
-            {/* Countdown Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="flex justify-center lg:justify-end"
+              className="font-display text-heading text-[var(--color-text-primary)] mb-6"
             >
-              <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 text-center max-w-sm w-full">
-                <div className="w-24 h-24 rounded-full bg-[#D4AF37] mx-auto mb-6 flex items-center justify-center">
-                  <span className="font-heading text-4xl font-bold text-[#1A237E]">25</span>
-                </div>
-                <h3 className="text-white text-xl font-semibold mb-2">Years of Excellence</h3>
-                <p className="text-white/60 text-sm mb-6">Time flies, memories stay forever</p>
-                
-                <div className="bg-white/10 rounded-xl p-4">
-                  <span className="text-white/60 text-xs uppercase tracking-wider block mb-1">Event Countdown</span>
-                  <span className="font-heading text-3xl font-bold text-[#D4AF37]">
-                    {daysLeft} Days
-                  </span>
-                </div>
-              </div>
-            </motion.div>
+              BUILDING A<br />
+              <span className="text-gradient-ocean">LASTING LEGACY</span>
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-[var(--color-text-muted)] text-lg"
+            >
+              JNVTAA is dedicated to connecting alumni, fostering community, 
+              and celebrating the Navodayan spirit that unites us all.
+            </motion.p>
           </div>
-        </div>
-      </section>
 
-      {/* Mission Section */}
-      <section className="py-20 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-4">
-              Our Mission
-            </h2>
-            <p className="text-[#4B5563] max-w-2xl mx-auto">
-              JNVTAA is dedicated to connecting alumni, fostering community, and celebrating 
-              the Navodayan spirit that unites us all.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {missionPoints.map((point, index) => (
+          {/* Staggered Cards */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                number: "01",
+                title: "Connect Alumni",
+                description: "Building bridges between generations of Navodayans across the globe.",
+                accent: "var(--color-accent-coral)",
+              },
+              {
+                number: "02",
+                title: "Support Community",
+                description: "Giving back to the institution that shaped our future.",
+                accent: "var(--color-accent-cyan)",
+              },
+              {
+                number: "03",
+                title: "Celebrate Excellence",
+                description: "Recognizing achievements of our vibrant alumni network.",
+                accent: "var(--color-accent-gold)",
+              },
+            ].map((item, index) => (
               <motion.div
-                key={point.title}
-                initial={{ opacity: 0, y: 30 }}
+                key={item.number}
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-panel p-8 rounded-2xl text-center hover:border-[#1A237E]/30 transition-colors group"
+                transition={{ delay: index * 0.15 }}
+                className={`card-brutal p-8 ${index === 1 ? "md:mt-12" : ""} ${index === 2 ? "md:mt-24" : ""}`}
               >
-                <div className="w-16 h-16 rounded-2xl bg-[#1A237E]/10 mx-auto mb-6 flex items-center justify-center group-hover:bg-[#1A237E] transition-colors">
-                  <point.icon className="text-2xl text-[#1A237E] group-hover:text-white transition-colors" />
-                </div>
-                <h3 className="font-heading text-xl font-semibold text-[#1A237E] mb-3">
-                  {point.title}
+                <span 
+                  className="font-display text-6xl block mb-6"
+                  style={{ color: item.accent }}
+                >
+                  {item.number}
+                </span>
+                <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-4">
+                  {item.title.toUpperCase()}
                 </h3>
-                <p className="text-[#4B5563]">{point.description}</p>
+                <p className="text-[var(--color-text-muted)]">
+                  {item.description}
+                </p>
               </motion.div>
             ))}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mt-12"
-          >
-            <Link to="/about" className="btn-outline inline-flex items-center gap-2">
-              Learn More About Us
-              <HiChevronRight />
-            </Link>
-          </motion.div>
         </div>
       </section>
 
-      {/* Latest News Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12"
-          >
-            <div>
-              <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-2">
-                Latest News
-              </h2>
-              <p className="text-[#4B5563]">Stay updated with JNVTAA happenings</p>
-            </div>
-            <Link to="/news" className="btn-outline inline-flex items-center gap-2">
-              View All News
-              <HiChevronRight />
-            </Link>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {latestNews.map((news, index) => (
-              <motion.article
-                key={news.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-[#FDF4E6] rounded-2xl p-6 hover:shadow-lg transition-shadow group cursor-pointer"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full bg-[#1A237E]/10 text-[#1A237E] text-xs font-semibold">
-                    {news.category}
-                  </span>
-                  <span className="text-[#9CA3AF] text-xs">{news.date}</span>
-                </div>
-                <h3 className="font-heading text-lg font-semibold text-[#1A237E] mb-2 group-hover:text-[#3949AB] transition-colors">
-                  {news.title}
-                </h3>
-                <p className="text-[#4B5563] text-sm">{news.excerpt}</p>
-              </motion.article>
-            ))}
+      {/* ============================================
+          EXPLORE SECTION — Quick Links
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-secondary)]">
+        <div className="container-asymmetric">
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center justify-center gap-3 mb-6"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+              <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
+                Quick Links
+              </span>
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+            </motion.div>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-heading text-[var(--color-text-primary)] mb-6"
+            >
+              EXPLORE JNVTAA
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-[var(--color-text-muted)] text-lg leading-relaxed"
+            >
+              Discover more about our alumni association, upcoming events, 
+              cherished memories, and ways to connect.
+            </motion.p>
           </div>
-        </div>
-      </section>
 
-      {/* Quick Links */}
-      <section className="py-20 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-4">
-              Explore JNVTAA
-            </h2>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Links Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { icon: FaUsers, title: "About Us", description: "Learn about our association", path: "/about" },
-              { icon: FaCalendarAlt, title: "Events", description: "Upcoming gatherings", path: "/events" },
-              { icon: FaNewspaper, title: "News", description: "Latest updates", path: "/news" },
-              { icon: FaHandshake, title: "Contact", description: "Get in touch", path: "/contact" },
+              { title: "About", description: "Learn about our story, mission, and the dedicated committee behind JNVTAA.", path: "/about", icon: FaInfoCircle, color: "#00D4FF" },
+              { title: "Events", description: "Stay updated on upcoming reunions, meetups, and special celebrations.", path: "/events", icon: FaCalendarAlt, color: "#FF6B6B" },
+              { title: "Gallery", description: "Browse through captured memories from past events and school days.", path: "/gallery", icon: FaImages, color: "#FFD93D" },
+              { title: "Contact", description: "Reach out to us for queries, suggestions, or to get involved.", path: "/contact", icon: FaEnvelope, color: "#A855F7" },
             ].map((item, index) => (
               <motion.div
                 key={item.title}
@@ -401,17 +511,37 @@ const AssociationHome = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link 
-                  to={item.path}
-                  className="block glass-panel p-6 rounded-2xl text-center hover:border-[#1A237E]/30 hover:shadow-lg transition-all group"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-[#1A237E]/10 mx-auto mb-4 flex items-center justify-center group-hover:bg-[#1A237E] transition-colors">
-                    <item.icon className="text-xl text-[#1A237E] group-hover:text-white transition-colors" />
-                  </div>
-                  <h3 className="font-heading text-lg font-semibold text-[#1A237E] mb-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#4B5563] text-sm">{item.description}</p>
+                <Link to={item.path}>
+                  <motion.div
+                    className="group bg-[var(--color-bg-primary)] p-8 h-full border border-[var(--color-text-primary)]/10 hover:border-[var(--color-accent-coral)] hover:shadow-2xl hover:shadow-[var(--color-accent-coral)]/10 transition-all duration-300 relative overflow-hidden"
+                    whileHover={{ y: -8 }}
+                  >
+                    {/* Icon */}
+                    <div 
+                      className="w-14 h-14 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
+                      style={{ backgroundColor: `${item.color}15` }}
+                    >
+                      <item.icon className="text-2xl" style={{ color: item.color }} />
+                    </div>
+                    <span className="font-display text-sm tracking-[0.2em] block mb-3" style={{ color: item.color }}>
+                      0{index + 1}
+                    </span>
+                    <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-4 group-hover:text-[var(--color-accent-coral)] transition-colors">
+                      {item.title.toUpperCase()}
+                    </h3>
+                    <p className="text-[var(--color-text-muted)] text-base leading-relaxed mb-6">
+                      {item.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-[var(--color-accent-coral)] font-display text-sm tracking-wide group-hover:gap-4 transition-all">
+                      <span>EXPLORE</span>
+                      <FaArrowRight />
+                    </div>
+                    {/* Decorative corner accent */}
+                    <div 
+                      className="absolute -bottom-2 -right-2 w-16 h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ background: `linear-gradient(135deg, transparent 50%, ${item.color}20 50%)` }}
+                    />
+                  </motion.div>
                 </Link>
               </motion.div>
             ))}

@@ -8,35 +8,50 @@ import {
   FaArrowRight,
   FaClock,
 } from "react-icons/fa";
-import { HiSparkles } from "react-icons/hi";
 import PageLayout from "../components/shared/PageLayout";
+import { KineticText, MarqueeText } from "../components/artistic";
 
-// Featured event
+// Featured event (Inaugural - completed)
 const featuredEvent = {
   id: "silver-jubilee-2026",
-  title: "Silver Jubilee 2026",
-  description: "25 Years of Excellence - Grand Alumni Reunion celebrating a quarter century of Navodayan spirit. Join us for a memorable day of reconnecting, reminiscing, and rejoicing.",
+  title: "Silver Jubilee Inaugural",
+  description: "The grand kick-off of our 25th Year Celebration happened on January 25, 2026! This was the first of many events planned throughout this special year. Stay tuned for upcoming programs.",
   date: "January 25, 2026",
-  time: "9:00 AM onwards",
+  time: "Completed Successfully",
   venue: "JNV Campus, Trivandrum",
-  image: "/images/logo.jpeg",
   featured: true,
-  registrationOpen: true,
+  completed: true,
 };
 
-// Upcoming events (placeholder for future)
+// Upcoming events for 2026 celebration year
 const upcomingEvents = [
   {
-    id: "silver-jubilee-2026",
-    title: "Silver Jubilee 2026",
-    date: "January 25, 2026",
-    venue: "JNV Campus, Trivandrum",
+    id: "batch-meetups-q2",
+    title: "Batch-wise Meetups",
+    date: "Q2 2026",
+    venue: "Various Locations",
     type: "Reunion",
-    featured: true,
+    description: "Batch-wise reunions organized by year representatives",
+  },
+  {
+    id: "cultural-fest",
+    title: "Alumni Cultural Fest",
+    date: "August 2026",
+    venue: "TBA",
+    type: "Celebration",
+    description: "Showcase of talent from alumni across batches",
+  },
+  {
+    id: "grand-finale",
+    title: "25th Year Grand Finale",
+    date: "December 2026",
+    venue: "JNV Campus",
+    type: "Celebration",
+    description: "Year-end celebration concluding our Silver Jubilee year",
   },
 ];
 
-// Past events (placeholder)
+// Past events
 const pastEvents = [
   {
     id: "alumni-meet-2024",
@@ -73,209 +88,212 @@ const getDaysUntil = (dateStr) => {
 const EventsPage = () => {
   return (
     <PageLayout showPopup={false}>
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB]" />
-        
-        <div className="absolute inset-0 opacity-10 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 border-2 border-white rounded-full" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 border-2 border-white rounded-full" />
+      {/* ============================================
+          HERO SECTION
+          ============================================ */}
+      <section className="relative min-h-[60vh] flex items-center overflow-hidden bg-[var(--color-bg-primary)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[10%] right-[5%] w-80 h-80 rounded-full border border-[var(--color-accent-coral)]/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-              <FaCalendarAlt className="text-[#D4AF37]" />
-              <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+        <div className="container-asymmetric relative z-10 py-32">
+          <div className="max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-8"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+              <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
                 Events & Gatherings
               </span>
+            </motion.div>
+
+            <div className="space-y-2 mb-8">
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.3}
+                className="font-display text-display text-[var(--color-text-primary)] leading-[0.9]"
+              >
+                EVENTS
+              </KineticText>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-              JNVTAA Events
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl leading-relaxed"
+            >
               Reunions, workshops, and celebrations that bring our community together. 
               Join us in creating lasting memories.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured Event - Silver Jubilee */}
-      <section className="py-16 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-8"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <HiSparkles className="text-[#D4AF37] text-xl" />
-              <span className="text-[#1A237E] font-semibold uppercase tracking-wider text-sm">
-                Featured Event
-              </span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-3xl shadow-xl overflow-hidden border border-[#D4AF37]/20"
-          >
-            <div className="grid lg:grid-cols-2">
-              {/* Image/Visual side */}
-              <div className="relative bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB] p-8 lg:p-12 flex items-center justify-center min-h-[300px]">
-                <div className="text-center">
-                  <div className="w-32 h-32 rounded-full bg-[#D4AF37] mx-auto mb-6 flex items-center justify-center">
-                    <span className="font-heading text-5xl font-bold text-[#1A237E]">25</span>
-                  </div>
-                  <h3 className="text-white text-2xl font-bold mb-2">Years of Excellence</h3>
-                  <p className="text-white/70">2001 - 2026</p>
-                  
-                  {/* Countdown */}
-                  <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 inline-block">
-                    <span className="text-white/60 text-xs uppercase tracking-wider block">Countdown</span>
-                    <span className="text-[#D4AF37] text-2xl font-bold">
-                      {getDaysUntil("2026-01-25")} Days
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content side */}
-              <div className="p-8 lg:p-12">
-                <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold mb-4">
-                  ✓ Registration Open
-                </span>
-                
-                <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-4">
-                  {featuredEvent.title}
-                </h2>
-                
-                <p className="text-[#4B5563] mb-6 leading-relaxed">
-                  {featuredEvent.description}
-                </p>
-
-                <div className="space-y-3 mb-8">
-                  <div className="flex items-center gap-3 text-[#4B5563]">
-                    <FaCalendarAlt className="text-[#1A237E]" />
-                    <span>{featuredEvent.date}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#4B5563]">
-                    <FaClock className="text-[#1A237E]" />
-                    <span>{featuredEvent.time}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#4B5563]">
-                    <FaMapMarkerAlt className="text-[#1A237E]" />
-                    <span>{featuredEvent.venue}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#4B5563]">
-                    <FaUsers className="text-[#1A237E]" />
-                    <span>All Alumni Welcome</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/register" className="btn-primary flex items-center justify-center gap-2">
-                    Register Now
-                    <FaArrowRight className="text-sm" />
-                  </Link>
-                  <Link to="/events/silver-jubilee" className="btn-outline flex items-center justify-center">
-                    View Full Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Upcoming Events */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12"
-          >
-            <h2 className="font-heading text-3xl font-bold text-[#1A237E] mb-2">
-              Upcoming Events
-            </h2>
-            <p className="text-[#4B5563]">Mark your calendars for these upcoming gatherings</p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {upcomingEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className={`glass-panel rounded-2xl p-6 hover:shadow-lg transition-shadow ${
-                  event.featured ? "border-[#D4AF37]/30 ring-2 ring-[#D4AF37]/20" : ""
-                }`}
-              >
-                {event.featured && (
-                  <span className="inline-block px-3 py-1 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] text-xs font-semibold mb-4">
-                    Featured
-                  </span>
-                )}
-                <span className="inline-block px-3 py-1 rounded-full bg-[#1A237E]/10 text-[#1A237E] text-xs font-semibold mb-4 ml-2">
-                  {event.type}
-                </span>
-                
-                <h3 className="font-heading text-xl font-semibold text-[#1A237E] mb-3">
-                  {event.title}
-                </h3>
-                
-                <div className="space-y-2 text-sm text-[#4B5563] mb-4">
-                  <div className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-[#1A237E]/60" />
-                    {event.date}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-[#1A237E]/60" />
-                    {event.venue}
-                  </div>
-                </div>
-
-                <Link 
-                  to={`/events/${event.id}`}
-                  className="text-[#1A237E] font-semibold text-sm hover:text-[#3949AB] transition-colors inline-flex items-center gap-1"
-                >
-                  Learn More <FaArrowRight className="text-xs" />
-                </Link>
-              </motion.div>
-            ))}
+            </motion.p>
           </div>
         </div>
       </section>
 
-      {/* Past Events */}
-      <section className="py-16 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ============================================
+          FEATURED EVENT — Silver Jubilee
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-secondary)] relative overflow-hidden">
+        {/* Background number */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <span className="absolute -right-20 top-1/2 -translate-y-1/2 font-display text-[30vw] text-[var(--color-text-primary)]/[0.03] leading-none">
+            25
+          </span>
+        </div>
+
+        <div className="container-asymmetric relative z-10">
+          {/* Section Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="mb-12"
+            className="inline-flex items-center gap-3 mb-12"
           >
-            <h2 className="font-heading text-3xl font-bold text-[#1A237E] mb-2">
-              Past Events
-            </h2>
-            <p className="text-[#4B5563]">Looking back at our memorable gatherings</p>
+            <span className="accent-dot animate-pulse-glow" />
+            <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
+              Featured Event
+            </span>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left — Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="space-y-8"
+            >
+              <span className="inline-block px-4 py-2 bg-[#22c55e]/20 text-[#22c55e] font-display text-sm tracking-wider">
+                ✓ COMPLETED SUCCESSFULLY
+              </span>
+
+              <h2 className="font-display text-heading text-[var(--color-text-primary)]">
+                SILVER JUBILEE<br />
+                <span className="text-gradient-sunset">INAUGURAL 2026</span>
+              </h2>
+
+              <p className="text-[var(--color-text-muted)] text-lg leading-relaxed max-w-lg">
+                {featuredEvent.description}
+              </p>
+
+              {/* Event Details */}
+              <div className="space-y-4">
+                {[
+                  { icon: FaCalendarAlt, label: featuredEvent.date },
+                  { icon: FaClock, label: featuredEvent.time },
+                  { icon: FaMapMarkerAlt, label: featuredEvent.venue },
+                  { icon: FaUsers, label: "500+ Alumni Attended" },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-4">
+                    <span className="w-10 h-10 flex items-center justify-center border border-[var(--color-text-primary)]/20">
+                      <item.icon className="text-[var(--color-accent-coral)]" />
+                    </span>
+                    <span className="text-[var(--color-text-secondary)] text-base">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-wrap gap-4 pt-4">
+                <Link to="/gallery">
+                  <motion.button
+                    className="btn-primary"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>VIEW EVENT GALLERY</span>
+                    <FaArrowRight />
+                  </motion.button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Right — Countdown Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="flex justify-center lg:justify-end"
+            >
+              <div className="card-brutal p-12 max-w-sm w-full text-center">
+                <div className="w-32 h-32 rounded-full bg-[var(--color-accent-coral)] mx-auto mb-8 flex items-center justify-center">
+                  <span className="font-display text-6xl text-[var(--color-bg-primary)]">25</span>
+                </div>
+                <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-2">
+                  YEARS OF EXCELLENCE
+                </h3>
+                <p className="text-[var(--color-text-muted)] text-sm mb-8">
+                  2001 – 2026
+                </p>
+                
+                <div className="bg-[var(--color-accent-coral)] p-6">
+                  <span className="block text-xs text-[var(--color-bg-primary)]/70 uppercase tracking-wider mb-2">
+                    Silver Jubilee Year
+                  </span>
+                  <span className="font-display text-2xl text-[var(--color-bg-primary)]">
+                    CELEBRATING ALL OF 2026
+                  </span>
+                  <span className="block text-[var(--color-bg-primary)]/80 text-sm mt-2">
+                    Multiple events & programs
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          PAST EVENTS
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)]">
+        <div className="container-asymmetric">
+          {/* Section Header */}
+          <div className="max-w-2xl mb-16">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-3 mb-6"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-gold)]" />
+              <span className="text-[var(--color-accent-gold)] font-display text-sm tracking-[0.3em] uppercase">
+                Looking Back
+              </span>
+            </motion.div>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-heading text-[var(--color-text-primary)] mb-4"
+            >
+              PAST EVENTS
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-[var(--color-text-muted)] text-lg"
+            >
+              Looking back at our memorable gatherings
+            </motion.p>
+          </div>
+
+          {/* Events Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pastEvents.map((event, index) => (
               <motion.div
                 key={event.id}
@@ -283,24 +301,24 @@ const EventsPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white/50 rounded-2xl p-6 border border-gray-200"
+                className="card-brutal p-8 hover:-translate-y-2"
               >
-                <span className="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold mb-4">
-                  {event.type}
+                <span className="inline-block px-3 py-1 border border-[var(--color-text-primary)]/20 text-[var(--color-text-muted)] text-xs font-display tracking-wider mb-6">
+                  {event.type.toUpperCase()}
                 </span>
                 
-                <h3 className="font-heading text-lg font-semibold text-[#1A237E]/80 mb-3">
-                  {event.title}
+                <h3 className="font-display text-xl text-[var(--color-text-primary)] mb-4">
+                  {event.title.toUpperCase()}
                 </h3>
                 
-                <div className="space-y-2 text-sm text-[#4B5563]">
-                  <div className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-gray-400" />
-                    {event.date}
+                <div className="space-y-3 text-[var(--color-text-muted)]">
+                  <div className="flex items-center gap-3">
+                    <FaCalendarAlt className="text-[var(--color-accent-coral)]" />
+                    <span className="text-sm">{event.date}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-gray-400" />
-                    {event.venue}
+                  <div className="flex items-center gap-3">
+                    <FaMapMarkerAlt className="text-[var(--color-accent-coral)]" />
+                    <span className="text-sm">{event.venue}</span>
                   </div>
                 </div>
               </motion.div>
@@ -309,25 +327,44 @@ const EventsPage = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* ============================================
+          CTA SECTION
+          ============================================ */}
+      <section className="py-6 bg-[var(--color-accent-coral)] overflow-hidden">
+        <MarqueeText
+          className="font-display text-2xl md:text-3xl text-[var(--color-bg-primary)] py-2"
+          speed={25}
+          separator=" ★ "
+        >
+          2026 SILVER JUBILEE YEAR — YEAR-LONG CELEBRATION — MULTIPLE EVENTS — STAY CONNECTED
+        </MarqueeText>
+      </section>
+
+      <section className="py-32 bg-[var(--color-bg-primary)]">
+        <div className="container-asymmetric text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="glass-panel p-12 rounded-3xl"
+            className="max-w-2xl mx-auto"
           >
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E] mb-4">
-              Don't Miss the Silver Jubilee!
+            <h2 className="font-display text-heading text-[var(--color-text-primary)] mb-6">
+              CELEBRATE WITH US<br />
+              <span className="text-gradient-sunset">ALL YEAR LONG</span>
             </h2>
-            <p className="text-[#4B5563] mb-8 max-w-xl mx-auto">
-              Register now and be part of the historic 25-year celebration. 
-              Limited seats available!
+            <p className="text-[var(--color-text-muted)] text-xl leading-relaxed mb-10">
+              2026 is our Silver Jubilee Year! Stay connected for updates on 
+              upcoming batch meetups, programs, and the grand finale.
             </p>
-            <Link to="/register" className="btn-primary inline-flex items-center gap-2">
-              Register for Silver Jubilee
-              <FaArrowRight className="text-sm" />
+            <Link to="/contact">
+              <motion.button
+                className="btn-primary text-lg px-12 py-5"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span>STAY IN TOUCH</span>
+                <FaArrowRight />
+              </motion.button>
             </Link>
           </motion.div>
         </div>

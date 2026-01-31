@@ -2,45 +2,44 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FaCalendarAlt, FaArrowRight, FaTag } from "react-icons/fa";
-import { HiNewspaper } from "react-icons/hi";
 import PageLayout from "../components/shared/PageLayout";
+import { KineticText } from "../components/artistic";
 
 // Sample news data
 const newsArticles = [
   {
     id: 1,
-    title: "Silver Jubilee 2026 Registrations Now Open!",
-    excerpt: "The much-awaited Silver Jubilee celebration is happening on January 25, 2026. We are thrilled to announce that registrations are now open for all alumni. Join us for a day filled with nostalgia, reconnections, and celebrations.",
-    content: "Join us for the grand 25-year celebration of JNV Trivandrum alumni...",
-    date: "January 5, 2026",
+    title: "Silver Jubilee Inaugural - A Grand Success!",
+    excerpt: "The Silver Jubilee Inaugural event on January 25, 2026 was a resounding success! Over 500 alumni gathered at JNV Campus to kick off our year-long celebration.",
+    date: "January 26, 2026",
     category: "Event",
     featured: true,
   },
   {
     id: 2,
     title: "JNVTAA Committee Meeting Highlights",
-    excerpt: "The executive committee met last month to finalize plans for the upcoming Silver Jubilee. Key decisions were made regarding venue arrangements, cultural programs, and registration fees.",
+    excerpt: "The executive committee met last month to finalize plans for the upcoming Silver Jubilee. Key decisions were made regarding venue arrangements and cultural programs.",
     date: "December 20, 2025",
     category: "Association",
   },
   {
     id: 3,
     title: "Call for Volunteers - Be Part of the Organizing Team",
-    excerpt: "We are looking for enthusiastic alumni to volunteer for organizing the Silver Jubilee 2026. This is a great opportunity to contribute and reconnect with the community.",
+    excerpt: "We are looking for enthusiastic alumni to volunteer for organizing the Silver Jubilee 2026. This is a great opportunity to contribute and reconnect.",
     date: "December 15, 2025",
     category: "Announcement",
   },
   {
     id: 4,
     title: "Silver Jubilee Souvenir - Submit Your Memories",
-    excerpt: "We are compiling a special souvenir booklet for the Silver Jubilee. Share your favorite memories, photos, and messages to be featured in this commemorative edition.",
+    excerpt: "We are compiling a special souvenir booklet for the Silver Jubilee. Share your favorite memories, photos, and messages to be featured.",
     date: "December 10, 2025",
     category: "Announcement",
   },
   {
     id: 5,
     title: "Batch Representatives Confirmed",
-    excerpt: "Batch representatives for all graduating years have been confirmed. They will be the point of contact for coordinating batch-specific activities during the Silver Jubilee.",
+    excerpt: "Batch representatives for all graduating years have been confirmed. They will be the point of contact for coordinating batch-specific activities.",
     date: "December 1, 2025",
     category: "Association",
   },
@@ -65,60 +64,80 @@ const NewsPage = () => {
 
   return (
     <PageLayout showPopup={false}>
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB]" />
-        
-        <div className="absolute inset-0 opacity-10 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 border-2 border-white rounded-full" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 border-2 border-white rounded-full" />
+      {/* ============================================
+          HERO SECTION
+          ============================================ */}
+      <section className="relative min-h-[50vh] flex items-center overflow-hidden bg-[var(--color-bg-primary)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[15%] right-[8%] w-72 h-72 rounded-full border border-[var(--color-accent-coral)]/20"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
+          />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-              <HiNewspaper className="text-[#D4AF37]" />
-              <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+        <div className="container-asymmetric relative z-10 py-32">
+          <div className="max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-8"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+              <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
                 News & Updates
               </span>
+            </motion.div>
+
+            <div className="space-y-2 mb-8">
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.3}
+                className="font-display text-display text-[var(--color-text-primary)] leading-[0.9]"
+              >
+                NEWS
+              </KineticText>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-              Latest News
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl leading-relaxed"
+            >
               Stay updated with the latest happenings at JNVTAA. 
               From event announcements to community highlights.
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
         </div>
       </section>
 
-      {/* News Content */}
-      <section className="py-16 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ============================================
+          NEWS CONTENT
+          ============================================ */}
+      <section className="py-20 bg-[var(--color-bg-secondary)]">
+        <div className="container-asymmetric">
           {/* Category Filter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-wrap gap-2 mb-12"
+            className="flex flex-wrap gap-3 mb-16"
           >
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-5 py-2 font-display text-sm tracking-wider transition-all duration-300 ${
                   activeCategory === category
-                    ? "bg-[#1A237E] text-white"
-                    : "bg-white text-[#4B5563] hover:bg-[#1A237E]/10"
+                    ? "bg-[var(--color-accent-coral)] text-[var(--color-bg-primary)]"
+                    : "bg-transparent border border-[var(--color-text-primary)]/20 text-[var(--color-text-primary)] hover:border-[var(--color-accent-coral)]"
                 }`}
               >
-                {category}
+                {category.toUpperCase()}
               </button>
             ))}
           </motion.div>
@@ -129,21 +148,21 @@ const NewsPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-3xl shadow-lg overflow-hidden mb-12 border border-[#D4AF37]/20"
+              className="card-brutal p-0 overflow-hidden mb-16"
             >
               <div className="grid lg:grid-cols-2">
-                <div className="bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB] p-8 lg:p-12 flex items-center">
+                <div className="bg-[var(--color-accent-coral)] p-10 lg:p-14 flex items-center">
                   <div>
-                    <span className="inline-block px-3 py-1 rounded-full bg-[#D4AF37] text-[#1A237E] text-xs font-semibold mb-4">
-                      Featured
+                    <span className="inline-block px-4 py-1 bg-[var(--color-bg-primary)] text-[var(--color-accent-coral)] font-display text-xs tracking-wider mb-6">
+                      FEATURED
                     </span>
-                    <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white mb-4">
-                      {newsArticles[0].title}
+                    <h2 className="font-display text-3xl lg:text-4xl text-[var(--color-bg-primary)] mb-6">
+                      {newsArticles[0].title.toUpperCase()}
                     </h2>
-                    <p className="text-white/80 mb-6">
+                    <p className="text-[var(--color-bg-primary)]/80 text-lg leading-relaxed mb-6">
                       {newsArticles[0].excerpt}
                     </p>
-                    <div className="flex items-center gap-4 text-white/60 text-sm">
+                    <div className="flex items-center gap-6 text-[var(--color-bg-primary)]/60 text-sm">
                       <span className="flex items-center gap-2">
                         <FaCalendarAlt />
                         {newsArticles[0].date}
@@ -155,15 +174,22 @@ const NewsPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="p-8 lg:p-12 flex items-center justify-center">
+                <div className="bg-[var(--color-bg-primary)] p-10 lg:p-14 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-24 h-24 rounded-full bg-[#1A237E]/10 mx-auto mb-6 flex items-center justify-center">
-                      <span className="font-heading text-3xl font-bold text-[#1A237E]">25</span>
+                    <div className="w-28 h-28 bg-[var(--color-accent-coral)] mx-auto mb-6 flex items-center justify-center">
+                      <span className="font-display text-4xl text-[var(--color-bg-primary)]">25</span>
                     </div>
-                    <h3 className="text-[#1A237E] font-semibold mb-2">Silver Jubilee 2026</h3>
-                    <p className="text-[#4B5563] text-sm mb-6">Registrations are now open!</p>
-                    <Link to="/register" className="btn-primary inline-flex items-center gap-2">
-                      Register Now <FaArrowRight className="text-sm" />
+                    <h3 className="text-[var(--color-text-primary)] font-display text-xl mb-2">
+                      25TH YEAR CELEBRATION
+                    </h3>
+                    <p className="text-[var(--color-text-muted)] text-sm mb-8">
+                      Year-long events & programs!
+                    </p>
+                    <Link to="/gallery">
+                      <button className="btn-primary">
+                        <span>VIEW GALLERY</span>
+                        <FaArrowRight />
+                      </button>
                     </Link>
                   </div>
                 </div>
@@ -172,7 +198,7 @@ const NewsPage = () => {
           )}
 
           {/* News Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredNews.slice(activeCategory === "All" ? 1 : 0).map((article, index) => (
               <motion.article
                 key={article.id}
@@ -180,48 +206,61 @@ const NewsPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-6 hover:shadow-lg transition-shadow group cursor-pointer"
+                className="card-brutal p-8 cursor-pointer hover:-translate-y-2 group"
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full bg-[#1A237E]/10 text-[#1A237E] text-xs font-semibold">
-                    {article.category}
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="px-3 py-1 border border-[var(--color-text-primary)]/20 text-[var(--color-text-muted)] text-xs font-display tracking-wider">
+                    {article.category.toUpperCase()}
                   </span>
-                  <span className="text-[#9CA3AF] text-xs">{article.date}</span>
+                  <span className="text-[var(--color-text-muted)]/50 text-xs">{article.date}</span>
                 </div>
-                <h3 className="font-heading text-lg font-semibold text-[#1A237E] mb-3 group-hover:text-[#3949AB] transition-colors line-clamp-2">
-                  {article.title}
+                <h3 className="font-display text-xl text-[var(--color-text-primary)] mb-4 group-hover:text-[var(--color-accent-coral)] transition-colors line-clamp-2">
+                  {article.title.toUpperCase()}
                 </h3>
-                <p className="text-[#4B5563] text-sm line-clamp-3">{article.excerpt}</p>
+                <p className="text-[var(--color-text-muted)] text-base leading-relaxed line-clamp-3">
+                  {article.excerpt}
+                </p>
               </motion.article>
             ))}
           </div>
 
           {/* No results */}
           {filteredNews.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-[#4B5563]">No news articles in this category yet.</p>
+            <div className="text-center py-20">
+              <p className="text-[var(--color-text-muted)] font-display text-lg">
+                NO NEWS ARTICLES IN THIS CATEGORY YET.
+              </p>
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* ============================================
+          CTA SECTION
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)]">
+        <div className="container-asymmetric text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
           >
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A237E] mb-4">
-              Want to Stay Updated?
+            <h2 className="font-display text-heading text-[var(--color-text-primary)] mb-6">
+              STAY<br />
+              <span className="text-gradient-sunset">UPDATED</span>
             </h2>
-            <p className="text-[#4B5563] mb-8 max-w-xl mx-auto">
+            <p className="text-[var(--color-text-muted)] text-xl leading-relaxed mb-10">
               Follow us on social media for the latest news and updates about JNVTAA activities.
             </p>
-            <Link to="/contact" className="btn-outline inline-flex items-center gap-2">
-              Contact Us
-              <FaArrowRight className="text-sm" />
+            <Link to="/contact">
+              <motion.button
+                className="btn-outline text-lg px-10 py-4"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                CONTACT US
+              </motion.button>
             </Link>
           </motion.div>
         </div>

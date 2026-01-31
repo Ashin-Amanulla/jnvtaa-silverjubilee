@@ -5,7 +5,7 @@ import { getGalleryTree, fetchFolderImages } from "../../api/galleryApi";
 
 /**
  * GalleryFolderGrid Component
- * Displays gallery folders as macOS-style stacked thumbnail cards
+ * Displays gallery folders as premium dark-themed cards with hover effects
  */
 const GalleryFolderGrid = ({ onFolderSelect }) => {
   const [folders, setFolders] = useState([]);
@@ -25,7 +25,6 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
       if (response.success) {
         const allFolders = flattenFolders(response.data.folders || []);
         setFolders(allFolders);
-        // Load thumbnails for each folder
         loadThumbnails(allFolders);
       } else {
         setError(response.message || "Failed to load galleries");
@@ -38,7 +37,6 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
     }
   };
 
-  // Flatten nested folder structure to get all leaf folders
   const flattenFolders = (folders, parentPath = "") => {
     let result = [];
     folders.forEach((folder) => {
@@ -48,7 +46,6 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
         result.push(folder);
       }
     });
-    // If no leaf folders, return the top-level folders
     if (result.length === 0) {
       return folders;
     }
@@ -61,7 +58,6 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
       try {
         const response = await fetchFolderImages(folder.path);
         if (response.success && response.data.images) {
-          // Get up to 4 images for the stacked thumbnail effect
           thumbnails[folder.path] = response.data.images.slice(0, 4);
         }
       } catch (err) {
@@ -79,22 +75,24 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
 
   if (loading) {
     return (
-      <div className="text-center py-20">
-        <div className="w-16 h-16 border-4 border-[#1A237E]/20 border-t-[#1A237E] rounded-full animate-spin mx-auto mb-6" />
-        <p className="text-gray-600 text-lg font-medium">Loading galleries...</p>
+      <div className="text-center py-24">
+        <div className="w-20 h-20 border-3 border-[var(--color-accent-coral)]/20 border-t-[var(--color-accent-coral)] rounded-full animate-spin mx-auto mb-8" />
+        <p className="text-[var(--color-text-muted)] text-lg font-display tracking-[0.3em] uppercase">
+          Loading Galleries...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-20 bg-red-50 border-2 border-red-200 rounded-2xl p-8">
-        <p className="text-red-600 mb-4">{error}</p>
+      <div className="text-center py-24 bg-[var(--color-bg-primary)] border border-[var(--color-accent-coral)]/30 p-12">
+        <p className="text-[var(--color-accent-coral)] mb-6 text-lg">{error}</p>
         <button
           onClick={loadFolders}
-          className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full transition-colors"
+          className="btn-primary"
         >
-          Try Again
+          TRY AGAIN
         </button>
       </div>
     );
@@ -102,90 +100,114 @@ const GalleryFolderGrid = ({ onFolderSelect }) => {
 
   if (folders.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-lg shadow-md">
-        <FaFolder className="text-6xl text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500 text-lg">No galleries available yet</p>
+      <div className="text-center py-24 bg-[var(--color-bg-primary)] border border-[var(--color-text-primary)]/10 p-12">
+        <FaFolder className="text-7xl text-[var(--color-text-primary)]/20 mx-auto mb-6" />
+        <p className="text-[var(--color-text-muted)] text-lg font-display tracking-wider">
+          NO GALLERIES AVAILABLE YET
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {folders.map((folder, index) => {
         const thumbnails = folderThumbnails[folder.path] || [];
         return (
           <motion.div
             key={folder.path}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
             className="group cursor-pointer"
             onClick={() => handleFolderClick(folder)}
           >
-            {/* Stacked Thumbnail Preview - macOS Style */}
-            <div className="relative h-48 mb-3">
-              {/* Background stacked cards */}
-              {thumbnails.length >= 3 && (
-                <div
-                  className="absolute inset-x-3 top-0 h-40 bg-white rounded-xl shadow-sm transform -rotate-3 group-hover:-rotate-6 transition-transform duration-300"
-                  style={{
-                    backgroundImage: thumbnails[2]
-                      ? `url(${thumbnails[2].thumbnailLink})`
-                      : undefined,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              )}
-              {thumbnails.length >= 2 && (
-                <div
-                  className="absolute inset-x-2 top-1 h-42 bg-white rounded-xl shadow-md transform rotate-2 group-hover:rotate-4 transition-transform duration-300"
-                  style={{
-                    backgroundImage: thumbnails[1]
-                      ? `url(${thumbnails[1].thumbnailLink})`
-                      : undefined,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              )}
-              {/* Main/Front card */}
-              <div className="absolute inset-0 bg-white rounded-xl shadow-lg overflow-hidden group-hover:shadow-xl group-hover:scale-[1.02] transition-all duration-300">
-                {thumbnails.length > 0 ? (
-                  <img
-                    src={thumbnails[0].thumbnailLink}
-                    alt={folder.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback to main image URL if thumbnail fails to load
-                      if (thumbnails[0].url && e.target.src !== thumbnails[0].url) {
-                        e.target.src = thumbnails[0].url;
-                      }
+            {/* Card Container */}
+            <motion.div
+              className="relative bg-[var(--color-bg-primary)] border border-[var(--color-text-primary)]/10 hover:border-[var(--color-accent-coral)] transition-all duration-500 overflow-hidden"
+              whileHover={{ y: -8 }}
+            >
+              {/* Image Container */}
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {/* Stacked thumbnails background effect */}
+                {thumbnails.length >= 3 && (
+                  <div
+                    className="absolute inset-2 bg-[var(--color-bg-secondary)] rounded transform -rotate-2 group-hover:-rotate-4 transition-transform duration-500 opacity-60"
+                    style={{
+                      backgroundImage: thumbnails[2]
+                        ? `url(${thumbnails[2].thumbnailLink})`
+                        : undefined,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#1A237E]/10 to-[#3949AB]/20 flex items-center justify-center">
-                    <FaImages className="text-5xl text-[#1A237E]/30" />
-                  </div>
                 )}
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              {/* Image count badge */}
-              <div className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 shadow-md flex items-center gap-1.5 z-10">
-                <FaImages className="w-3 h-3 text-[#1A237E]" />
-                <span className="text-sm font-semibold text-gray-700">
-                  {folder.imageCount || 0}
-                </span>
-              </div>
-            </div>
+                {thumbnails.length >= 2 && (
+                  <div
+                    className="absolute inset-1 bg-[var(--color-bg-secondary)] rounded transform rotate-1 group-hover:rotate-3 transition-transform duration-500 opacity-80"
+                    style={{
+                      backgroundImage: thumbnails[1]
+                        ? `url(${thumbnails[1].thumbnailLink})`
+                        : undefined,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                )}
+                
+                {/* Main Image */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {thumbnails.length > 0 ? (
+                    <img
+                      src={thumbnails[0].thumbnailLink}
+                      alt={folder.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        if (thumbnails[0].url && e.target.src !== thumbnails[0].url) {
+                          e.target.src = thumbnails[0].url;
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent-coral)]/10 to-[var(--color-accent-cyan)]/10 flex items-center justify-center">
+                      <FaImages className="text-6xl text-[var(--color-text-primary)]/20" />
+                    </div>
+                  )}
+                </div>
 
-            {/* Folder Name */}
-            <div className="text-center px-2">
-              <h3 className="font-semibold text-gray-900 text-lg group-hover:text-[#1A237E] transition-colors duration-300 line-clamp-2">
-                {folder.name}
-              </h3>
-            </div>
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                {/* Image Count Badge */}
+                <div className="absolute top-4 right-4 bg-[var(--color-accent-coral)] rounded-full px-3 py-1.5 flex items-center gap-2 shadow-lg">
+                  <FaImages className="w-3.5 h-3.5 text-white" />
+                  <span className="text-sm font-display font-bold text-white tracking-wide">
+                    {folder.imageCount || 0}
+                  </span>
+                </div>
+
+                {/* Folder Title Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="font-display text-2xl text-white mb-1 group-hover:text-[var(--color-accent-coral)] transition-colors duration-300 line-clamp-2">
+                    {folder.name.toUpperCase()}
+                  </h3>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-wider">
+                      VIEW GALLERY
+                    </span>
+                    <span className="text-[var(--color-accent-coral)]">→</span>
+                  </div>
+                </div>
+
+                {/* Corner Accent */}
+                <div 
+                  className="absolute -bottom-4 -right-4 w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ 
+                    background: 'linear-gradient(135deg, transparent 50%, rgba(255,107,107,0.2) 50%)' 
+                  }}
+                />
+              </div>
+            </motion.div>
           </motion.div>
         );
       })}

@@ -2,21 +2,20 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  FaUsers,
-  FaHandshake,
-  FaHeart,
   FaGraduationCap,
-  FaHistory,
   FaArrowRight,
 } from "react-icons/fa";
-import { HiSparkles, HiLightBulb, HiEye } from "react-icons/hi";
 import PageLayout from "../components/shared/PageLayout";
+import { KineticText, MarqueeText } from "../components/artistic";
 
-// Committee members
+// Committee members - Office Bearers
 const committeeMembers = [
-  { name: "Shyam", role: "President", batch: "11th Batch" },
-  { name: "Avinash Nazeer", role: "Secretary", batch: "11th Batch" },
-  { name: "Manu J", role: "Treasurer", batch: "3rd Batch" },
+  { name: "Gowtham Krishna", role: "President", batch: "Batch 10" },
+  { name: "Ashin Amanulla", role: "Secretary", batch: "Batch 5" },
+  { name: "Abhinand B", role: "Vice President", batch: "Batch 17" },
+  { name: "Apsima I V", role: "Joint Secretary", batch: "Batch 9" },
+  { name: "Sanjay J S", role: "Joint Treasurer", batch: "Batch 6" },
+  { name: "Abhyuday", role: "Treasurer", batch: "Batch 17" },
 ];
 
 // Timeline milestones
@@ -31,72 +30,103 @@ const milestones = [
 const AboutPage = () => {
   return (
     <PageLayout showPopup={false}>
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB]" />
-        
-        {/* Decorative circles */}
-        <div className="absolute inset-0 opacity-10 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 border-2 border-white rounded-full" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 border-2 border-white rounded-full" />
+      {/* ============================================
+          HERO SECTION
+          ============================================ */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-[var(--color-bg-primary)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute top-[20%] right-[5%] w-96 h-96 rounded-full border border-[var(--color-accent-coral)]/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute bottom-[10%] left-[10%] w-64 h-64 rounded-full bg-[var(--color-accent-cyan)]/10 blur-3xl"
+          />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-              <FaHistory className="text-[#D4AF37]" />
-              <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+        <div className="container-asymmetric relative z-10 py-32">
+          <div className="max-w-4xl">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-3 mb-8"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+              <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
                 Our Story
               </span>
+            </motion.div>
+
+            {/* Main Headline */}
+            <div className="space-y-2 mb-8">
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.3}
+                className="font-display text-display text-[var(--color-text-primary)] leading-[0.9]"
+              >
+                ABOUT
+              </KineticText>
+              <KineticText
+                as="h1"
+                variant="words"
+                delay={0.5}
+                className="font-display text-display text-gradient-sunset leading-[0.9]"
+              >
+                JNVTAA
+              </KineticText>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-              About JNVTAA
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
-              The Jawahar Navodaya Vidyalaya Trivandrum Alumni Association - connecting 
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl leading-relaxed"
+            >
+              The Jawahar Navodaya Vidyalaya Trivandrum Alumni Association — connecting 
               generations of Navodayans through shared values and lasting bonds.
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
         </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section className="py-20 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-8">
+      {/* ============================================
+          MISSION & VISION SECTION
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-secondary)]">
+        <div className="container-asymmetric">
+          <div className="grid lg:grid-cols-2 gap-12">
             {/* Mission */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-2xl"
+              className="card-brutal p-10"
             >
-              <div className="w-14 h-14 rounded-xl bg-[#1A237E] flex items-center justify-center mb-6">
-                <HiLightBulb className="text-2xl text-white" />
-              </div>
-              <h2 className="font-heading text-2xl font-bold text-[#1A237E] mb-4">
-                Our Mission
+              <span className="text-[var(--color-accent-coral)] font-display text-7xl block mb-6">01</span>
+              <h2 className="font-display text-3xl text-[var(--color-text-primary)] mb-6">
+                OUR MISSION
               </h2>
-              <p className="text-[#4B5563] leading-relaxed mb-4">
+              <p className="text-[var(--color-text-muted)] text-lg leading-relaxed mb-8">
                 To foster a vibrant community of JNV Trivandrum alumni that supports personal 
                 and professional growth, gives back to our alma mater, and celebrates the 
                 Navodayan spirit.
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {[
                   "Connect alumni across batches and geographies",
                   "Support current students and institution",
                   "Organize meaningful events and reunions",
                   "Create networking opportunities",
                 ].map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-[#4B5563]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-2 flex-shrink-0" />
-                    {item}
+                  <li key={idx} className="flex items-start gap-4 text-[var(--color-text-secondary)]">
+                    <span className="w-2 h-2 rounded-full bg-[var(--color-accent-coral)] mt-2 flex-shrink-0" />
+                    <span className="text-base">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -104,30 +134,31 @@ const AboutPage = () => {
 
             {/* Vision */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-2xl"
+              transition={{ delay: 0.2 }}
+              className="card-brutal p-10 lg:mt-16"
             >
-              <div className="w-14 h-14 rounded-xl bg-[#D4AF37] flex items-center justify-center mb-6">
-                <HiEye className="text-2xl text-[#1A237E]" />
-              </div>
-              <h2 className="font-heading text-2xl font-bold text-[#1A237E] mb-4">
-                Our Vision
+              <span className="text-[var(--color-accent-cyan)] font-display text-7xl block mb-6">02</span>
+              <h2 className="font-display text-3xl text-[var(--color-text-primary)] mb-6">
+                OUR VISION
               </h2>
-              <p className="text-[#4B5563] leading-relaxed mb-4">
+              <p className="text-[var(--color-text-muted)] text-lg leading-relaxed mb-8">
                 To be the most connected and impactful alumni association, creating a lasting 
                 legacy of excellence, service, and camaraderie for generations of Navodayans.
               </p>
-              <div className="bg-[#1A237E]/5 rounded-xl p-6">
-                <h4 className="font-semibold text-[#1A237E] mb-2">Core Values</h4>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-[var(--color-bg-primary)] p-6 border border-[var(--color-text-primary)]/20">
+                <h4 className="font-display text-sm tracking-[0.2em] text-[var(--color-accent-gold)] mb-4">
+                  CORE VALUES
+                </h4>
+                <div className="flex flex-wrap gap-3">
                   {["Excellence", "Unity", "Service", "Integrity", "Growth"].map((value) => (
                     <span 
                       key={value}
-                      className="px-3 py-1 rounded-full bg-white text-[#1A237E] text-sm font-medium border border-[#1A237E]/10"
+                      className="px-4 py-2 border border-[var(--color-text-primary)]/30 text-[var(--color-text-primary)] text-sm font-display tracking-wider"
                     >
-                      {value}
+                      {value.toUpperCase()}
                     </span>
                   ))}
                 </div>
@@ -137,53 +168,77 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* History Timeline */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-4">
-              Our Journey
-            </h2>
-            <p className="text-[#4B5563] max-w-2xl mx-auto">
-              Key milestones in the history of JNV Trivandrum and JNVTAA
-            </p>
-          </motion.div>
+      {/* ============================================
+          TIMELINE SECTION
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)] relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 font-display text-[30vw] text-[var(--color-text-primary)]/[0.02] leading-none">
+            25
+          </span>
+        </div>
 
+        <div className="container-asymmetric relative z-10">
+          {/* Section Header */}
+          <div className="max-w-2xl mb-20">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-3 mb-6"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-gold)]" />
+              <span className="text-[var(--color-accent-gold)] font-display text-sm tracking-[0.3em] uppercase">
+                Our Journey
+              </span>
+            </motion.div>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-heading text-[var(--color-text-primary)]"
+            >
+              MILESTONES
+            </motion.h2>
+          </div>
+
+          {/* Timeline */}
           <div className="relative">
-            {/* Timeline line */}
-            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-[#1A237E]/20" />
+            {/* Vertical line */}
+            <div className="hidden lg:block absolute left-24 top-0 bottom-0 w-[2px] bg-[var(--color-text-primary)]/10" />
 
-            <div className="space-y-12">
+            <div className="space-y-16">
               {milestones.map((milestone, index) => (
                 <motion.div
                   key={milestone.year}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className={`flex items-center gap-8 ${
-                    index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                  }`}
+                  className="flex items-start gap-12"
                 >
-                  <div className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
-                    <div className={`glass-panel p-6 rounded-2xl inline-block ${index % 2 === 0 ? "md:ml-auto" : "md:mr-auto"}`}>
-                      <span className="text-[#D4AF37] font-bold text-lg">{milestone.year}</span>
-                      <h3 className="font-heading text-xl font-semibold text-[#1A237E] mt-1 mb-2">
-                        {milestone.title}
-                      </h3>
-                      <p className="text-[#4B5563] text-sm">{milestone.description}</p>
-                    </div>
+                  {/* Year */}
+                  <div className="hidden lg:flex items-center gap-6 min-w-[120px]">
+                    <span className="font-display text-4xl text-[var(--color-accent-coral)]">
+                      {milestone.year}
+                    </span>
+                    <span className="w-4 h-4 rounded-full bg-[var(--color-accent-coral)] border-4 border-[var(--color-bg-primary)] z-10" />
                   </div>
-                  
-                  {/* Center dot */}
-                  <div className="hidden md:flex items-center justify-center w-4 h-4 rounded-full bg-[#1A237E] border-4 border-[#FDF4E6] z-10" />
-                  
-                  <div className="flex-1 hidden md:block" />
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <span className="lg:hidden font-display text-2xl text-[var(--color-accent-coral)] block mb-2">
+                      {milestone.year}
+                    </span>
+                    <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-3">
+                      {milestone.title.toUpperCase()}
+                    </h3>
+                    <p className="text-[var(--color-text-muted)] text-lg leading-relaxed max-w-xl">
+                      {milestone.description}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -191,24 +246,48 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Committee Section */}
-      <section className="py-20 bg-[#FDF4E6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-[#1A237E] mb-4">
-              Our Committee
-            </h2>
-            <p className="text-[#4B5563] max-w-2xl mx-auto">
+      {/* ============================================
+          COMMITTEE SECTION — Dark Theme
+          ============================================ */}
+      <section className="py-32 bg-[var(--color-bg-primary)]">
+        <div className="container-asymmetric">
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto mb-20">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center justify-center gap-3 mb-6"
+            >
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+              <span className="text-[var(--color-accent-coral)] font-display text-sm tracking-[0.3em] uppercase">
+                Leadership
+              </span>
+              <span className="w-12 h-[2px] bg-[var(--color-accent-coral)]" />
+            </motion.div>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-heading text-[var(--color-text-primary)] mb-6"
+            >
+              OUR OFFICE BEARERS
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-[var(--color-text-muted)] text-lg leading-relaxed"
+            >
               Meet the dedicated team working to make JNVTAA thrive
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Committee Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {committeeMembers.map((member, index) => (
               <motion.div
                 key={member.name}
@@ -216,48 +295,24 @@ const AboutPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="glass-panel p-6 rounded-2xl text-center group hover:border-[#1A237E]/30 transition-colors"
+                className="bg-[var(--color-bg-secondary)] p-8 border border-[var(--color-text-primary)]/10 hover:border-[var(--color-accent-coral)] transition-all duration-300 text-center group"
               >
-                <div className="w-20 h-20 rounded-full bg-[#1A237E]/10 mx-auto mb-4 flex items-center justify-center group-hover:bg-[#1A237E] transition-colors">
-                  <FaGraduationCap className="text-3xl text-[#1A237E] group-hover:text-white transition-colors" />
+                <div className="w-24 h-24 rounded-full bg-[var(--color-accent-coral)]/10 border-2 border-[var(--color-accent-coral)]/30 mx-auto mb-6 flex items-center justify-center group-hover:bg-[var(--color-accent-coral)] group-hover:border-[var(--color-accent-coral)] transition-colors">
+                  <FaGraduationCap className="text-4xl text-[var(--color-accent-coral)] group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="font-heading text-lg font-semibold text-[#1A237E]">
-                  {member.name}
+                <h3 className="font-display text-2xl text-[var(--color-text-primary)] mb-2">
+                  {member.name.toUpperCase()}
                 </h3>
-                <p className="text-[#D4AF37] font-medium text-sm">{member.role}</p>
-                <p className="text-[#4B5563] text-xs mt-1">{member.batch}</p>
+                <p className="text-[var(--color-accent-coral)] font-display text-sm tracking-wider mb-2">
+                  {member.role.toUpperCase()}
+                </p>
+                <p className="text-[var(--color-text-muted)] text-sm">{member.batch}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-[#1A237E] via-[#303F9F] to-[#3949AB]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <HiSparkles className="text-4xl text-[#D4AF37] mx-auto mb-6" />
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-4">
-              Join Us at Silver Jubilee 2026
-            </h2>
-            <p className="text-white/80 max-w-2xl mx-auto mb-8">
-              Be part of the grand celebration marking 25 years of excellence. 
-              Reconnect with old friends and create new memories.
-            </p>
-            <Link 
-              to="/register"
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#D4AF37] text-[#1A237E] font-semibold hover:bg-[#E5C048] transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              Register Now
-              <FaArrowRight className="text-sm" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
     </PageLayout>
   );
 };
