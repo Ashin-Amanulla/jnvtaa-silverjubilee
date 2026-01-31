@@ -61,9 +61,9 @@ const pastEvents = [
     type: "Virtual Meet",
   },
   {
-    id: "founders-day-2023",
-    title: "Founders Day Celebration",
-    date: "November 2023",
+    id: "cpr-2026",
+    title: "CPR Program",
+    date: "29 Jan 2026",
     venue: "JNV Campus",
     type: "Celebration",
   },

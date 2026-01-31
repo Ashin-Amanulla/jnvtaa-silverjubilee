@@ -34,6 +34,11 @@ const GALLERY_FOLDERS = [
         name: 'School Old Photos',
         children: [],
     },
+    {
+        path: 'ANWS CPR PROGRAM',
+        name: 'CPR PROGRAM 2026',
+        children: [],
+    },
 ];
 
 /**
